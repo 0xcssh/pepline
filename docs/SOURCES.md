@@ -30,6 +30,15 @@ secondary source is marked as such and is never the only support for a constant.
   → Product rules: always show units **and** ml **and** mg side by side; draw
   the syringe; flag doses that are a tiny fraction of the barrel.
 
+- Onboarding "facts" screen (`OnboardingView.FactsScreen`): the three
+  numbers come only from the FDA alert above (5–20× overdoses; 5 units drawn
+  as 50 on a 1 ml syringe) and U-100 (1 unit = 0.01 ml). No efficacy claim
+  for any compound, ever (guideline 1.4.1; the competitor's "2.4× faster
+  healing on BPC-157" is exactly what we don't do).
+- "One misread mark" screen: 5 mg + 2 ml, 250 mcg = 10 units = 0.1 ml; 15
+  units = 0.15 ml = 375 mcg (+50%) — the calculator's own math
+  (`ReconstitutionTests.testClassicFiveMgTwoMl`).
+
 ## App Review (guidelines read 2026-10-15 on developer.apple.com)
 
 - **1.4.2** "Drug dosage calculators must come from the drug manufacturer, a
@@ -43,6 +52,12 @@ secondary source is marked as such and is never the only support for a constant.
   decisions."
 - **5.1.3(ii)** may not store personal health information in iCloud → on-device
   only (matches our no-account stance; no CloudKit sync of the journal).
+- **5.1.1(v)** an app that lets users create an account must let them delete
+  it in the app; with Sign in with Apple that includes revoking the token
+  through Apple's REST API ("Apps that support Sign in with Apple should use
+  the Sign in with Apple REST API to revoke user tokens" —
+  [Apple, Offering account deletion](https://developer.apple.com/support/offering-account-deletion-in-your-app/))
+  → `server/api/apple/revoke.js` + Settings > Delete my account.
 - **5.2.1** no third-party trademarks without permission → no Ozempic/Wegovy/
   Mounjaro/Zepbound in name, subtitle, keywords or screenshots.
 - How the live competitors pass 1.4.2 (App Store pages, 2026-10-15):

@@ -76,10 +76,13 @@ take with day-one localization (smaller volume, stricter regulation).
    weekly, N-on/N-off); reminders; "vial runs out on …" + reorder reminder.
 4. **Weight** log with chart (HealthKit read optional, later).
 5. **Export** CSV. Data in the app sandbox (no App Group needed — no extensions).
-6. **Monetization**: hard paywall with 7-day trial on yearly, monthly without
-   trial (RepLock lot-1 paywall, reused). Yearly $39.99 / monthly $9.99 (Health
-   & Fitness anchors, see docs/SOSA_2026_STRATEGIES.md). Consider a one-time
-   "calculator only" unlock later (PepCalc's audience).
+6. **Monetization**: hard paywall after the onboarding, 7-day trial on yearly,
+   monthly without trial. **Prices aligned on PeptidePal (decision
+   2026-10-15): yearly $44.99, monthly $14.99**, plus an exit offer
+   `com.awdia.pepline.pro.yearly.offer` at $34.99/yr (−22%, 7-day trial) shown
+   once when the user cancels Apple's payment sheet. All in
+   `scripts/store.json`, created by `scripts/asc_admin.py` (ACTION=setup).
+   Consider a one-time "calculator only" unlock later (PepCalc's audience).
 7. **9 languages** from day one (en, fr, es, de, it, pt-BR, ja, ko, zh-Hans) —
    the leaders are US-only.
 
@@ -107,7 +110,13 @@ Out of scope v1: AI, food/macros, community, Android, web.
 2. `Core/Reconstitution.swift` + tests (pure math), `Core/DoseSchedule.swift`
    (schedule → next doses, vial run-out; not `Protocol`, an ObjC runtime class) + tests. Nothing else until these are green.
 3. Journal + calculator UI, protocols, reminders, weight.
-4. Onboarding of at most 4 screens; paywall on screen 2 of the funnel.
+4. Onboarding close to PeptidePal's (~22 screens, teardown in the local-only
+   `research/competitor-onboarding.md`), but every answer configures the app
+   and every fact shown is sourced; paywall at the end. SOSA: day 0 decides
+   (p17, p57: 82.1% of H&F trial starts on day 0) and a paywall before
+   context "feels jarring" (p67). Rating prompt right after the user's first
+   real result. Optional Sign in with Apple (ties Pro to the Apple ID; account
+   deletion revokes the token through `server/`, a stateless Vercel function).
 5. Localization, listing (12 locales, en-GB/AU/CA keyword variants),
    screenshots generated with the RepLock generator pattern, TestFlight.
 
@@ -139,6 +148,7 @@ copies.
 - `docs/SOURCES.md` — the cited source of every hardcoded constant and App
   Review claim (U-100, graduations, IU, FDA alert, guideline 1.4.2). No new
   constant without a line there.
+- `research/` (gitignored): competitor screenshots and teardowns, local only.
 - `docs/SOSA_2026_STRATEGIES.md` — RevenueCat State of Subscription Apps 2026
   digest with per-category strategy; the PDF is next to it.
 - `.claude/skills/` — the 38 app-marketing skills (ASO audit, keyword

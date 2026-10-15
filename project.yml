@@ -6,6 +6,10 @@ options:
   createIntermediateGroups: true
 
 packages:
+  # 5.10+ is the floor for the purchase APIs used (RepLock).
+  RevenueCat:
+    url: https://github.com/RevenueCat/purchases-ios
+    from: 5.80.0
   # Anonymous product analytics (no ATT, no identifiers).
   TelemetryDeck:
     url: https://github.com/TelemetryDeck/SwiftSDK
@@ -30,7 +34,14 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.awdia.pepline
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    entitlements:
+      path: Pepline/Pepline.entitlements
+      properties:
+        com.apple.developer.applesignin:
+          - Default
     dependencies:
+      - package: RevenueCat
+        product: RevenueCat
       - package: TelemetryDeck
         product: TelemetryDeck
     info:

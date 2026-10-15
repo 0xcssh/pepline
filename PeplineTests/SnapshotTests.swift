@@ -33,4 +33,25 @@ final class SnapshotTests: XCTestCase {
             try XCTUnwrap(image.pngData()).write(to: folder.appendingPathComponent("\(name).png"))
         }
     }
+
+    /// Full screens at iPhone size. Prices are absent in the simulator (no
+    /// StoreKit configuration), which is also how the paywall looks offline.
+    func testRenderScreens() throws {
+        guard let directory = ProcessInfo.processInfo.environment["SNAPSHOT_DIR"] else {
+            throw XCTSkip("SNAPSHOT_DIR not set")
+        }
+        let folder = URL(fileURLWithPath: directory)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let screens: [(String, AnyView)] = [
+            ("screen-paywall", AnyView(PaywallView())),
+            ("screen-exit-offer", AnyView(ExitOfferView())),
+            ("screen-onboarding-welcome", AnyView(OnboardingView().environmentObject(DataStore.shared))),
+        ]
+        for (name, view) in screens {
+            let renderer = ImageRenderer(content: view.frame(width: 393, height: 852))
+            renderer.scale = 2
+            let image = try XCTUnwrap(renderer.uiImage)
+            try XCTUnwrap(image.pngData()).write(to: folder.appendingPathComponent("\(name).png"))
+        }
+    }
 }

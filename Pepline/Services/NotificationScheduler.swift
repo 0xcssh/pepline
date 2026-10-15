@@ -27,12 +27,31 @@ final class NotificationScheduler: NSObject, UNUserNotificationCenterDelegate {
         Task {
             let pending = await center.pendingNotificationRequests().map(\.identifier)
             let wanted = Set(plan.map(\.id))
-            center.removePendingNotificationRequests(withIdentifiers: pending.filter { !wanted.contains($0) })
+            center.removePendingNotificationRequests(withIdentifiers: pending.filter {
+                !wanted.contains($0) && $0 != Self.trialReminderID
+            })
             for reminder in plan where !pending.contains(reminder.id) {
                 try? await center.add(request(for: reminder, in: journal))
             }
         }
     }
+
+    /// Two days before a free trial ends (the paywall's timeline promises it).
+    /// Its ID is outside ReminderPlanner's, so replans leave it alone.
+    func scheduleTrialReminder(trialDays: Int) {
+        let content = UNMutableNotificationContent()
+        content.title = "Pepline"
+        content.body = String(localized: "Your free trial ends in 2 days. Cancel anytime in your App Store settings if Pepline is not for you.")
+        content.sound = .default
+        let delay = TimeInterval(max(trialDays - 2, 1)) * 86_400
+        UNUserNotificationCenter.current().add(UNNotificationRequest(
+            identifier: Self.trialReminderID,
+            content: content,
+            trigger: UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
+        ))
+    }
+
+    static let trialReminderID = "trialEnds"
 
     private func request(for reminder: PlannedReminder, in journal: Journal) -> UNNotificationRequest {
         let content = UNMutableNotificationContent()

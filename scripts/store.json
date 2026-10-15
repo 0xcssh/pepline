@@ -1,0 +1,47 @@
+{
+  "_comment": "Pepline Pro subscriptions. Prices aligned on PeptidePal (2026-10-15 decision): yearly 44.99, monthly 14.99, exit offer 34.99 (-22%). USD base price; Apple's equalizations give the other territories. Descriptions max 55 characters.",
+  "group": {
+    "referenceName": "Pepline Pro",
+    "name": {"en": "Pepline Pro", "fr": "Pepline Pro", "es": "Pepline Pro", "de": "Pepline Pro", "it": "Pepline Pro", "pt-BR": "Pepline Pro", "ja": "Pepline Pro", "ko": "Pepline Pro", "zh-Hans": "Pepline Pro"}
+  },
+  "description": {
+    "en": "Calculator, journal, schedules, reminders, export",
+    "fr": "Calculateur, journal, protocoles, rappels, export",
+    "es": "Calculadora, diario, pautas, recordatorios, exportar",
+    "de": "Rechner, Tagebuch, Pläne, Erinnerungen, Export",
+    "it": "Calcolatore, diario, schemi, promemoria, esportazione",
+    "pt-BR": "Calculadora, diário, protocolos, lembretes, exportar",
+    "ja": "計算・記録・スケジュール・リマインダー・書き出し",
+    "ko": "계산기, 기록, 일정, 알림, 내보내기",
+    "zh-Hans": "计算器、记录、计划、提醒、导出"
+  },
+  "products": [
+    {
+      "productId": "com.awdia.pepline.pro.yearly",
+      "referenceName": "Pepline Pro Yearly",
+      "period": "ONE_YEAR",
+      "usd": "44.99",
+      "freeTrial": "ONE_WEEK",
+      "name": {"en": "Pepline Pro Yearly", "fr": "Pepline Pro annuel", "es": "Pepline Pro anual", "de": "Pepline Pro jährlich", "it": "Pepline Pro annuale", "pt-BR": "Pepline Pro anual", "ja": "Pepline Pro 年額", "ko": "Pepline Pro 연간", "zh-Hans": "Pepline Pro 年度"},
+      "reviewNote": "Yearly plan of Pepline Pro: reconstitution calculator, dose journal, schedules and reminders, weight log, CSV export. 7-day free trial. Pepline converts units for the dose the user's prescriber set; it never recommends a dose."
+    },
+    {
+      "productId": "com.awdia.pepline.pro.monthly",
+      "referenceName": "Pepline Pro Monthly",
+      "period": "ONE_MONTH",
+      "usd": "14.99",
+      "freeTrial": null,
+      "name": {"en": "Pepline Pro Monthly", "fr": "Pepline Pro mensuel", "es": "Pepline Pro mensual", "de": "Pepline Pro monatlich", "it": "Pepline Pro mensile", "pt-BR": "Pepline Pro mensal", "ja": "Pepline Pro 月額", "ko": "Pepline Pro 월간", "zh-Hans": "Pepline Pro 月度"},
+      "reviewNote": "Monthly plan of the same Pepline Pro entitlement as the yearly subscription. No free trial."
+    },
+    {
+      "productId": "com.awdia.pepline.pro.yearly.offer",
+      "referenceName": "Pepline Pro Yearly Offer",
+      "period": "ONE_YEAR",
+      "usd": "34.99",
+      "freeTrial": "ONE_WEEK",
+      "name": {"en": "Pepline Pro Yearly -22%", "fr": "Pepline Pro annuel -22 %", "es": "Pepline Pro anual -22 %", "de": "Pepline Pro jährlich -22 %", "it": "Pepline Pro annuale -22%", "pt-BR": "Pepline Pro anual -22%", "ja": "Pepline Pro 年額 22%オフ", "ko": "Pepline Pro 연간 22% 할인", "zh-Hans": "Pepline Pro 年度 优惠22%"},
+      "reviewNote": "Discounted yearly plan of the same Pepline Pro entitlement, offered once when a user cancels the purchase sheet of the regular yearly plan. 7-day free trial."
+    }
+  ]
+}

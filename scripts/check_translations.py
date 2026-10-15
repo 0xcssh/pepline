@@ -8,6 +8,8 @@ import pathlib
 import re
 import sys
 
+sys.stdout.reconfigure(encoding="utf-8")  # Windows consoles default to cp1252
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 locales = json.loads((ROOT / "scripts" / "locales.json").read_text(encoding="utf-8"))["app"]
 SPECIFIER = re.compile(r"%(?:\d+\$)?(?:lld|ld|d|@|f|\.\d+f)")
@@ -45,7 +47,7 @@ for catalog in catalogs:
 # Interpolations become %@ (the code only interpolates pre-formatted Strings).
 UI_LITERAL = re.compile(
     r'(?:\bText|\bButton|\bLabel|\bToggle|\bPicker|\bTextField|\bSection|\bDatePicker|\bStepper'
-    r'|\.navigationTitle|\.value|\brow)\(\s*"((?:[^"\\]|\\.)*)"'
+    r'|\.navigationTitle|\.alert|\.value|\brow)\(\s*"((?:[^"\\]|\\.)*)"'
     r'|(?:\btitle:|String\(localized:) *"((?:[^"\\]|\\.)*)"'
 )
 INTERPOLATION = re.compile(r"\\\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)")

@@ -40,5 +40,21 @@ enum Analytics {
         case weightLogged = "Weight.logged"
         case exported = "Export.done"                // kind: doses|weight
         case notificationPermission = "Permission.notifications" // result: granted|denied
+
+        // Onboarding funnel: one signal per step shown, then completion.
+        case onboardingStep = "Onboarding.step"      // index (zero-padded), step
+        case onboardingCompleted = "Onboarding.completed" // goals, experience (enum names only)
+        case reviewRequested = "Review.requested"    // where
+
+        // Monetization
+        case paywallShown = "Paywall.shown"          // kind: main|exitOffer
+        case purchaseStarted = "Purchase.started"    // plan
+        case purchaseResult = "Purchase.result"      // plan, result: success|cancelled|failed|noProduct|notEntitled
+        case restoreResult = "Purchase.restore"      // result
+        case exitOfferDismissed = "ExitOffer.dismissed"
+
+        // Account
+        case appleSignIn = "Account.signIn"          // result: success|cancelled|failed
+        case accountDeleted = "Account.deleted"      // result, erasedJournal
     }
 }

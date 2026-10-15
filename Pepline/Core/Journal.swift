@@ -12,6 +12,11 @@ struct Journal: Codable, Equatable {
     var doses: [DoseEntry] = []
     var regimens: [Regimen] = []
     var weights: [WeightEntry] = []
+    /// Drawn as a line on the weight chart; set in onboarding or Settings.
+    /// Optional fields decode as nil from older files: no migration needed.
+    var goalWeightKg: Decimal?
+    /// Syringe the calculator starts with (onboarding answer).
+    var preferredSyringe: SyringeModel?
 
     // MARK: Edits — every entry can be added, edited and deleted.
 

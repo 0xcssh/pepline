@@ -28,6 +28,11 @@ struct WeightView: View {
                             .foregroundStyle(PLColor.navy)
                         PointMark(x: .value("Date", entry.date), y: .value("Weight", value))
                             .foregroundStyle(PLColor.navy)
+                        if let goal = store.journal.goalWeightKg {
+                            RuleMark(y: .value("Goal", NSDecimalNumber(decimal: Fmt.weightValue(goal, in: unit)).doubleValue))
+                                .foregroundStyle(PLColor.navy.opacity(0.4))
+                                .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 4]))
+                        }
                     }
                     .chartYScale(domain: .automatic(includesZero: false))
                     .frame(height: 220)

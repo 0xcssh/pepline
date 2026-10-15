@@ -58,6 +58,11 @@ struct CalculatorView: View {
         .sheet(isPresented: $savingVial) {
             SaveVialSheet(model: model)
         }
+        .onAppear {
+            if model.loadedVialID == nil, model.vialText.isEmpty, let preferred = store.journal.preferredSyringe {
+                model.syringe = preferred
+            }
+        }
         .onChange(of: model.draw != nil) { _, hasResult in
             guard hasResult, let draw = model.draw else { return }
             Analytics.track(.calculatorResult, [
