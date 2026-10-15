@@ -126,6 +126,8 @@ l'abonnement mensuel, code promo, capture de review. Chaque script a un mode
   publiques RevenueCat/TelemetryDeck acceptées, tout le reste en secrets
   GitHub ou dans un dossier local hors dépôt), détails personnels nettoyés des
   docs, et conscience que **l'historique reste visible** une fois publié.
+- Juste après une bascule de visibilité, un `git push` peut répondre 403
+  « Your repository is disabled » : c'est transitoire, relancer le push.
 - Toujours annuler le run déclenché par le push avant de lancer un build à la
   demande : deux runs macOS en parallèle se gênent et doublent la facture.
 - Les workflows Linux (stats, fiche, captures, admin ASC) ne coûtent presque

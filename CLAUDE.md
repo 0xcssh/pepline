@@ -152,6 +152,8 @@ copies.
   RevenueCat app/products/offering, TelemetryDeck app created by API.
 - [x] ASC app record (2026-10-15) → next: subscriptions + grace period by script
 - [x] GitHub secrets copied from RepLock (incl. `ASC_ISSUER_ID`)
-- [ ] Bootstrap + calculator core with tests
+- [x] 2026-10-15 Bootstrap + core with tests: reconstitution, decimal input,
+  schedules, journal, CSV, reminder planner — 72 tests, Core 100% covered
+  (CI gate), translation check in CI. Plan: ~/.claude/plans/mellow-wondering-chipmunk.md
 - [ ] Journal, protocols, reminders, weight
 - [ ] Paywall, onboarding, localization, listing, screenshots, TestFlight
