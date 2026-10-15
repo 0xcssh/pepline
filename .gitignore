@@ -1,0 +1,9 @@
+RepLock.xcodeproj
+Pepline.xcodeproj
+build/
+*.ipa
+*.p12
+*.p8
+*.mobileprovision
+.DS_Store
+__pycache__/
