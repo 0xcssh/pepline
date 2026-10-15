@@ -98,7 +98,7 @@ Out of scope v1: AI, food/macros, community, Android, web.
 | RevenueCat | same project as RepLock (`proj33517486`), app `app5a505ff039`, **public SDK key `appl_dEELKElrptAkKrvAAbPAKwdrnaT`** (ships in the binary by design), entitlement lookup key **`pepline_pro`** (`entlb31718d3df`), offering `pepline` (`ofrng97715eb10e`) with `$rc_annual` → `com.awdia.pepline.pro.yearly`, `$rc_monthly` → `com.awdia.pepline.pro.monthly` |
 | TelemetryDeck | app ID **`CAA9F19C-A911-46FE-B97A-AB0EB9E70748`** (org H&A Ltd, namespace `com.haltd`) |
 | ASC API key | RepLock's `R3CPFXXF92` (account-level) — secrets `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_API_KEY_P8_BASE64` must be copied to this repo's GitHub secrets, plus the signing secrets (`CERT_P12_BASE64`, `CERT_DIST_P12_BASE64`, `CERT_P12_PASSWORD`, variable `APPLE_TEAM_ID`) |
-| Subscriptions in ASC | to create once the app record exists: `com.awdia.pepline.pro.yearly` (1 year, 7-day free trial, $39.99) and `.monthly` (1 month, $9.99), group "Pepline Pro", review screenshot, 16-day grace period — all scriptable with `../replock/scripts/asc_admin.py` patterns |
+| Subscriptions in ASC | group "Pepline Pro" `22481589`: `.yearly` `6823217429` ($44.99, 7-day trial), `.monthly` `6823220365` ($14.99), `.yearly.offer` `6823221387` ($34.99, 7-day trial); 175 territories, 9 locales, 16-day grace period (2026-10-15, `scripts/asc_admin.py`). Still MISSING_METADATA: review screenshot before submission. RevenueCat: offer product `prod2bf1c4f118` in `pepline_pro`, package `exit_offer` in offering `pepline` (RepLock's "Pro" stays the project's current offering; the app matches products across all offerings) |
 
 ## Build plan
 
