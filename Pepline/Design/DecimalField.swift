@@ -33,7 +33,10 @@ struct DecimalField: View {
     }
 
     private func choice(_ value: Decimal) -> some View {
-        Button(Fmt.plain(value)) { text = Fmt.plain(value) }
+        Button(Fmt.plain(value)) {
+            text = Fmt.plain(value)
+            Analytics.track(.ambiguousInputResolved)
+        }
             .buttonStyle(.bordered)
             .font(.footnote.bold())
     }

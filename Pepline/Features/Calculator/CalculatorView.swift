@@ -58,6 +58,14 @@ struct CalculatorView: View {
         .sheet(isPresented: $savingVial) {
             SaveVialSheet(model: model)
         }
+        .onChange(of: model.draw != nil) { _, hasResult in
+            guard hasResult, let draw = model.draw else { return }
+            Analytics.track(.calculatorResult, [
+                "syringe": "(model.syringe.capacityMl)ml-(model.syringe.tickUnits)u",
+                "doseUnit": model.doseUnit.rawValue,
+                "warnings": String(draw.warnings.count),
+            ])
+        }
     }
 }
 
@@ -173,6 +181,7 @@ private struct SaveVialSheet: View {
             journal.save(vial)
             model.load(vial, compound: journal.compound(compoundID), regimenDose: nil)
         }
+        Analytics.track(.vialSaved)
         dismiss()
     }
 }

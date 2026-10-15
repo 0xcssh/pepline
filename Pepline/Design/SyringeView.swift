@@ -38,8 +38,10 @@ struct SyringeView: View {
             let stopperX = barrel.minX + barrel.width * fill
             context.fill(Path(roundedRect: CGRect(x: stopperX, y: barrel.minY + 2, width: 6, height: barrel.height - 4),
                               cornerRadius: 2), with: .color(navy))
+            // Rod drawn outside the barrel only, so nothing crosses the
+            // graduations the user has to read.
             var rod = Path()
-            rod.move(to: CGPoint(x: stopperX + 6, y: barrel.midY))
+            rod.move(to: CGPoint(x: barrel.maxX, y: barrel.midY))
             rod.addLine(to: CGPoint(x: size.width - 4, y: barrel.midY))
             context.stroke(rod, with: .color(navy.opacity(0.5)), lineWidth: 3)
             context.fill(Path(roundedRect: CGRect(x: size.width - 8, y: barrel.minY - 4, width: 8, height: barrel.height + 8),

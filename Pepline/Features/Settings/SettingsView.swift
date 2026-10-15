@@ -38,9 +38,11 @@ struct SettingsView: View {
                     ShareLink(item: exportFile("pepline-doses.csv", CSVExport.doses(store.journal, timeZone: .current))) {
                         Label("Export doses (CSV)", systemImage: "square.and.arrow.up")
                     }
+                    .simultaneousGesture(TapGesture().onEnded { Analytics.track(.exported, ["kind": "doses"]) })
                     ShareLink(item: exportFile("pepline-weight.csv", CSVExport.weights(store.journal, timeZone: .current))) {
                         Label("Export weight (CSV)", systemImage: "square.and.arrow.up")
                     }
+                    .simultaneousGesture(TapGesture().onEnded { Analytics.track(.exported, ["kind": "weight"]) })
                 } header: {
                     Text("Export")
                 }

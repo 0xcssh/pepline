@@ -160,11 +160,17 @@ struct RegimenEditor: View {
                                  schedule: draft.schedule, remindersOn: draft.remindersOn,
                                  reorderLeadDays: draft.reorderOn ? draft.reorderLeadDays : nil))
         }
+        Analytics.track(.regimenSaved, [
+            "pattern": String(describing: draft.kind),
+            "times": String(draft.times.count),
+            "reminders": String(draft.remindersOn),
+            "reorder": String(draft.reorderOn),
+        ])
         if draft.remindersOn || draft.reorderOn {
             Task {
-                if await NotificationScheduler.shared.requestPermission() {
-                    NotificationScheduler.shared.replan(store.journal)
-                }
+                let granted = await NotificationScheduler.shared.requestPermission()
+                Analytics.track(.notificationPermission, ["result": granted ? "granted" : "denied"])
+                if granted { NotificationScheduler.shared.replan(store.journal) }
             }
         }
         dismiss()

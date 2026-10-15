@@ -105,6 +105,7 @@ struct DoseEditor: View {
                     Section {
                         Button("Delete this dose", role: .destructive) {
                             store.update { $0.deleteDose(draft.id) }
+                            Analytics.track(.doseDeleted)
                             dismiss()
                         }
                     }
@@ -132,6 +133,7 @@ struct DoseEditor: View {
                                    site: draft.site, side: draft.site == nil ? nil : draft.side,
                                    notes: draft.notes.trimmingCharacters(in: .whitespacesAndNewlines)))
         }
+        Analytics.track(.doseLogged, ["isNew": String(draft.isNew), "hasSite": String(draft.site != nil)])
         dismiss()
     }
 }
