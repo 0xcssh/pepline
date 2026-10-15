@@ -44,7 +44,7 @@ complaints, each one a requirement for us:
 - What 5-star users ask for: notes field, left/right injection site, cycle
   calendar + dose log next to the calculator, reminders to reorder vials.
 
-PepCalc (one-time $5.99, 4.7★) proves a correct calculator alone sells.
+PepCalc (one-time $9.99 as of 2026-10-15, 4.8★) proves a correct calculator alone sells.
 
 Also watch **Peptide Tracker Log & Reminder** (id 6763939355): 2.6k US
 ratings at 4.92★ — likely the best-liked app in the category; study it.
@@ -136,6 +136,9 @@ copies.
 
 - `docs/LESSONS.md` — the RepLock playbook (pipeline, pure core, ASC-by-API
   pitfalls, App Review rejections, analytics rules, the private/public trick).
+- `docs/SOURCES.md` — the cited source of every hardcoded constant and App
+  Review claim (U-100, graduations, IU, FDA alert, guideline 1.4.2). No new
+  constant without a line there.
 - `docs/SOSA_2026_STRATEGIES.md` — RevenueCat State of Subscription Apps 2026
   digest with per-category strategy; the PDF is next to it.
 - `.claude/skills/` — the 38 app-marketing skills (ASO audit, keyword
