@@ -6,7 +6,7 @@ import Foundation
 /// full-width digits of Japanese/Chinese keyboards.
 enum DecimalInput {
     static func parse(_ text: String, locale: Locale = .current) -> Decimal? {
-        var s = text.applyingTransform(.fullwidthToHalfwidth, reverse: false) ?? text
+        var s = String(String.UnicodeScalarView(text.unicodeScalars.map(halfwidth)))
         s.removeAll { $0.isWhitespace || $0 == "'" || $0 == "\u{2019}" }
         guard !s.isEmpty,
               s.allSatisfy({ $0.isASCII && ($0.isNumber || $0 == "." || $0 == ",") }),
@@ -48,6 +48,12 @@ enum DecimalInput {
         var padded = normalized.hasPrefix(".") ? "0" + normalized : normalized
         if padded.hasSuffix(".") { padded.removeLast() }
         return Decimal(string: padded, locale: Locale(identifier: "en_US_POSIX"))
+    }
+
+    /// Full-width "０．２５" (U+FF01…U+FF5E) → ASCII "0.25".
+    private static func halfwidth(_ scalar: Unicode.Scalar) -> Unicode.Scalar {
+        guard (0xFF01...0xFF5E).contains(scalar.value) else { return scalar }
+        return Unicode.Scalar(scalar.value - 0xFEE0)!
     }
 
     /// "1.000.000" → "1000000"; nil unless every group after the first has
