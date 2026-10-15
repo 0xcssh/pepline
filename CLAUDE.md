@@ -90,7 +90,7 @@ Out of scope v1: AI, food/macros, community, Android, web.
 | Item | Value |
 |---|---|
 | Bundle ID | `com.awdia.pepline` (registered in the portal, id `DNMW4F45LX`) |
-| App Store record | **NOT YET CREATED** — one click in ASC (My Apps → +, name "Pepline", bundle above, SKU `pepline-ios`). Subscriptions/listing scripts need it. |
+| App Store record | app ID **`6823184469`**, name "Pepline: Peptide Calculator", SKU `pepline`, primary locale en-US (created 2026-10-15) |
 | Team ID | `8L8G4P4Z9X` |
 | RevenueCat | same project as RepLock (`proj33517486`), app `app5a505ff039`, **public SDK key `appl_dEELKElrptAkKrvAAbPAKwdrnaT`** (ships in the binary by design), entitlement lookup key **`pepline_pro`** (`entlb31718d3df`), offering `pepline` (`ofrng97715eb10e`) with `$rc_annual` → `com.awdia.pepline.pro.yearly`, `$rc_monthly` → `com.awdia.pepline.pro.monthly` |
 | TelemetryDeck | app ID **`CAA9F19C-A911-46FE-B97A-AB0EB9E70748`** (org H&A Ltd, namespace `com.haltd`) |
@@ -104,8 +104,8 @@ Out of scope v1: AI, food/macros, community, Android, web.
    IDs, entitlement, key), `Services/Analytics.swift` (swap app ID; write a
    new event vocabulary), paywall views, `Localizable.xcstrings` skeleton,
    `scripts/asc_*.py` + listing/screenshot workflows.
-2. `Core/Reconstitution.swift` + tests (pure math), `Core/Protocol.swift`
-   (schedule → next doses) + tests. Nothing else until these are green.
+2. `Core/Reconstitution.swift` + tests (pure math), `Core/DoseSchedule.swift`
+   (schedule → next doses, vial run-out; not `Protocol`, an ObjC runtime class) + tests. Nothing else until these are green.
 3. Journal + calculator UI, protocols, reminders, weight.
 4. Onboarding of at most 4 screens; paywall on screen 2 of the funnel.
 5. Localization, listing (12 locales, en-GB/AU/CA keyword variants),
@@ -147,8 +147,8 @@ copies.
 - [x] 2026-10-15 niche chosen from App Store data + SOSA (see LESSONS.md §3 and
   the review audit above); name "Pepline" (free on the store); bundle ID,
   RevenueCat app/products/offering, TelemetryDeck app created by API.
-- [ ] ASC app record (user, 1 click) → then subscriptions + grace period by script
-- [ ] GitHub secrets copied from RepLock
+- [x] ASC app record (2026-10-15) → next: subscriptions + grace period by script
+- [x] GitHub secrets copied from RepLock (incl. `ASC_ISSUER_ID`)
 - [ ] Bootstrap + calculator core with tests
 - [ ] Journal, protocols, reminders, weight
 - [ ] Paywall, onboarding, localization, listing, screenshots, TestFlight
