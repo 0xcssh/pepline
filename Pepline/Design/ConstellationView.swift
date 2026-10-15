@@ -31,11 +31,16 @@ struct ConstellationView: View {
         // The last 30 doses at most, so the sky stays readable.
         let shown = min(max(count, 1), 30)
         let inset: CGFloat = 24
+        // A path that wanders left to right, one step per dose, so the lines
+        // read as a journey instead of crossing each other.
         var stars: [(CGPoint, CGFloat, Double)] = []
-        for _ in 0..<shown {
-            stars.append((CGPoint(x: inset + random.next() * (size.width - inset * 2),
-                                  y: inset + random.next() * (size.height - inset * 2)),
-                          2.2 + random.next() * 2, random.next() * 6))
+        let step = (size.width - inset * 2) / CGFloat(max(shown - 1, 1))
+        var y = size.height * 0.55
+        for index in 0..<shown {
+            y += (random.next() - 0.5) * size.height * 0.32
+            y = min(max(y, inset), size.height - inset)
+            let x = shown == 1 ? size.width / 2 : inset + step * CGFloat(index) + (random.next() - 0.5) * step * 0.4
+            stars.append((CGPoint(x: x, y: y), 2.2 + random.next() * 2, random.next() * 6))
         }
         var path = Path()
         for (index, star) in stars.enumerated() {
