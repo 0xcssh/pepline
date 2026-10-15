@@ -29,7 +29,7 @@ final class DataStore: ObservableObject {
         }
     }
 
-    static var defaultURL: URL {
+    nonisolated static var defaultURL: URL {
         let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         return directory.appendingPathComponent("journal.json")
     }
