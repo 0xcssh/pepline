@@ -1,0 +1,5 @@
+{
+  "_comment": "Single source of truth for the app's languages. The String Catalog check and the listing/screenshot scripts read this file; nothing else lists languages.",
+  "source": "en",
+  "app": ["fr", "es", "de", "it", "pt-BR", "ja", "ko", "zh-Hans"]
+}

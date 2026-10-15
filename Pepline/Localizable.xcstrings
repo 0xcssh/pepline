@@ -1,7 +1,30 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-
+    "Scheduled dose: %@" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Geplante Dosis: %@" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Dosis programada: %@" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Dose prévue : %@" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Dose programmata: %@" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "予定の投与：%@" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "예정된 투여: %@" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Dose agendada: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "计划剂量：%@" } }
+      }
+    },
+    "Your %@ vial is running low — time to reorder." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Dein %@-Fläschchen geht zur Neige – Zeit zum Nachbestellen." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tu vial de %@ se está acabando: es hora de pedir otro." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Votre flacon de %@ touche à sa fin : pensez à en recommander." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Il flacone di %@ sta per finire: è ora di riordinarlo." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%@のバイアルが残りわずかです。再注文の時期です。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "%@ 바이알이 거의 떨어졌어요. 재주문할 때예요." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Seu frasco de %@ está acabando — hora de pedir outro." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%@ 药瓶快用完了，该重新订购了。" } }
+      }
+    }
   },
   "version" : "1.0"
 }

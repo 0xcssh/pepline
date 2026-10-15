@@ -15,6 +15,13 @@ on:
         default: debugging
 
 jobs:
+  translations:
+    name: Every string in every language
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/check_translations.py
+
   test:
     name: Build & unit test (Simulator)
     runs-on: macos-15
