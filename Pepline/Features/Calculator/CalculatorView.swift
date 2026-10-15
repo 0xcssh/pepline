@@ -61,7 +61,7 @@ struct CalculatorView: View {
         .onChange(of: model.draw != nil) { _, hasResult in
             guard hasResult, let draw = model.draw else { return }
             Analytics.track(.calculatorResult, [
-                "syringe": "(model.syringe.capacityMl)ml-(model.syringe.tickUnits)u",
+                "syringe": "\(model.syringe.capacityMl)ml-\(model.syringe.tickUnits)u",
                 "doseUnit": model.doseUnit.rawValue,
                 "warnings": String(draw.warnings.count),
             ])

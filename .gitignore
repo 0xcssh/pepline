@@ -7,3 +7,8 @@ build/
 *.mobileprovision
 .DS_Store
 __pycache__/
+
+# Competitor research and transfers dropped here by the user: local only
+# (the repo goes public for CI runs).
+wetransfer_*
+research/
