@@ -41,7 +41,8 @@ struct IUConversion: Codable, Hashable {
     /// International Units in one milligram.
     var iuPerMg: Decimal
 
-    /// Somatropin (HGH): WHO standard, 1 mg = 3 IU.
+    /// Somatropin (HGH): 1 mg anhydrous = 3.0 IU (Ph. Eur., USP).
+    /// Source: docs/SOURCES.md § IU conversion.
     static let somatropin = IUConversion(iuPerMg: 3)
 
     var isValid: Bool { iuPerMg > 0 }

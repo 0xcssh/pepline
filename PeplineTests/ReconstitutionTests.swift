@@ -45,13 +45,17 @@ final class ReconstitutionTests: XCTestCase {
     // MARK: Syringes
 
     func testSyringeCapacities() {
-        XCTAssertEqual(Syringe.ml03.capacityMl, d("0.3"))
-        XCTAssertEqual(Syringe.ml03.capacityUnits, 30)
-        XCTAssertEqual(Syringe.ml05.capacityUnits, 50)
-        XCTAssertEqual(Syringe.ml10.capacityUnits, 100)
-        XCTAssertEqual(Syringe.ml03.tickUnits, 1)
-        XCTAssertEqual(Syringe.ml05.tickUnits, 1)
-        XCTAssertEqual(Syringe.ml10.tickUnits, 2)
+        XCTAssertEqual(SyringeModel.ml03.capacityMl, d("0.3"))
+        XCTAssertEqual(SyringeModel.ml03.capacityUnits, 30)
+        XCTAssertEqual(SyringeModel.ml05.capacityUnits, 50)
+        XCTAssertEqual(SyringeModel.ml10.capacityUnits, 100)
+        XCTAssertEqual(SyringeModel.ml03.tickUnits, 1)
+        XCTAssertEqual(SyringeModel.ml05.tickUnits, 1)
+        XCTAssertEqual(SyringeModel.ml10.tickUnits, 1)
+        XCTAssertEqual(SyringeModel.ml10TwoUnit.tickUnits, 2)
+        XCTAssertEqual(SyringeModel.ml03HalfUnit.tickUnits, d("0.5"))
+        XCTAssertEqual(SyringeModel.presets.count, 5)
+        XCTAssertEqual(Set(SyringeModel.presets).count, 5, "no duplicate preset")
     }
 
     // MARK: Concentration
@@ -123,8 +127,10 @@ final class ReconstitutionTests: XCTestCase {
         let fine = try vial.draw(.mcg(250), with: .ml03)
         XCTAssertEqual(fine.units, d("2.5"))
         XCTAssertEqual(fine.nearestMarkUnits, 3)
-        XCTAssertEqual(try vial.draw(.mcg(250), with: .ml10).nearestMarkUnits, 2)
-        XCTAssertEqual(try vial.draw(.mcg(330), with: .ml10).nearestMarkUnits, 4)
+        XCTAssertEqual(try vial.draw(.mcg(250), with: .ml10TwoUnit).nearestMarkUnits, 2)
+        XCTAssertEqual(try vial.draw(.mcg(330), with: .ml10TwoUnit).nearestMarkUnits, 4)
+        // Half-unit barrel: 2.3 units → 2.5.
+        XCTAssertEqual(try vial.draw(.mcg(230), with: .ml03HalfUnit).nearestMarkUnits, d("2.5"))
     }
 
     func testOverCapacityNeedsSeveralDraws() throws {
@@ -138,10 +144,25 @@ final class ReconstitutionTests: XCTestCase {
     func testBelowSmallestMark() throws {
         // 10 mg + 1 ml, 50 mcg → 0.5 unit.
         let vial = try Reconstitution(vial: .mg(10), waterMl: 1)
-        XCTAssertEqual(try vial.draw(.mcg(50), with: .ml05).warnings, [.belowSmallestMark])
+        XCTAssertEqual(try vial.draw(.mcg(50), with: .ml05).warnings, [.belowSmallestMark, .smallFractionOfBarrel])
+        // 0.5 unit is measurable on a half-unit barrel.
+        XCTAssertFalse(try vial.draw(.mcg(50), with: .ml03HalfUnit).warnings.contains(.belowSmallestMark))
         // 1.5 units: fine on a 1-unit barrel, below the 2-unit mark.
-        XCTAssertEqual(try vial.draw(.mcg(150), with: .ml05).warnings, [])
-        XCTAssertEqual(try vial.draw(.mcg(150), with: .ml10).warnings, [.belowSmallestMark])
+        XCTAssertFalse(try vial.draw(.mcg(150), with: .ml05).warnings.contains(.belowSmallestMark))
+        XCTAssertTrue(try vial.draw(.mcg(150), with: .ml10TwoUnit).warnings.contains(.belowSmallestMark))
+    }
+
+    func testSmallFractionOfBarrel() throws {
+        // The FDA 2024 case: 5 units (0.05 ml) on a 1 ml syringe was drawn as 50.
+        let vial = try Reconstitution(vial: .mg(5), waterMl: 2)
+        let draw = try vial.draw(.mcg(125), with: .ml10)
+        XCTAssertEqual(draw.units, 5)
+        XCTAssertEqual(draw.volumeMl, d("0.05"))
+        XCTAssertEqual(draw.warnings, [.smallFractionOfBarrel])
+        // Same dose on a 0.3 ml barrel: 5 of 30 units, no warning.
+        XCTAssertEqual(try vial.draw(.mcg(125), with: .ml03).warnings, [])
+        // Exactly a tenth is not "under a tenth".
+        XCTAssertEqual(try vial.draw(.mcg(250), with: .ml10).warnings, [])
     }
 
     func testDoseLargerThanVial() throws {
@@ -161,5 +182,16 @@ final class ReconstitutionTests: XCTestCase {
         let vial = try Reconstitution(vial: .mg(d("7.5")), waterMl: d("1.5"))
         let data = try JSONEncoder().encode(vial)
         XCTAssertEqual(try JSONDecoder().decode(Reconstitution.self, from: data), vial)
+        let syringe = try JSONEncoder().encode(SyringeModel.ml03HalfUnit)
+        XCTAssertEqual(try JSONDecoder().decode(SyringeModel.self, from: syringe), .ml03HalfUnit)
+    }
+
+    func testCorruptFileIsRejectedOnDecode() {
+        let zeroWater = #"{"vial":{"mcg":5000},"waterMl":0}"#.data(using: .utf8)!
+        XCTAssertThrowsError(try JSONDecoder().decode(Reconstitution.self, from: zeroWater)) {
+            XCTAssertEqual($0 as? ReconstitutionError, .waterNotPositive)
+        }
+        let negativeVial = #"{"vial":{"mcg":-1},"waterMl":2}"#.data(using: .utf8)!
+        XCTAssertThrowsError(try JSONDecoder().decode(Reconstitution.self, from: negativeVial))
     }
 }
