@@ -40,6 +40,9 @@ jobs:
         run: xcodegen generate
 
       - name: Run unit tests
+        env:
+          # Forwarded to the test process as SNAPSHOT_DIR (SnapshotTests).
+          TEST_RUNNER_SNAPSHOT_DIR: ${{ github.workspace }}/build/snapshots
         run: |
           set -o pipefail
           # Runner images change simulator lineups; pick the first available iPhone.
@@ -56,6 +59,14 @@ jobs:
         run: |
           xcrun xccov view --report --json build/Tests.xcresult > build/coverage.json
           python3 scripts/check_core_coverage.py build/coverage.json
+
+      - name: Upload rendered snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshots
+          path: build/snapshots
+          if-no-files-found: ignore
 
   device-build:
     name: Signed device build (IPA)

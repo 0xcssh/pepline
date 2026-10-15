@@ -41,6 +41,23 @@ for catalog in catalogs:
                 elif "variations" not in localizations[locale] and sorted(SPECIFIER.findall(unit["value"])) != expected:
                     problems.append(f"{catalog.name}: {key!r} {locale} format specifiers differ")
 
+# Every user-facing literal in the Swift sources must be a catalog key.
+# Interpolations become %@ (the code only interpolates pre-formatted Strings).
+UI_LITERAL = re.compile(
+    r'(?:\bText|\bButton|\bLabel|\bToggle|\bPicker|\bTextField|\bSection|\bDatePicker|\bStepper'
+    r'|\.navigationTitle|\.value|\brow)\(\s*"((?:[^"\\]|\\.)*)"'
+    r'|(?:\btitle:|String\(localized:) *"((?:[^"\\]|\\.)*)"'
+)
+INTERPOLATION = re.compile(r"\\\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)")
+keys = {key for catalog in catalogs
+        for key in json.loads(catalog.read_text(encoding="utf-8"))["strings"]}
+for source in sorted(ROOT.glob("Pepline/**/*.swift")):
+    for match in UI_LITERAL.finditer(source.read_text(encoding="utf-8")):
+        literal = match.group(1) if match.group(1) is not None else match.group(2)
+        key = INTERPOLATION.sub("%@", literal).replace('\\"', '"')
+        if key and key not in keys:
+            problems.append(f"{source.name}: {key!r} is not in the String Catalog")
+
 print(f"{len(catalogs)} catalog(s), {len(locales)} languages checked")
 if problems:
     print("\n".join(problems))

@@ -60,3 +60,11 @@ secondary source is marked as such and is never the only support for a constant.
 - EU summer time starts the last Sunday of March and ends the last Sunday of
   October (Directive 2000/84/EC) → 2026-03-29 and 2026-10-25 in the tests.
   — [EUR-Lex](https://eur-lex.europa.eu/eli/dir/2000/84/oj/eng) (Art. 2–3: 01:00 GMT, last Sunday of March / October)
+
+## Weight (`Fmt.weight`, `Fmt.kilograms`)
+
+- Stored in kg; converted for display with Foundation's `UnitMass.pounds`
+  (no constant in our code). The international avoirdupois pound is exactly
+  0.45359237 kg since the 1959 international yard and pound agreement —
+  [Wikipedia, International yard and pound](https://en.wikipedia.org/wiki/International_yard_and_pound)
+  (secondary; NIST SP 811 Appendix B lists 4.535 924 E-01).

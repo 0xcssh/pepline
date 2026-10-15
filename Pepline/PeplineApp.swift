@@ -11,12 +11,11 @@ struct PeplineApp: App {
 
     var body: some Scene {
         WindowGroup {
-            // Placeholder until the calculator UI lands (build plan step 3).
-            Text(verbatim: "Pepline")
-                .plNumeral(size: 44)
-                .foregroundStyle(PLColor.navy)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(PLColor.background)
+            RootView()
+                .environmentObject(DataStore.shared)
+                .tint(PLColor.navy)
+                // Light-only in v1, like RepLock: the navy palette is not
+                // designed for dark mode yet.
                 .preferredColorScheme(.light)
         }
         .onChange(of: scenePhase) {
