@@ -46,6 +46,25 @@ complaints, each one a requirement for us:
 
 PepCalc (one-time $5.99, 4.7★) proves a correct calculator alone sells.
 
+Also watch **Peptide Tracker Log & Reminder** (id 6763939355): 2.6k US
+ratings at 4.92★ — likely the best-liked app in the category; study it.
+
+Ratings by storefront (iTunes Search API, 2026-10-15):
+
+| App (id) | US | CA | GB | DE | FR |
+|---|---|---|---|---|---|
+| PeptidePal (6762102880) | 4712 | 446 | 372 | 12 | 1 |
+| Pep AI (6758682710) | 3881 | 118 | 109 | 23 | 6 |
+| Peptide Tracker Log & Reminder (6763939355) | 2572 | 183 | 93 | – | – |
+| PepCalc (1524577846) | 951 | 41 | 21 | 4 | 0 |
+| PepFlow (6740525224) | 424 | 45 | 16 | 22 | 7 |
+| Milligram (6759593151) | 368 | – | 203 | 5 | – |
+
+The market is overwhelmingly US. Continental Europe has no leader: the most
+rated app in FR has 7 ratings (PepFlow, the only one localized). Revenue is
+won in the US against PeptidePal/Pep AI; non-English storefronts are ours to
+take with day-one localization (smaller volume, stricter regulation).
+
 ## v1 scope
 
 1. **Calculator**: vial mg, bacteriostatic water ml, desired dose (mcg or mg),
