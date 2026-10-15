@@ -120,6 +120,18 @@ translations with every new string, in the same commit); navy structure +
 orange→pink gradient for reward moments only; SF Symbols, no emoji; never ship
 hand-drawn artwork blind.
 
+**Nothing language-specific is hardcoded.** Every user-facing string goes
+through `Localizable.xcstrings` (no literal text in views, alerts,
+notifications or exports); the supported-language list lives only in the
+project/catalog, never in a Swift array or `if locale == "fr"` branch (read it
+from `Bundle.main.localizations` when needed). Numbers, decimals, units, dates
+and currencies are parsed and formatted with the user's `Locale`
+(`FormatStyle`, `Decimal` parsing that accepts "0,25" as well as "0.25") —
+broken decimal input is a top competitor complaint. Prices come from
+StoreKit/RevenueCat localized strings, never typed in. Scripts (listing,
+screenshots) derive their locale list from one config file, not per-script
+copies.
+
 ## Knowledge base in this repo
 
 - `docs/LESSONS.md` — the RepLock playbook (pipeline, pure core, ASC-by-API
