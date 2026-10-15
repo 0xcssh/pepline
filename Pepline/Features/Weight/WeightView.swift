@@ -25,12 +25,12 @@ struct WeightView: View {
                     Chart(series) { entry in
                         let value = NSDecimalNumber(decimal: Fmt.weightValue(entry.kilograms, in: unit)).doubleValue
                         LineMark(x: .value("Date", entry.date), y: .value("Weight", value))
-                            .foregroundStyle(PLColor.navy)
+                            .foregroundStyle(PLColor.text)
                         PointMark(x: .value("Date", entry.date), y: .value("Weight", value))
-                            .foregroundStyle(PLColor.navy)
+                            .foregroundStyle(PLColor.text)
                         if let goal = store.journal.goalWeightKg {
                             RuleMark(y: .value("Goal", NSDecimalNumber(decimal: Fmt.weightValue(goal, in: unit)).doubleValue))
-                                .foregroundStyle(PLColor.navy.opacity(0.4))
+                                .foregroundStyle(PLColor.accent.opacity(0.4))
                                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 4]))
                         }
                     }
@@ -57,6 +57,7 @@ struct WeightView: View {
                 }
             }
         }
+        .plScreen()
         .navigationTitle("Weight")
         .toolbar {
             Button { editing = WeightEditor.Draft() } label: { Image(systemName: "plus") }
@@ -97,6 +98,7 @@ struct WeightEditor: View {
                 DecimalField(title: "Weight", text: $draft.valueText, unit: unit.symbol)
                 DatePicker("Date", selection: $draft.date, displayedComponents: .date)
             }
+            .plScreen()
             .navigationTitle(draft.isNew ? Text("Log weight") : Text("Edit weight"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

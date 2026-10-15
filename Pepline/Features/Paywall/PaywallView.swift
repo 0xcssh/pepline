@@ -16,10 +16,10 @@ struct PaywallView: View {
             VStack(alignment: .leading, spacing: 22) {
                 Text(verbatim: "Pepline Pro")
                     .font(.subheadline.bold())
-                    .foregroundStyle(PLColor.navy.opacity(0.7))
+                    .foregroundStyle(PLColor.accent.opacity(0.7))
                 Text("Everything to get every dose right.")
                     .font(.largeTitle.bold())
-                    .foregroundStyle(PLColor.navy)
+                    .foregroundStyle(PLColor.text)
 
                 SyringeView(syringe: .ml10, units: 10)
                     .padding(.vertical, 4)
@@ -42,7 +42,7 @@ struct PaywallView: View {
 
                 Button(action: purchaseTapped) {
                     if purchasing {
-                        ProgressView().tint(.white)
+                        ProgressView().tint(PLColor.onAccent)
                     } else {
                         Text(ctaTitle)
                     }
@@ -54,7 +54,7 @@ struct PaywallView: View {
             }
             .padding(20)
         }
-        .background(PLColor.background.ignoresSafeArea())
+        .background(PLBackground())
         .task {
             Analytics.track(.paywallShown, ["kind": "main"])
             if !subs.hasProduct(.yearly) { await subs.refresh() }
@@ -78,10 +78,10 @@ struct PaywallView: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: symbol)
                 .font(.title3)
-                .foregroundStyle(PLColor.navy)
+                .foregroundStyle(PLColor.text)
                 .frame(width: 30)
             VStack(alignment: .leading, spacing: 2) {
-                title.font(.headline).foregroundStyle(PLColor.navy)
+                title.font(.headline).foregroundStyle(PLColor.text)
                 detail.font(.subheadline).foregroundStyle(.secondary)
             }
         }
@@ -100,7 +100,7 @@ struct PaywallView: View {
                     if let price = subs.price(plan) {
                         (plan == .yearly ? Text("\(price) / year") : Text("\(price) / month"))
                             .font(.title3.bold())
-                            .foregroundStyle(PLColor.navy)
+                            .foregroundStyle(PLColor.text)
                     }
                     if plan == .yearly {
                         if let days = subs.trialDays(.yearly), let perMonth = subs.perMonth(.yearly) {
@@ -114,12 +114,12 @@ struct PaywallView: View {
                 Spacer()
                 Image(systemName: selected ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
-                    .foregroundStyle(selected ? PLColor.navy : Color.secondary.opacity(0.4))
+                    .foregroundStyle(selected ? PLColor.accent : Color.secondary.opacity(0.4))
             }
             .padding(16)
-            .background(Color.white, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .background(PLColor.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .strokeBorder(selected ? PLColor.navy : Color.clear, lineWidth: 2))
+                .strokeBorder(selected ? PLColor.accent : Color.clear, lineWidth: 2))
         }
         .buttonStyle(.plain)
     }
@@ -161,14 +161,14 @@ struct TrialTimeline: View {
                      ?? Text("Your subscription starts unless you cancel before."))
         }
         .padding(16)
-        .background(Color.white, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(PLColor.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     private func step(_ symbol: String, _ title: Text, _ detail: Text) -> some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: symbol).foregroundStyle(PLColor.navy).frame(width: 24)
+            Image(systemName: symbol).foregroundStyle(PLColor.text).frame(width: 24)
             VStack(alignment: .leading, spacing: 2) {
-                title.font(.subheadline.bold()).foregroundStyle(PLColor.navy)
+                title.font(.subheadline.bold()).foregroundStyle(PLColor.text)
                 detail.font(.footnote).foregroundStyle(.secondary)
             }
         }
@@ -208,7 +208,7 @@ struct PaywallFooter: View {
                 Link(destination: Self.termsURL) { Text("Terms") }
             }
             .font(.footnote)
-            .foregroundStyle(PLColor.navy)
+            .foregroundStyle(PLColor.text)
         }
         .frame(maxWidth: .infinity)
     }

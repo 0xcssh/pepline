@@ -23,17 +23,17 @@ struct PeplineApp: App {
                 } else if !subscription.entitlementChecked {
                     // Cold start before the entitlement is read: a blank
                     // screen instead of flashing the paywall at a subscriber.
-                    PLColor.background.ignoresSafeArea()
+                    PLBackground()
                 } else {
                     // Hard paywall; the 7-day free trial is the way in.
                     PaywallView()
                 }
             }
             .environmentObject(DataStore.shared)
-            .tint(PLColor.navy)
-            // Light-only in v1, like RepLock: the navy palette is not
-            // designed for dark mode yet.
-            .preferredColorScheme(.light)
+            .tint(PLColor.accent)
+            // V2 design: rounded type everywhere; colors follow the system's
+            // light or dark setting (Design/Theme.swift).
+            .fontDesign(.rounded)
             .task { await AppleAccount.shared.checkCredentialState() }
         }
         .onChange(of: scenePhase) {

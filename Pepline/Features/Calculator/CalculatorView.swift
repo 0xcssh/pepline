@@ -49,6 +49,7 @@ struct CalculatorView: View {
                 DisclaimerText()
             }
         }
+        .plScreen()
         .navigationTitle("Calculator")
         .toolbar {
             if model.loadedVialID != nil || !model.vialText.isEmpty {
@@ -106,7 +107,7 @@ private struct SavedVialsSection: View {
                                     journal.save(archived)
                                 }
                             }
-                            .tint(PLColor.navy)
+                            .tint(PLColor.accent)
                         }
                 }
             }
@@ -130,7 +131,7 @@ private struct SavedVialsSection: View {
             HStack {
                 Text(verbatim: compound?.name ?? "—").font(.headline)
                 if model.loadedVialID == vial.id {
-                    Image(systemName: "checkmark.circle.fill").foregroundStyle(PLColor.navy)
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(PLColor.text)
                 }
             }
             Text(verbatim: mixed).font(.subheadline).foregroundStyle(.secondary)
@@ -160,6 +161,7 @@ private struct SaveVialSheet: View {
                 CompoundField(choice: $choice)
                 DatePicker("Mixed on", selection: $mixedAt, displayedComponents: .date)
             }
+            .plScreen()
             .navigationTitle("Save vial")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

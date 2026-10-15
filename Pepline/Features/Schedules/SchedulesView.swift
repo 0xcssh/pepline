@@ -24,6 +24,7 @@ struct SchedulesView: View {
                 DisclaimerText()
             }
         }
+        .plScreen()
         .navigationTitle("Schedules")
         .toolbar {
             Button { editing = RegimenEditor.Draft() } label: { Image(systemName: "plus") }
@@ -61,7 +62,7 @@ struct SchedulesView: View {
                 Label("Log this dose", systemImage: "checkmark.circle")
             }
             .buttonStyle(.bordered)
-            .tint(PLColor.navy)
+            .tint(PLColor.accent)
             .padding(.top, 4)
         }
         .padding(.vertical, 4)

@@ -3,7 +3,6 @@ import SwiftUI
 /// Progress bar + back chevron, on every screen.
 struct OnboardingChrome: View {
     @ObservedObject var model: OnboardingModel
-    var onDark = false
 
     var body: some View {
         HStack(spacing: 14) {
@@ -18,15 +17,15 @@ struct OnboardingChrome: View {
 
             GeometryReader { proxy in
                 ZStack(alignment: .leading) {
-                    Capsule().fill((onDark ? Color.white : PLColor.navy).opacity(0.15))
-                    Capsule().fill(onDark ? Color.white : PLColor.navy)
+                    Capsule().fill(PLColor.accent.opacity(0.15))
+                    Capsule().fill(PLColor.accent)
                         .frame(width: proxy.size.width * model.progress)
                 }
             }
             .frame(height: 6)
             .animation(.easeInOut, value: model.progress)
         }
-        .foregroundStyle(onDark ? .white : PLColor.navy)
+        .foregroundStyle(PLColor.text)
         .padding(.horizontal, 20)
         .padding(.top, 8)
     }
@@ -49,7 +48,7 @@ struct QuestionScreen<Content: View>: View {
                 VStack(alignment: .leading, spacing: 16) {
                     title
                         .font(.title.bold())
-                        .foregroundStyle(PLColor.navy)
+                        .foregroundStyle(PLColor.text)
                         .fixedSize(horizontal: false, vertical: true)
                     if let subtitle {
                         subtitle
@@ -74,13 +73,13 @@ struct QuestionScreen<Content: View>: View {
                 if let secondary {
                     Button(action: secondary.action) { secondary.title }
                         .font(.subheadline)
-                        .foregroundStyle(PLColor.navy)
+                        .foregroundStyle(PLColor.text)
                 }
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 12)
         }
-        .background(PLColor.background.ignoresSafeArea())
+        .background(PLBackground())
     }
 }
 
@@ -93,21 +92,21 @@ struct StatementScreen: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            OnboardingChrome(model: model, onDark: true)
+            OnboardingChrome(model: model)
             Spacer()
             Text(verbatim: String(text.prefix(shown)))
                 .font(.system(size: 30, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
+                .foregroundStyle(PLColor.text)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(28)
                 .accessibilityLabel(Text(verbatim: text))
             Spacer()
             Text("Tap to continue")
                 .font(.footnote)
-                .foregroundStyle(.white.opacity(0.6))
+                .foregroundStyle(PLColor.muted)
                 .padding(.bottom, 24)
         }
-        .background(PLColor.navy.ignoresSafeArea())
+        .background(PLBackground())
         .contentShape(Rectangle())
         .onTapGesture { model.advance() }
         .task(id: text) {
@@ -138,10 +137,10 @@ struct ChoiceCard: View {
                     Image(systemName: symbol)
                         .font(.title3)
                         .frame(width: 28)
-                        .foregroundStyle(PLColor.navy)
+                        .foregroundStyle(PLColor.text)
                 }
                 VStack(alignment: .leading, spacing: 2) {
-                    title.font(.headline).foregroundStyle(PLColor.navy)
+                    title.font(.headline).foregroundStyle(PLColor.text)
                     if let detail {
                         detail.font(.subheadline).foregroundStyle(.secondary)
                     }
@@ -149,12 +148,12 @@ struct ChoiceCard: View {
                 Spacer()
                 Image(systemName: selected ? "checkmark.circle.fill" : "circle")
                     .font(.title3)
-                    .foregroundStyle(selected ? PLColor.navy : Color.secondary.opacity(0.35))
+                    .foregroundStyle(selected ? PLColor.accent : Color.secondary.opacity(0.35))
             }
             .padding(16)
-            .background(Color.white, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(selected ? PLColor.navy : .clear, lineWidth: 2))
+            .background(selected ? PLColor.accent.opacity(0.08) : PLColor.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(selected ? PLColor.accent : PLColor.line, lineWidth: selected ? 1.5 : 1))
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(selected ? .isSelected : [])
@@ -169,9 +168,9 @@ struct FeatureLine: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: symbol)
-                .foregroundStyle(PLColor.navy)
+                .foregroundStyle(PLColor.text)
                 .frame(width: 26)
-            text.foregroundStyle(PLColor.navy)
+            text.foregroundStyle(PLColor.text)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }

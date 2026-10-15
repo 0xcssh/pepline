@@ -93,6 +93,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            .plScreen()
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -167,6 +168,7 @@ private struct CompoundEditor: View {
                 Text("Only for compounds dosed in IU. Leave empty otherwise.")
             }
         }
+        .plScreen()
         .navigationTitle(Text(verbatim: compound.name))
         .toolbar {
             Button("Save") {

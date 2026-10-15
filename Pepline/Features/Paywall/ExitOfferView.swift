@@ -27,11 +27,11 @@ struct ExitOfferView: View {
             if let percent = subs.exitOfferPercent {
                 Text("\(percent.formatted(.percent)) off Pepline Pro")
                     .font(.largeTitle.bold())
-                    .foregroundStyle(PLColor.navy)
+                    .foregroundStyle(PLColor.text)
             } else {
                 Text("A better price for Pepline Pro")
                     .font(.largeTitle.bold())
-                    .foregroundStyle(PLColor.navy)
+                    .foregroundStyle(PLColor.text)
             }
             Text("Same app, same features. A lower yearly price, for as long as you stay subscribed.")
                 .foregroundStyle(.secondary)
@@ -45,7 +45,7 @@ struct ExitOfferView: View {
                 if let price = subs.price(.exitOffer) {
                     Text("\(price) / year")
                         .plNumeral(size: 40)
-                        .foregroundStyle(PLColor.navy)
+                        .foregroundStyle(PLColor.text)
                 }
                 if let days = subs.trialDays(.exitOffer) {
                     Text("\(String(days)) days free, then billed yearly.")
@@ -55,7 +55,7 @@ struct ExitOfferView: View {
             }
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.white, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .background(PLColor.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
 
             Spacer(minLength: 0)
 
@@ -67,7 +67,7 @@ struct ExitOfferView: View {
                     if outcome == .success { dismiss() }
                 }
             } label: {
-                if purchasing { ProgressView().tint(.white) } else { Text("Get this offer") }
+                if purchasing { ProgressView().tint(PLColor.onAccent) } else { Text("Get this offer") }
             }
             .buttonStyle(.primaryPill)
             .disabled(purchasing || !subs.hasProduct(.exitOffer))
@@ -75,7 +75,7 @@ struct ExitOfferView: View {
             PaywallFooter(plan: .exitOffer)
         }
         .padding(20)
-        .background(PLColor.background.ignoresSafeArea())
+        .background(PLBackground())
         .task { Analytics.track(.paywallShown, ["kind": "exitOffer"]) }
     }
 }

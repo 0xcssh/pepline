@@ -83,7 +83,7 @@ private struct NameScreen: View {
                 .textContentType(.givenName)
                 .font(.title3)
                 .padding(16)
-                .background(Color.white, in: RoundedRectangle(cornerRadius: 14))
+                .background(PLColor.card, in: RoundedRectangle(cornerRadius: 14))
                 .submitLabel(.continue)
                 .onSubmit(model.advance)
         }
@@ -129,13 +129,13 @@ private struct FactsScreen: View {
         VStack(alignment: .leading, spacing: 14) {
             Text(verbatim: number)
                 .plNumeral(size: 52)
-                .foregroundStyle(PLColor.navy)
-            text.font(.title3).foregroundStyle(PLColor.navy)
+                .foregroundStyle(PLColor.text)
+            text.font(.title3).foregroundStyle(PLColor.text)
             Spacer()
         }
         .padding(22)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white, in: RoundedRectangle(cornerRadius: 22))
+        .background(PLColor.card, in: RoundedRectangle(cornerRadius: 22))
         .padding(.bottom, 36)
     }
 }
@@ -174,8 +174,9 @@ private struct CompoundsScreen: View {
                             .font(.subheadline.bold())
                             .padding(.horizontal, 14)
                             .padding(.vertical, 9)
-                            .background(selected ? PLColor.navy : Color.white, in: Capsule())
-                            .foregroundStyle(selected ? Color.white : PLColor.navy)
+                            .background(selected ? PLColor.accent : PLColor.card, in: Capsule())
+                            .overlay(Capsule().strokeBorder(PLColor.line))
+                            .foregroundStyle(selected ? PLColor.onAccent : PLColor.text)
                     }
                     .buttonStyle(.plain)
                 }
@@ -187,7 +188,7 @@ private struct CompoundsScreen: View {
                 Button("Add", action: add).disabled(other.trimmingCharacters(in: .whitespaces).isEmpty)
             }
             .padding(14)
-            .background(Color.white, in: RoundedRectangle(cornerRadius: 14))
+            .background(PLColor.card, in: RoundedRectangle(cornerRadius: 14))
         }
     }
 
@@ -227,7 +228,7 @@ private struct TroublesEchoScreen: View {
                 FeatureLine(symbol: trouble.symbol, text: trouble.answer)
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.white, in: RoundedRectangle(cornerRadius: 14))
+                    .background(PLColor.card, in: RoundedRectangle(cornerRadius: 14))
             }
         }
     }
@@ -267,7 +268,7 @@ private struct WeightScreen: View {
                 DecimalField(title: "Goal", text: $goalText, unit: unit.symbol)
             }
             .padding(16)
-            .background(Color.white, in: RoundedRectangle(cornerRadius: 16))
+            .background(PLColor.card, in: RoundedRectangle(cornerRadius: 16))
         }
     }
 
@@ -290,7 +291,7 @@ private struct DecimalMistakeScreen: View {
             example(units: 15, label: Text("Misread: 15 units · 0.15 ml · 375 mcg (+50%)"), wrong: true)
             Text("Pepline shows the exact mark for your vial, in units, ml and mcg.")
                 .font(.headline)
-                .foregroundStyle(PLColor.navy)
+                .foregroundStyle(PLColor.text)
         }
     }
 
@@ -305,7 +306,7 @@ private struct DecimalMistakeScreen: View {
             SyringeView(syringe: model.answers.syringe.capacityMl >= 1 ? .ml10 : .ml03, units: units)
         }
         .padding(14)
-        .background(Color.white, in: RoundedRectangle(cornerRadius: 16))
+        .background(PLColor.card, in: RoundedRectangle(cornerRadius: 16))
     }
 }
 
@@ -342,12 +343,12 @@ private struct FirstVialScreen: View {
                 .pickerStyle(.segmented)
             }
             .padding(16)
-            .background(Color.white, in: RoundedRectangle(cornerRadius: 16))
+            .background(PLColor.card, in: RoundedRectangle(cornerRadius: 16))
 
             if let draw = calculator.draw, let reconstitution = calculator.reconstitution, let dose = calculator.dose {
                 ResultCard(draw: draw, syringe: calculator.syringe, reconstitution: reconstitution, dose: dose)
                     .padding(16)
-                    .background(Color.white, in: RoundedRectangle(cornerRadius: 16))
+                    .background(PLColor.card, in: RoundedRectangle(cornerRadius: 16))
                     .task {
                         // Rating prompt right after the first real result: the
                         // user has seen the value (decision 2026-10-15).
@@ -376,15 +377,15 @@ private struct OverviewScreen: View {
 
     private func card(_ symbol: String, _ title: Text, _ detail: Text) -> some View {
         HStack(alignment: .top, spacing: 14) {
-            Image(systemName: symbol).font(.title2).foregroundStyle(PLColor.navy).frame(width: 32)
+            Image(systemName: symbol).font(.title2).foregroundStyle(PLColor.text).frame(width: 32)
             VStack(alignment: .leading, spacing: 2) {
-                title.font(.headline).foregroundStyle(PLColor.navy)
+                title.font(.headline).foregroundStyle(PLColor.text)
                 detail.font(.subheadline).foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
         }
         .padding(16)
-        .background(Color.white, in: RoundedRectangle(cornerRadius: 16))
+        .background(PLColor.card, in: RoundedRectangle(cornerRadius: 16))
     }
 }
 
@@ -408,7 +409,7 @@ private struct RemindersScreen: View {
                     DatePicker("Time", selection: $model.reminderTime, displayedComponents: .hourAndMinute)
                 }
                 .padding(16)
-                .background(Color.white, in: RoundedRectangle(cornerRadius: 16))
+                .background(PLColor.card, in: RoundedRectangle(cornerRadius: 16))
             }
         }
     }
@@ -434,7 +435,7 @@ private struct AccountScreen: View {
             if account.isSignedIn {
                 Label("Signed in with Apple", systemImage: "checkmark.circle.fill")
                     .font(.headline)
-                    .foregroundStyle(PLColor.navy)
+                    .foregroundStyle(PLColor.text)
             } else {
                 SignInWithAppleButton(.continue) { request in
                     request.requestedScopes = [.fullName]
@@ -462,7 +463,7 @@ private struct DisclaimerScreen: View {
                        buttonTitle: Text("I understand")) {
             Text("Pepline converts the dose your prescriber set into units on your syringe. It never recommends a dose, and it does not replace your doctor.")
                 .font(.title3)
-                .foregroundStyle(PLColor.navy)
+                .foregroundStyle(PLColor.text)
         }
     }
 }
@@ -487,7 +488,7 @@ private struct AheadScreen: View {
                 FeatureLine(symbol: "creditcard", text: Text("Day \(String(days)): your subscription starts, unless you cancel."))
             }
             .padding(16)
-            .background(Color.white, in: RoundedRectangle(cornerRadius: 16))
+            .background(PLColor.card, in: RoundedRectangle(cornerRadius: 16))
         }
     }
 }

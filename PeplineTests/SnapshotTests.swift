@@ -23,14 +23,19 @@ final class SnapshotTests: XCTestCase {
         ]
         for (name, reconstitution, dose, syringe) in cases {
             let draw = try reconstitution.draw(dose, with: syringe)
-            let card = ResultCard(draw: draw, syringe: syringe, reconstitution: reconstitution, dose: dose)
-                .padding(20)
-                .frame(width: 390)
-                .background(Color.white)
-            let renderer = ImageRenderer(content: card)
-            renderer.scale = 3
-            let image = try XCTUnwrap(renderer.uiImage)
-            try XCTUnwrap(image.pngData()).write(to: folder.appendingPathComponent("\(name).png"))
+            for scheme in [ColorScheme.dark, .light] {
+                let card = ResultCard(draw: draw, syringe: syringe, reconstitution: reconstitution, dose: dose)
+                    .padding(20)
+                    .frame(width: 390)
+                    .background(PLBackground())
+                    .fontDesign(.rounded)
+                    .environment(\.colorScheme, scheme)
+                let renderer = ImageRenderer(content: card)
+                renderer.scale = 3
+                let image = try XCTUnwrap(renderer.uiImage)
+                let suffix = scheme == .dark ? "dark" : "light"
+                try XCTUnwrap(image.pngData()).write(to: folder.appendingPathComponent("\(name)-\(suffix).png"))
+            }
         }
     }
 
@@ -46,9 +51,12 @@ final class SnapshotTests: XCTestCase {
             ("screen-paywall", AnyView(PaywallView())),
             ("screen-exit-offer", AnyView(ExitOfferView())),
             ("screen-onboarding-welcome", AnyView(OnboardingView().environmentObject(DataStore.shared))),
+            ("screen-dose-logged", AnyView(DoseLoggedView(starCount: 18, summary: "Semaglutide · 0.25 mg", dosesLeft: 15,
+                                                         next: Date(timeIntervalSince1970: 1_800_000_000)) {})),
         ]
         for (name, view) in screens {
-            let renderer = ImageRenderer(content: view.frame(width: 393, height: 852))
+            let renderer = ImageRenderer(content: view.frame(width: 393, height: 852)
+                .fontDesign(.rounded).environment(\.colorScheme, .dark))
             renderer.scale = 2
             let image = try XCTUnwrap(renderer.uiImage)
             try XCTUnwrap(image.pngData()).write(to: folder.appendingPathComponent("\(name).png"))

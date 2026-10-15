@@ -141,6 +141,7 @@ struct RegimenEditor: View {
                     }
                 }
             }
+            .plScreen()
             .navigationTitle(draft.isNew ? Text("New schedule") : Text("Edit schedule"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -193,8 +194,8 @@ private struct WeekdayPicker: View {
                     Text(verbatim: calendar.veryShortWeekdaySymbols[day - 1])
                         .font(.subheadline.bold())
                         .frame(width: 36, height: 36)
-                        .background(isOn ? PLColor.navy : Color.secondary.opacity(0.12), in: Circle())
-                        .foregroundStyle(isOn ? .white : .primary)
+                        .background(isOn ? PLColor.accent : Color.secondary.opacity(0.12), in: Circle())
+                        .foregroundStyle(isOn ? PLColor.onAccent : PLColor.text)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text(verbatim: calendar.weekdaySymbols[day - 1]))

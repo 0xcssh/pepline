@@ -40,6 +40,7 @@ struct JournalView: View {
                 }
             }
         }
+        .plScreen()
         .navigationTitle("Journal")
         .toolbar {
             Button { editing = DoseEditor.Draft() } label: { Image(systemName: "plus") }
