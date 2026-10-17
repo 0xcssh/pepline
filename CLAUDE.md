@@ -94,6 +94,11 @@ take with day-one localization (smaller volume, stricter regulation).
 Out of scope v1: AI dosing advice or chat, community, compound library,
 Android, web.
 
+Later (decision 2026-10-17): a web-to-app quiz funnel (SOSA p26-27: sell
+the problem on the web, discounted first month via Stripe/RevenueCat Web
+Billing, unlock in the app) only once there is a paid-ads budget; check
+Meta/Google health ad policies first. App Store/ASO comes first.
+
 ## Identifiers (already created 2026-10-15 — don't re-derive)
 
 | Item | Value |
