@@ -46,6 +46,11 @@ final class SubscriptionManager: ObservableObject {
 
     @Published private var packages: [Plan: Package] = [:]
 
+    /// Set when the store confirmed a purchase that RevenueCat has not
+    /// validated yet, so a late customer-info update cannot lock the app
+    /// again mid-session. Not persisted: the next launch reads the real state.
+    private var paidThisSession = false
+
     private var customerInfoTask: Task<Void, Never>?
     private var storefrontTask: Task<Void, Never>?
 
@@ -91,6 +96,14 @@ final class SubscriptionManager: ObservableObject {
     func perMonth(_ plan: Plan) -> String? {
         guard let product = product(plan), let formatter = product.priceFormatter else { return nil }
         return formatter.string(from: (product.price / 12) as NSDecimalNumber)
+    }
+
+    /// Percent saved by paying yearly instead of 12 monthly payments.
+    var yearlySavingsPercent: Int? {
+        guard let yearly = product(.yearly), let monthly = product(.monthly), monthly.price > 0 else { return nil }
+        let ratio = (yearly.price / (monthly.price * 12)) as NSDecimalNumber
+        let percent = 100 - Int((ratio.doubleValue * 100).rounded())
+        return percent > 0 ? percent : nil
     }
 
     /// Percent saved by the exit offer against the regular yearly price.
@@ -141,7 +154,7 @@ final class SubscriptionManager: ObservableObject {
 
     private func apply(_ info: CustomerInfo) {
         let entitlement = info.entitlements[Self.entitlementID]
-        isPro = entitlement?.isActive == true
+        isPro = entitlement?.isActive == true || paidThisSession
         willAutoRenew = entitlement?.willRenew ?? true
         expirationDate = entitlement?.expirationDate
         entitlementChecked = true
@@ -162,6 +175,23 @@ final class SubscriptionManager: ObservableObject {
                 return .cancelled
             }
             apply(result.customerInfo)
+            // Apple has charged (or started the trial) but RevenueCat may not
+            // have validated the transaction yet: the paywall then stayed on
+            // screen after paying (TestFlight report 2026-10-17, when the
+            // in-app purchase key was missing). Re-read a few times, then
+            // trust the store's transaction for this session.
+            if !isPro, result.transaction != nil {
+                for attempt in 1...4 {
+                    try? await Task.sleep(nanoseconds: UInt64(attempt) * 700_000_000)
+                    if let info = try? await Purchases.shared.syncPurchases() { apply(info) }
+                    if isPro { break }
+                }
+                if !isPro {
+                    paidThisSession = true
+                    isPro = true
+                    Analytics.track(.purchaseResult, ["plan": plan.rawValue, "result": "unlockedBeforeValidation"])
+                }
+            }
             Analytics.track(.purchaseResult, ["plan": plan.rawValue, "result": isPro ? "success" : "notEntitled"])
             // The paywall promises a reminder before the trial ends: keep it.
             if isPro, let days = trialDays(plan) {

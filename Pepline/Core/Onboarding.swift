@@ -83,7 +83,9 @@ struct CompoundPreset: Equatable {
 enum OnboardingStep: String, CaseIterable {
     case welcome, hello, name, greeting, goals, sameMath, facts, experience, experienceEcho
     case compounds, troubles, troublesEcho, syringe, weight, decimalMistake, firstVial
-    case protocolOverview, reminders, account, disclaimer, ahead
+    /// `building` shows the real setup being written (compounds, syringe,
+    /// reminders) before the personalised summary and the paywall.
+    case protocolOverview, reminders, account, disclaimer, building, ahead
 
     /// The screens for these answers, in order.
     static func steps(for answers: OnboardingAnswers) -> [OnboardingStep] {

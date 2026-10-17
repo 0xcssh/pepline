@@ -21,7 +21,8 @@ final class OnboardingTests: XCTestCase {
         XCTAssertEqual(OnboardingStep.welcome.next(for: answers), .hello)
         XCTAssertNil(OnboardingStep.welcome.previous(for: answers))
         XCTAssertNil(OnboardingStep.ahead.next(for: answers))
-        XCTAssertEqual(OnboardingStep.ahead.previous(for: answers), .disclaimer)
+        XCTAssertEqual(OnboardingStep.ahead.previous(for: answers), .building)
+        XCTAssertEqual(OnboardingStep.building.previous(for: answers), .disclaimer)
         // Without a weight goal the syringe screen goes straight to the decimal one.
         XCTAssertEqual(OnboardingStep.syringe.next(for: answers), .decimalMistake)
         XCTAssertEqual(OnboardingStep.decimalMistake.previous(for: answers), .syringe)
