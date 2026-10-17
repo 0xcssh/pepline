@@ -44,6 +44,7 @@ final class DataStore: ObservableObject {
         journal = copy
         persist()
         NotificationScheduler.shared.replan(journal)
+        WidgetBridge.publish(journal)
     }
 
     private func persist() {

@@ -30,6 +30,7 @@ targets:
     platform: iOS
     sources:
       - Pepline
+      - Shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.awdia.pepline
@@ -41,7 +42,11 @@ targets:
           - Default
         com.apple.developer.healthkit: true
         com.apple.developer.healthkit.access: []
+        # Shared with the widget: only widget.json (the upcoming doses).
+        com.apple.security.application-groups:
+          - group.com.awdia.pepline
     dependencies:
+      - target: PeplineWidget
       - package: RevenueCat
         product: RevenueCat
       - package: TelemetryDeck
@@ -64,6 +69,29 @@ targets:
         UIRequiresFullScreen: true
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+
+  PeplineWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - PeplineWidget
+      - Shared
+      - path: Pepline/Design/Theme.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.awdia.pepline.widget
+    info:
+      path: PeplineWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Pepline
+        CFBundleShortVersionString: "1.0.0"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: PeplineWidget/PeplineWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.awdia.pepline
 
   PeplineTests:
     type: bundle.unit-test

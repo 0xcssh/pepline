@@ -25,7 +25,7 @@ def values(localization):
 
 
 problems = []
-catalogs = sorted(ROOT.glob("Pepline/**/*.xcstrings"))
+catalogs = sorted([*ROOT.glob("Pepline/**/*.xcstrings"), *ROOT.glob("PeplineWidget/**/*.xcstrings")])
 for catalog in catalogs:
     strings = json.loads(catalog.read_text(encoding="utf-8"))["strings"]
     for key, entry in strings.items():
@@ -51,14 +51,17 @@ UI_LITERAL = re.compile(
     r'|(?:\btitle:|String\(localized:) *"((?:[^"\\]|\\.)*)"'
 )
 INTERPOLATION = re.compile(r"\\\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)")
-keys = {key for catalog in catalogs
-        for key in json.loads(catalog.read_text(encoding="utf-8"))["strings"]}
-for source in sorted(ROOT.glob("Pepline/**/*.swift")):
-    for match in UI_LITERAL.finditer(source.read_text(encoding="utf-8")):
-        literal = match.group(1) if match.group(1) is not None else match.group(2)
-        key = INTERPOLATION.sub("%@", literal).replace('\\"', '"')
-        if key and key not in keys:
-            problems.append(f"{source.name}: {key!r} is not in the String Catalog")
+# Each bundle only sees its own catalogs: the widget extension is checked
+# against PeplineWidget's catalog, the app against Pepline's.
+for target in ("Pepline", "PeplineWidget"):
+    keys = {key for catalog in ROOT.glob(f"{target}/**/*.xcstrings")
+            for key in json.loads(catalog.read_text(encoding="utf-8"))["strings"]}
+    for source in sorted(ROOT.glob(f"{target}/**/*.swift")):
+        for match in UI_LITERAL.finditer(source.read_text(encoding="utf-8")):
+            literal = match.group(1) if match.group(1) is not None else match.group(2)
+            key = INTERPOLATION.sub("%@", literal).replace('\\"', '"')
+            if key and key not in keys:
+                problems.append(f"{source.name}: {key!r} is not in the {target} String Catalog")
 
 print(f"{len(catalogs)} catalog(s), {len(locales)} languages checked")
 if problems:

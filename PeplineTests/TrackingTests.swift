@@ -141,6 +141,20 @@ final class TrackingTests: XCTestCase {
         XCTAssertNil(AdherenceSummary().rate)
     }
 
+    func testUpcomingSkipsLoggedAndSkippedDoses() {
+        var journal = Journal()
+        let regimen = dailyRegimen()
+        journal.save(regimen)
+        // Day 4 08:00 is an hour overdue but still within the tolerance.
+        XCTAssertEqual(Adherence.upcoming(in: journal, now: date(4, 9), calendar: calendar, limit: 3).map(\.date),
+                       [date(4), date(5), date(6)])
+        journal.save(dose(4, 9))
+        journal.save(SkippedDose(regimenID: regimen.id, scheduledAt: date(5)))
+        XCTAssertEqual(Adherence.upcoming(in: journal, now: date(4, 10), calendar: calendar, limit: 2).map(\.date),
+                       [date(6), date(7)])
+        XCTAssertTrue(Adherence.upcoming(in: Journal(), now: date(4), calendar: calendar).isEmpty)
+    }
+
     func testOneLoggedDoseAnswersOneScheduledDose() {
         var journal = Journal()
         let twice = Regimen(compoundID: sema.id, dose: DoseAmount(value: 1, unit: .mg),

@@ -12,6 +12,7 @@ struct ProgressTab: View {
     @State private var pickerItem: PhotosPickerItem?
     @State private var takingPhoto = false
     @State private var comparing = false
+    @State private var showingReport = false
 
     private var unit: UnitMass { WeightUnitSetting.unit(unitSetting) }
     private var journal: Journal { store.journal }
@@ -30,9 +31,12 @@ struct ProgressTab: View {
         .background(PLBackground())
         .navigationTitle(Text("Progress"))
         .toolbar {
+            Button { showingReport = true } label: { Image(systemName: "doc.richtext") }
+                .accessibilityLabel(Text("Doctor report"))
             Button { addingWeight = true } label: { Image(systemName: "plus") }
                 .accessibilityLabel(Text("Log weight"))
         }
+        .sheet(isPresented: $showingReport) { DoctorReportSheet() }
         .sheet(isPresented: $addingWeight) { WeightEditor(draft: WeightEditor.Draft(), unit: unit) }
         .sheet(isPresented: $comparing) { PhotoCompareView() }
         .fullScreenCover(isPresented: $takingPhoto) {

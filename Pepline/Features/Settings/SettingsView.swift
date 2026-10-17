@@ -15,6 +15,7 @@ struct SettingsView: View {
     @State private var versionTaps = 0
     @AppStorage("foodScanConsent") private var scanConsent = false
     @State private var previewingPaywall = false
+    @State private var showingReport = false
     @State private var previewingExitOffer = false
     @ObservedObject private var account = AppleAccount.shared
     @State private var confirmingAccountDeletion = false
@@ -50,6 +51,9 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    Button { showingReport = true } label: {
+                        Label("Doctor report (PDF)", systemImage: "doc.richtext")
+                    }
                     ShareLink(item: exportFile("pepline-doses.csv", CSVExport.doses(store.journal, timeZone: .current))) {
                         Label("Export doses (CSV)", systemImage: "square.and.arrow.up")
                     }
@@ -135,6 +139,7 @@ struct SettingsView: View {
             }
             .plScreen()
             .sheet(isPresented: $previewingPaywall) { PaywallView(preview: true) }
+            .sheet(isPresented: $showingReport) { DoctorReportSheet() }
             .sheet(isPresented: $previewingExitOffer) { ExitOfferView() }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)

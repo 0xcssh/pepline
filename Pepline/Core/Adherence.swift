@@ -69,6 +69,15 @@ enum Adherence {
             .sorted { $0.date < $1.date }
     }
 
+    /// The next doses still to take (neither logged nor skipped), starting
+    /// with one due up to `tolerance` ago, for the next-dose widget.
+    static func upcoming(in journal: Journal, now: Date, calendar: Calendar,
+                         horizonDays: Int = 35, limit: Int = 12) -> [ScheduledDose] {
+        let through = calendar.date(byAdding: .day, value: horizonDays, to: now)!
+        let all = doses(in: journal, from: now.addingTimeInterval(-tolerance), through: through, now: now, calendar: calendar)
+        return Array(all.filter { $0.status == .upcoming }.prefix(limit))
+    }
+
     static func summary(_ doses: [ScheduledDose]) -> AdherenceSummary {
         doses.reduce(into: AdherenceSummary()) { summary, dose in
             switch dose.status {

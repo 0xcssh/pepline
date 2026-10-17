@@ -48,6 +48,8 @@ struct PeplineApp: App {
                 ])
                 // The reminder window rolls forward: refill it on every return.
                 NotificationScheduler.shared.replan(journal)
+                // An overdue dose drops off the widget; the time zone may have changed.
+                WidgetBridge.publish(journal)
                 // Re-read the entitlement: the user may have cancelled or
                 // resubscribed in Apple's settings.
                 Task { await subscription.refresh() }
