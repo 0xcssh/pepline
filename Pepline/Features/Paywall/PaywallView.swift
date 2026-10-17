@@ -16,61 +16,12 @@ struct PaywallView: View {
     @State private var storeUnavailable = false
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                VStack(spacing: 10) {
-                    LogoHero(size: 92)
-                    Text(verbatim: "PEPLINE PRO")
-                        .font(.caption.weight(.heavy))
-                        .tracking(3)
-                        .foregroundStyle(PLColor.accent)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 8)
-
-                // Personalised: the user just built their setup (endowment).
-                (firstName.isEmpty ? Text("Everything to get every dose right.") : Text("Your Pepline is ready, \(firstName)."))
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
-                    .foregroundStyle(PLColor.text)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                VStack(alignment: .leading, spacing: 12) {
-                    FeatureLine(symbol: "function", text: Text("Vial, water, dose: units on your syringe, exact.")).staggered(1)
-                    FeatureLine(symbol: "list.bullet.clipboard", text: Text("Edit or delete anything. Export to CSV.")).staggered(2)
-                    FeatureLine(symbol: "bell.badge", text: Text("Reminders for each dose and for reordering.")).staggered(3)
-                    FeatureLine(symbol: "lock.shield", text: Text("No account. Your data stays on this iPhone.")).staggered(4)
-                }
-
-                VStack(spacing: 12) {
-                    planCard(.yearly)
-                    planCard(.monthly)
-                }
-
-                if let days = subs.trialDays(subs.selectedPlan) {
-                    TrialTimeline(days: days, price: subs.price(subs.selectedPlan))
-                }
-
-                VStack(spacing: 10) {
-                    Button(action: purchaseTapped) {
-                        if purchasing {
-                            ProgressView().tint(PLColor.onAccent)
-                        } else {
-                            Text(ctaTitle)
-                        }
-                    }
-                    .buttonStyle(.primaryPill)
-                    .disabled(purchasing)
-                    if subs.trialDays(subs.selectedPlan) != nil {
-                        Label("No payment now. Cancel anytime in two taps.", systemImage: "checkmark.shield.fill")
-                            .font(.footnote.weight(.semibold))
-                            .foregroundStyle(PLColor.text)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-
-                PaywallFooter(plan: subs.selectedPlan)
-            }
-            .padding(20)
+        // One screen, no scrolling (decision 2026-10-17): everything needed to
+        // decide is in view at once. Small phones (SE) fall back to a scroll
+        // rather than cutting anything 3.1.2 requires.
+        ViewThatFits(in: .vertical) {
+            content
+            ScrollView { content }
         }
         .background(OnboardingBackdrop())
         .overlay(alignment: .topTrailing) {
@@ -95,6 +46,86 @@ struct PaywallView: View {
         }
     }
 
+    private var content: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 14) {
+                Image("Logo")
+                    .resizable()
+                    .frame(width: 58, height: 58)
+                    .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+                    .shadow(color: PLColor.accent.opacity(0.4), radius: 12)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: "PEPLINE PRO")
+                        .font(.caption2.weight(.heavy))
+                        .tracking(2.5)
+                        .foregroundStyle(PLColor.accent)
+                    // Personalised: the user just built their setup (endowment).
+                    (firstName.isEmpty ? Text("Everything to get every dose right.") : Text("Your Pepline is ready, \(firstName)."))
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .foregroundStyle(PLColor.text)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+                }
+            }
+            .padding(.top, 6)
+
+            VStack(alignment: .leading, spacing: 7) {
+                benefit("function", Text("Vial, water, dose: units on your syringe, exact.")).staggered(1)
+                benefit("list.bullet.clipboard", Text("Edit or delete anything. Export to CSV.")).staggered(2)
+                benefit("bell.badge", Text("Reminders for each dose and for reordering.")).staggered(3)
+                benefit("lock.shield", Text("No account. Your data stays on this iPhone.")).staggered(4)
+            }
+
+            Spacer(minLength: 0)
+
+            VStack(spacing: 10) {
+                planCard(.yearly)
+                planCard(.monthly)
+            }
+
+            if let days = subs.trialDays(subs.selectedPlan) {
+                TrialTimeline(days: days, price: subs.price(subs.selectedPlan))
+            }
+
+            Spacer(minLength: 0)
+
+            VStack(spacing: 8) {
+                Button(action: purchaseTapped) {
+                    if purchasing {
+                        ProgressView().tint(PLColor.onAccent)
+                    } else {
+                        Text(ctaTitle)
+                    }
+                }
+                .buttonStyle(.primaryPill)
+                .disabled(purchasing)
+                if subs.trialDays(subs.selectedPlan) != nil {
+                    Label("No payment now. Cancel anytime in two taps.", systemImage: "checkmark.shield.fill")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(PLColor.text)
+                }
+            }
+            .frame(maxWidth: .infinity)
+
+            PaywallFooter(plan: subs.selectedPlan)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 8)
+    }
+
+    private func benefit(_ symbol: String, _ text: Text) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: symbol)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(PLColor.accent)
+                .frame(width: 26, height: 26)
+                .background(PLColor.accent.opacity(0.12), in: Circle())
+            text.font(.subheadline).foregroundStyle(PLColor.text)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
     private var ctaTitle: LocalizedStringKey {
         if let days = subs.trialDays(subs.selectedPlan) {
             return "Start my \(String(days))-day free trial"
@@ -110,7 +141,7 @@ struct PaywallView: View {
         let selected = subs.selectedPlan == plan
         return Button { subs.selectedPlan = plan } label: {
             HStack(alignment: .center, spacing: 12) {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 8) {
                         (plan == .yearly ? Text("Yearly") : Text("Monthly"))
                             .font(.subheadline.weight(.bold))
@@ -127,7 +158,9 @@ struct PaywallView: View {
                     if plan == .yearly {
                         if let perMonth = subs.perMonth(.yearly) {
                             Text("Only \(perMonth) / month")
-                                .font(.system(size: 26, weight: .heavy, design: .rounded))
+                                .font(.system(size: 24, weight: .heavy, design: .rounded))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                                 .foregroundStyle(selected ? PLColor.accent : PLColor.text)
                         }
                         if let price = subs.price(.yearly) {
@@ -143,11 +176,13 @@ struct PaywallView: View {
                         }
                     } else {
                         if let price = subs.price(.monthly) {
-                            Text("\(price) / month")
-                                .font(.system(size: 22, weight: .bold, design: .rounded))
-                                .foregroundStyle(PLColor.text)
+                            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                Text("\(price) / month")
+                                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                                    .foregroundStyle(PLColor.text)
+                                Text("No free trial").font(.caption).foregroundStyle(PLColor.muted)
+                            }
                         }
-                        Text("No free trial").font(.subheadline).foregroundStyle(PLColor.muted)
                     }
                 }
                 Spacer()
@@ -156,7 +191,8 @@ struct PaywallView: View {
                     .foregroundStyle(selected ? PLColor.accent : PLColor.muted.opacity(0.5))
                     .contentTransition(.symbolEffect(.replace))
             }
-            .padding(18)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             .background(selected ? PLColor.accent.opacity(0.1) : PLColor.card,
                         in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
@@ -197,24 +233,27 @@ struct TrialTimeline: View {
     let price: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 6) {
             step("lock.open.fill", Text("Today"), Text("Full access. Nothing to pay now."))
             step("bell.fill", Text("Day \(String(max(days - 2, 1)))"), Text("We remind you that your trial ends soon."))
             step("creditcard.fill", Text("Day \(String(days))"),
                  price.map { Text("You're billed \($0) unless you cancel before.") }
                      ?? Text("Your subscription starts unless you cancel before."))
         }
-        .padding(16)
-        .background(PLColor.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PLColor.card, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private func step(_ symbol: String, _ title: Text, _ detail: Text) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: symbol).foregroundStyle(PLColor.text).frame(width: 24)
-            VStack(alignment: .leading, spacing: 2) {
-                title.font(.subheadline.bold()).foregroundStyle(PLColor.text)
-                detail.font(.footnote).foregroundStyle(.secondary)
-            }
+        // One line per step: "Today · Full access. Nothing to pay now."
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Image(systemName: symbol).font(.footnote).foregroundStyle(PLColor.accent).frame(width: 20)
+            (title.bold().foregroundColor(PLColor.text) + Text(verbatim: " · ") + detail.foregroundColor(PLColor.muted))
+                .font(.footnote)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }
@@ -229,7 +268,7 @@ struct PaywallFooter: View {
     static let termsURL = URL(string: "https://0xcssh.github.io/pepline-legal/terms.html")!
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 6) {
             Group {
                 let title = subs.title(plan)
                 if let price = subs.price(plan) {
@@ -242,9 +281,10 @@ struct PaywallFooter: View {
                     Text("Auto-renews until cancelled. Cancel anytime in your App Store settings, at least 24 hours before renewal.")
                 }
             }
-            .font(.caption)
+            .font(.caption2)
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 22) {
                 Link(destination: Self.privacyURL) { Text("Privacy") }

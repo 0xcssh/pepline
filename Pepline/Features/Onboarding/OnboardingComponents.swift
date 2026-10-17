@@ -229,12 +229,11 @@ struct QuestionScreen<Content: View>: View {
 
 /// One sentence under a pulsing symbol. The full sentence is laid out from
 /// the start and its words light up one after the other, so lines never
-/// jump while it appears. Continues by itself or on tap.
+/// jump while it appears. Continues only on tap: the user sets the pace.
 struct StatementScreen: View {
     @ObservedObject var model: OnboardingModel
     let text: String
     var symbol = "sparkles"
-    var autoAdvanceAfter: Double = 2.2
     @State private var revealed = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -281,8 +280,6 @@ struct StatementScreen: View {
                     withAnimation(.easeOut(duration: 0.3)) { revealed = index }
                 }
             }
-            try? await Task.sleep(nanoseconds: UInt64(autoAdvanceAfter * 1_000_000_000))
-            if !Task.isCancelled { model.advance() }
         }
     }
 }
