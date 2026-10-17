@@ -18,17 +18,18 @@ final class OnboardingTests: XCTestCase {
 
     func testNavigation() {
         var answers = OnboardingAnswers()
-        XCTAssertEqual(OnboardingStep.welcome.next(for: answers), .hello)
+        // The aha (the user's own vial) is the third screen.
+        XCTAssertEqual(OnboardingStep.steps(for: answers).prefix(3), [.welcome, .compounds, .firstVial])
         XCTAssertNil(OnboardingStep.welcome.previous(for: answers))
         XCTAssertNil(OnboardingStep.ahead.next(for: answers))
         XCTAssertEqual(OnboardingStep.ahead.previous(for: answers), .building)
         XCTAssertEqual(OnboardingStep.building.previous(for: answers), .disclaimer)
-        // Without a weight goal the syringe screen goes straight to the decimal one.
-        XCTAssertEqual(OnboardingStep.syringe.next(for: answers), .decimalMistake)
-        XCTAssertEqual(OnboardingStep.decimalMistake.previous(for: answers), .syringe)
+        // Without a weight goal the goals screen goes straight to reminders.
+        XCTAssertEqual(OnboardingStep.goals.next(for: answers), .reminders)
+        XCTAssertEqual(OnboardingStep.reminders.previous(for: answers), .goals)
         answers.goals = [.weightLoss]
-        XCTAssertEqual(OnboardingStep.syringe.next(for: answers), .weight)
-        XCTAssertEqual(OnboardingStep.decimalMistake.previous(for: answers), .weight)
+        XCTAssertEqual(OnboardingStep.goals.next(for: answers), .weight)
+        XCTAssertEqual(OnboardingStep.reminders.previous(for: answers), .weight)
         // A step that is not in this flow has no neighbours and no progress.
         let noWeight = OnboardingAnswers()
         XCTAssertNil(OnboardingStep.weight.next(for: noWeight))
@@ -45,10 +46,8 @@ final class OnboardingTests: XCTestCase {
 
     // MARK: Answers
 
-    func testOrderedTroublesAndName() {
+    func testTrimmedName() {
         var answers = OnboardingAnswers()
-        answers.troubles = [.doctorLog, .reconstitution, .runningOut]
-        XCTAssertEqual(answers.orderedTroubles, [.reconstitution, .runningOut, .doctorLog])
         answers.name = "  Sam \n"
         XCTAssertEqual(answers.trimmedName, "Sam")
     }
@@ -105,8 +104,6 @@ final class OnboardingTests: XCTestCase {
         var answers = OnboardingAnswers()
         answers.name = "Sam"
         answers.goals = [.weightLoss, .sleep]
-        answers.experience = .starting
-        answers.troubles = [.remembering]
         let data = try JSONEncoder().encode(answers)
         XCTAssertEqual(try JSONDecoder().decode(OnboardingAnswers.self, from: data), answers)
     }

@@ -25,13 +25,12 @@ final class OnboardingModel: ObservableObject {
     var canContinue: Bool {
         switch step {
         case .goals: return !answers.goals.isEmpty
-        case .experience: return answers.experience != nil
         default: return true
         }
     }
 
     func advance() {
-        if step == .syringe { calculator.syringe = answers.syringe }
+        if step == .firstVial { answers.syringe = calculator.syringe }
         if step == .compounds, vialCompound.isEmpty { vialCompound = answers.compounds.first ?? "" }
         guard let next = step.next(for: answers) else { return }
         step = next
@@ -61,7 +60,11 @@ final class OnboardingModel: ObservableObject {
         let reconstitution = calculator.reconstitution
         let syringe = calculator.syringe
         let factor = calculator.iuConversion
-        let compoundName = vialCompound.trimmingCharacters(in: .whitespacesAndNewlines)
+        let typed = vialCompound.trimmingCharacters(in: .whitespacesAndNewlines)
+        // A vial typed without picking a compound is kept under a neutral
+        // name the user can rename in Settings, never thrown away.
+        let compoundName = typed.isEmpty && (reconstitution != nil || reminderDose != nil)
+            ? String(localized: "My compound") : typed
         let dose = reminderDose
         let rhythm = reminderRhythm
         let time = reminderTime
@@ -97,7 +100,6 @@ final class OnboardingModel: ObservableObject {
         }
         Analytics.track(.onboardingCompleted, [
             "goals": answers.goals.map(\.rawValue).sorted().joined(separator: ","),
-            "experience": answers.experience?.rawValue ?? "none",
             "vial": String(reconstitution != nil),
             "reminders": String(remindersOn),
         ])

@@ -21,6 +21,12 @@ struct SettingsView: View {
     @State private var confirmingAccountDeletion = false
     @State private var accountDeletionFailed = false
     @State private var eraseJournalWithAccount = false
+    @State private var surveying = false
+    @State private var goalText = ""
+
+    private var unit: UnitMass { WeightUnitSetting.unit(unitSetting) }
+
+    static let reviewURL = URL(string: "https://apps.apple.com/app/id6823184469?action=write-review")!
 
     var body: some View {
         NavigationStack {
@@ -31,6 +37,9 @@ struct SettingsView: View {
                         Text(verbatim: UnitMass.pounds.symbol).tag("lb")
                     }
                     .pickerStyle(.segmented)
+                    // The goal line on the weight chart; empty = no goal.
+                    DecimalField(title: "Goal weight", text: $goalText, unit: unit.symbol)
+                        .onChange(of: goalText) { saveGoal() }
                 }
 
                 if !store.journal.compounds.isEmpty {
@@ -77,12 +86,7 @@ struct SettingsView: View {
                         }
                         .frame(height: 44)
                     }
-                    Button("Manage subscription") {
-                        Task {
-                            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
-                            try? await AppStore.showManageSubscriptions(in: scene)
-                        }
-                    }
+                    Button("Manage subscription") { surveying = true }
                 } header: {
                     Text("Account")
                 } footer: {
@@ -102,6 +106,9 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    Link(destination: Self.reviewURL) {
+                        Label("Rate Pepline", systemImage: "star")
+                    }
                     Link(destination: URL(string: "mailto:awdianthony@gmail.com?subject=Pepline")!) {
                         Label("Contact support", systemImage: "envelope")
                     }
@@ -140,6 +147,10 @@ struct SettingsView: View {
             .plScreen()
             .sheet(isPresented: $previewingPaywall) { PaywallView(preview: true) }
             .sheet(isPresented: $showingReport) { DoctorReportSheet() }
+            .sheet(isPresented: $surveying) { CancelSurveyView(thenManage: true) }
+            .onAppear {
+                goalText = store.journal.goalWeightKg.map { Fmt.plain(Fmt.weightValue($0, in: unit).rounded(1)) } ?? ""
+            }
             .sheet(isPresented: $previewingExitOffer) { ExitOfferView() }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
@@ -172,12 +183,27 @@ struct SettingsView: View {
 
     private var deletingName: String { deleting?.name ?? "" }
 
+    private func saveGoal() {
+        let trimmed = goalText.trimmingCharacters(in: .whitespaces)
+        if trimmed.isEmpty {
+            store.update { $0.goalWeightKg = nil }
+        } else if let value = decimalValue(trimmed), value > 0 {
+            store.update { $0.goalWeightKg = Fmt.kilograms(value, from: unit) }
+        }
+    }
+
     private func deleteAccount() {
         let erase = eraseJournalWithAccount
         Task {
             do {
                 try await account.deleteAccount()
-                if erase { store.update { $0 = Journal() } }
+                if erase {
+                    // Everything: the journal, the photo files, and no
+                    // re-import from Apple Health on the next visit.
+                    store.update { $0 = Journal() }
+                    try? FileManager.default.removeItem(at: PhotoStore.folder)
+                    HealthService.shared.isOn = false
+                }
                 Analytics.track(.accountDeleted, ["result": "success", "erasedJournal": String(erase)])
             } catch {
                 accountDeletionFailed = true

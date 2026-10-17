@@ -1,4 +1,5 @@
 import SwiftUI
+import TipKit
 
 @main
 struct PeplineApp: App {
@@ -11,6 +12,8 @@ struct PeplineApp: App {
         Analytics.track(.appLaunched)
         // Register the notification delegate before any tap can arrive.
         NotificationScheduler.shared.setup()
+        // In-context tips (Design/Tips.swift), each shown once.
+        try? Tips.configure([.displayFrequency(.immediate)])
     }
 
     var body: some Scene {

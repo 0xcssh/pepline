@@ -13,8 +13,14 @@ final class CalculatorModel: ObservableObject {
     @Published var iuPerMgText = ""
     @Published var syringe: SyringeModel = .ml05
 
-    /// Set when the calculator was loaded from a saved vial.
-    @Published private(set) var loadedVialID: Vial.ID?
+    @Published private var loadedVial: Vial?
+
+    /// The saved vial on screen, only while the inputs still match it: once
+    /// the powder, water or syringe change, it is a new vial to save.
+    var loadedVialID: Vial.ID? {
+        guard let loadedVial, reconstitution == loadedVial.reconstitution, syringe == loadedVial.syringe else { return nil }
+        return loadedVial.id
+    }
 
     var needsIUFactor: Bool { vialUnit == .iu || doseUnit == .iu }
 
@@ -43,7 +49,7 @@ final class CalculatorModel: ObservableObject {
     }
 
     func load(_ vial: Vial, compound: Compound?, regimenDose: DoseAmount?) {
-        loadedVialID = vial.id
+        loadedVial = vial
         vialUnit = .mg
         vialText = Fmt.plain(vial.reconstitution.vial.value(in: .mg))
         waterText = Fmt.plain(vial.reconstitution.waterMl)
@@ -56,7 +62,7 @@ final class CalculatorModel: ObservableObject {
     }
 
     func clear() {
-        loadedVialID = nil
+        loadedVial = nil
         vialText = ""
         waterText = ""
         doseText = ""

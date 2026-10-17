@@ -8,29 +8,16 @@ struct OnboardingAnswers: Codable, Equatable {
         case weightLoss, buildRecover, heal, skinHair, sleep, longevity, other
     }
 
-    enum Experience: String, Codable, CaseIterable {
-        case new, starting, experienced, multiple
-    }
-
-    enum Trouble: String, Codable, CaseIterable {
-        case reconstitution, readingSyringe, remembering, rotatingSites, runningOut, doctorLog
-    }
-
     var name = ""
     var goals: Set<Goal> = []
-    var experience: Experience?
     /// Picked presets and typed names, in the order chosen.
     var compounds: [String] = []
-    var troubles: Set<Trouble> = []
     var syringe: SyringeModel = .ml05
     var weightKg: Decimal?
     var goalWeightKg: Decimal?
 
     /// The weight screen only makes sense for a weight-loss goal.
     var asksWeight: Bool { goals.contains(.weightLoss) }
-
-    /// Troubles in a stable order, for the mirrored "Pepline handles that" screen.
-    var orderedTroubles: [Trouble] { Trouble.allCases.filter(troubles.contains) }
 
     var trimmedName: String { name.trimmingCharacters(in: .whitespacesAndNewlines) }
 
@@ -88,12 +75,16 @@ struct CompoundPreset: Equatable {
     }
 }
 
+/// Short on purpose (decision 2026-10-17): the "aha" — the user's own vial
+/// drawn on their syringe — comes third (SOSA 2026 p17, p67: day 0 decides,
+/// show value fast; p27: app onboarding rushes to the aha). Features are
+/// taught in context inside the app, not toured here (p116). Every remaining
+/// question configures the app.
 enum OnboardingStep: String, CaseIterable {
-    case welcome, hello, name, greeting, goals, sameMath, facts, experience, experienceEcho
-    case compounds, troubles, troublesEcho, syringe, weight, decimalMistake, firstVial
+    case welcome, compounds, firstVial, name, goals, weight
     /// `building` shows the real setup being written (compounds, syringe,
     /// reminders) before the personalised summary and the paywall.
-    case protocolOverview, reminders, account, disclaimer, building, ahead
+    case reminders, account, disclaimer, building, ahead
 
     /// The screens for these answers, in order.
     static func steps(for answers: OnboardingAnswers) -> [OnboardingStep] {

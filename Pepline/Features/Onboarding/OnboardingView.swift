@@ -2,9 +2,9 @@ import AuthenticationServices
 import StoreKit
 import SwiftUI
 
-/// The onboarding, close to PeptidePal's rhythm (research/competitor-
-/// onboarding.md) but honest: every answer configures the app, every fact is
-/// sourced (docs/SOURCES.md), no account is required, no dose is suggested.
+/// The onboarding: short, the user's own vial on the third screen
+/// (Core/Onboarding.swift has the order and why). Honest: every answer
+/// configures the app, no account is required, no dose is suggested.
 struct OnboardingView: View {
     @EnvironmentObject private var store: DataStore
     @StateObject private var model = OnboardingModel()
@@ -14,29 +14,11 @@ struct OnboardingView: View {
         Group {
             switch model.step {
             case .welcome: WelcomeScreen(model: model)
-            case .hello: StatementScreen(model: model, text: String(localized: "Welcome to Pepline."), symbol: "sparkles")
-            case .name: NameScreen(model: model)
-            case .greeting:
-                StatementScreen(model: model, text: model.answers.trimmedName.isEmpty
-                    ? String(localized: "Nice to meet you.")
-                    : String(localized: "Nice to meet you, \(model.answers.trimmedName)."), symbol: "hand.wave.fill")
-            case .goals: GoalsScreen(model: model)
-            case .sameMath:
-                StatementScreen(model: model, text: String(localized: "Whatever the goal, it comes down to one number: the units on your syringe."), symbol: "scope")
-            case .facts: FactsScreen(model: model)
-            case .experience: ExperienceScreen(model: model)
-            case .experienceEcho:
-                StatementScreen(model: model, text: [.new, .starting].contains(model.answers.experience)
-                    ? String(localized: "Then let's do your first vial together, step by step.")
-                    : String(localized: "Then you'll like having every vial and schedule in one place."), symbol: "point.3.connected.trianglepath.dotted")
             case .compounds: CompoundsScreen(model: model)
-            case .troubles: TroublesScreen(model: model)
-            case .troublesEcho: TroublesEchoScreen(model: model)
-            case .syringe: SyringeScreen(model: model)
-            case .weight: WeightScreen(model: model)
-            case .decimalMistake: DecimalMistakeScreen(model: model)
             case .firstVial: FirstVialScreen(model: model)
-            case .protocolOverview: OverviewScreen(model: model)
+            case .name: NameScreen(model: model)
+            case .goals: GoalsScreen(model: model)
+            case .weight: WeightScreen(model: model)
             case .reminders: RemindersScreen(model: model)
             case .account: AccountScreen(model: model)
             case .disclaimer: DisclaimerScreen(model: model)
@@ -140,65 +122,6 @@ private struct GoalsScreen: View {
     }
 }
 
-private struct FactsScreen: View {
-    @ObservedObject var model: OnboardingModel
-
-    var body: some View {
-        QuestionScreen(model: model, title: Text("Small numbers, big mistakes."),
-                       subtitle: Text("What the FDA found in 2024."),
-                       hero: AnyView(PulseRings(symbol: "exclamationmark.triangle.fill", size: 170))) {
-            TabView {
-                fact("5–20×", Text("Overdoses reported to the FDA after doses were drawn from vials with insulin syringes."))
-                fact("5 → 50", Text("A 5-unit dose drawn as 50 units on a 1 ml syringe: one of the errors it describes."))
-                fact("0.1 ml = 10", Text("On a U-100 insulin syringe, every unit is 0.01 ml."))
-            }
-            .tabViewStyle(.page)
-            .indexViewStyle(.page(backgroundDisplayMode: .always))
-            .frame(height: 250)
-            .staggered(2)
-            Text("Source: FDA alert on compounded semaglutide dosing errors, July 2024.")
-                .font(.caption)
-                .foregroundStyle(PLColor.muted)
-        }
-    }
-
-    private func fact(_ number: String, _ text: Text) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text(verbatim: number)
-                .plNumeral(size: 48)
-                .foregroundStyle(PLColor.accent)
-                .plGlow()
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-            text.font(.headline.weight(.medium)).foregroundStyle(PLColor.text)
-                .fixedSize(horizontal: false, vertical: true)
-                .minimumScaleFactor(0.8)
-            Spacer(minLength: 0)
-        }
-        .padding(20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .plCard()
-        .padding(.bottom, 34)
-    }
-}
-
-private struct ExperienceScreen: View {
-    @ObservedObject var model: OnboardingModel
-
-    var body: some View {
-        QuestionScreen(model: model, title: Text("How familiar are you with mixing vials?"),
-                       hero: AnyView(PulseRings(symbol: "flask.fill", size: 170))) {
-            ForEach(Array(OnboardingAnswers.Experience.allCases.enumerated()), id: \.element) { index, level in
-                ChoiceCard(symbol: level.symbol, title: level.title, detail: level.detail,
-                           selected: model.answers.experience == level) {
-                    model.answers.experience = level
-                }
-                .staggered(index + 2)
-            }
-        }
-    }
-}
-
 private struct CompoundsScreen: View {
     @ObservedObject var model: OnboardingModel
     @State private var other = ""
@@ -249,79 +172,6 @@ private struct CompoundsScreen: View {
         guard !name.isEmpty, !model.answers.compounds.contains(name) else { return }
         model.answers.compounds.append(name)
         other = ""
-    }
-}
-
-private struct TroublesScreen: View {
-    @ObservedObject var model: OnboardingModel
-
-    var body: some View {
-        QuestionScreen(model: model, title: Text("What gets in your way?"),
-                       subtitle: Text("Select all that apply."),
-                       buttonTitle: model.answers.troubles.isEmpty ? Text("Skip") : Text("Continue")) {
-            ForEach(Array(OnboardingAnswers.Trouble.allCases.enumerated()), id: \.element) { index, trouble in
-                ChoiceCard(symbol: trouble.symbol, title: trouble.title,
-                           selected: model.answers.troubles.contains(trouble)) {
-                    model.answers.troubles.formSymmetricDifference([trouble])
-                }
-                .staggered(index + 2)
-            }
-        }
-    }
-}
-
-private struct TroublesEchoScreen: View {
-    @ObservedObject var model: OnboardingModel
-
-    var body: some View {
-        let troubles = model.answers.orderedTroubles.isEmpty
-            ? OnboardingAnswers.Trouble.allCases : model.answers.orderedTroubles
-        QuestionScreen(model: model, title: Text("Pepline handles that."),
-                       hero: AnyView(PulseRings(symbol: "checkmark.shield.fill", size: 180))) {
-            VStack(alignment: .leading, spacing: 14) {
-                ForEach(Array(troubles.enumerated()), id: \.element) { index, trouble in
-                    FeatureLine(symbol: trouble.symbol, text: trouble.answer)
-                        .staggered(index + 2)
-                }
-            }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .plCard()
-        }
-    }
-}
-
-/// A syringe whose plunger moves on its own, for the syringe question.
-private struct LiveSyringe: View {
-    let syringe: SyringeModel
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    var body: some View {
-        TimelineView(.animation(paused: reduceMotion)) { timeline in
-            let t = reduceMotion ? 1 : timeline.date.timeIntervalSinceReferenceDate
-            let share = 0.15 + 0.45 * (sin(t * 0.9) + 1) / 2
-            SyringeView(syringe: syringe, units: syringe.capacityUnits * Decimal(share))
-        }
-        .padding(18)
-        .plCard()
-    }
-}
-
-private struct SyringeScreen: View {
-    @ObservedObject var model: OnboardingModel
-
-    var body: some View {
-        QuestionScreen(model: model, title: Text("Which syringes do you use?"),
-                       subtitle: Text("Look at the box: size in ml and the smallest mark. You can change it for each vial."),
-                       hero: AnyView(LiveSyringe(syringe: model.answers.syringe))) {
-            ForEach(Array(SyringeModel.presets.enumerated()), id: \.element) { index, syringe in
-                ChoiceCard(symbol: "syringe", title: Text(verbatim: syringe.label),
-                           selected: model.answers.syringe == syringe) {
-                    withAnimation(.spring) { model.answers.syringe = syringe }
-                }
-                .staggered(index + 2)
-            }
-        }
     }
 }
 
@@ -406,39 +256,8 @@ private struct WeightScreen: View {
     }
 }
 
-/// The competitor's best screen, made exact: the same vial read right and
-/// read one mark-group off, with units, ml and mcg.
-private struct DecimalMistakeScreen: View {
-    @ObservedObject var model: OnboardingModel
-
-    var body: some View {
-        QuestionScreen(model: model, title: Text("One misread mark changes the dose."),
-                       subtitle: Text("Example: a 5 mg vial mixed with 2 ml of water.")) {
-            example(units: 10, label: Text("Right: 10 units · 0.1 ml · 250 mcg"), wrong: false).staggered(2)
-            example(units: 15, label: Text("Misread: 15 units · 0.15 ml · 375 mcg (+50%)"), wrong: true).staggered(3)
-            FeatureLine(symbol: "scope", text: Text("Pepline shows the exact mark for your vial, in units, ml and mcg."))
-                .font(.headline)
-                .staggered(4)
-        }
-    }
-
-    private func example(units: Decimal, label: Text, wrong: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label {
-                label.font(.subheadline.bold())
-            } icon: {
-                Image(systemName: wrong ? "xmark.circle.fill" : "checkmark.circle.fill")
-                    .foregroundStyle(wrong ? PLColor.warning : PLColor.accent)
-            }
-            SyringeView(syringe: model.answers.syringe.capacityMl >= 1 ? .ml10 : .ml03, units: units)
-        }
-        .padding(16)
-        .plCard()
-        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
-            .strokeBorder(wrong ? PLColor.warning.opacity(0.5) : PLColor.accent.opacity(0.5)))
-    }
-}
-
+/// The "aha", third screen: the user's own vial, water and dose, and the
+/// units to draw on their own syringe, drawn to scale.
 private struct FirstVialScreen: View {
     @ObservedObject var model: OnboardingModel
     @ObservedObject private var calculator: CalculatorModel
@@ -454,26 +273,31 @@ private struct FirstVialScreen: View {
         QuestionScreen(model: model, title: Text("Your vial"),
                        subtitle: Text("Enter the dose your prescriber gave you. Pepline does the math; it never suggests a dose."),
                        buttonTitle: calculator.draw == nil ? Text("Skip for now") : Text("Continue")) {
-            VStack(spacing: 14) {
-                if !model.answers.compounds.isEmpty {
-                    Picker("Compound", selection: $model.vialCompound) {
-                        ForEach(model.answers.compounds, id: \.self) { Text(verbatim: $0).tag($0) }
+            if model.answers.compounds.count > 1 {
+                ChipPicker(selection: $model.vialCompound, options: model.answers.compounds.map { ($0, $0) })
+                    .staggered(2)
+            }
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .top, spacing: 12) {
+                    field(Text("Powder in the vial"), $calculator.vialText, unit: "mg")
+                    field(Text("Bacteriostatic water"), $calculator.waterText, unit: "ml")
+                }
+                field(Text("Dose"), $calculator.doseText, unit: nil)
+                ChipPicker(selection: $calculator.doseUnit, options: [(DoseUnit.mcg, "mcg"), (DoseUnit.mg, "mg")])
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(SyringeModel.presets, id: \.self) { syringe in
+                            SyringeChoice(syringe: syringe, selected: calculator.syringe == syringe) {
+                                calculator.syringe = syringe
+                            }
+                        }
                     }
-                    .pickerStyle(.menu)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 2)
                 }
-                DecimalField(title: "Powder in the vial", text: $calculator.vialText, unit: "mg")
-                DecimalField(title: "Bacteriostatic water", text: $calculator.waterText, unit: "ml")
-                DecimalField(title: "Dose", text: $calculator.doseText)
-                Picker("Unit", selection: $calculator.doseUnit) {
-                    Text(verbatim: "mcg").tag(DoseUnit.mcg)
-                    Text(verbatim: "mg").tag(DoseUnit.mg)
-                }
-                .pickerStyle(.segmented)
             }
             .padding(16)
             .plCard()
-            .staggered(2)
+            .staggered(3)
 
             if let draw = calculator.draw, let reconstitution = calculator.reconstitution, let dose = calculator.dose {
                 ResultCard(draw: draw, syringe: calculator.syringe, reconstitution: reconstitution, dose: dose)
@@ -491,9 +315,11 @@ private struct FirstVialScreen: View {
                     }
             } else {
                 HStack(spacing: 14) {
-                    PulseRings(symbol: "function", size: 90)
+                    SyringeView(syringe: calculator.syringe, units: 0)
+                        .frame(width: 120, height: 44)
+                        .opacity(0.5)
                     Text("Your result appears here, drawn on your syringe.")
-                        .font(.headline)
+                        .font(.subheadline)
                         .foregroundStyle(PLColor.muted)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -503,37 +329,13 @@ private struct FirstVialScreen: View {
         }
         .animation(.spring(duration: 0.5), value: calculator.draw != nil)
     }
-}
 
-private struct OverviewScreen: View {
-    @ObservedObject var model: OnboardingModel
-
-    var body: some View {
-        QuestionScreen(model: model, title: Text("Your whole protocol, in one place."),
-                       hero: AnyView(LogoHero(size: 96).padding(.vertical, 12))) {
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                tile("syringe", Text("Calculator"), Text("Every vial saved, with the exact mark.")).staggered(2)
-                tile("list.bullet.rectangle", Text("Journal"), Text("Each dose with its site, side and notes. Edit anything.")).staggered(3)
-                tile("calendar", Text("Schedules"), Text("Daily, every other day, weekdays or on/off cycles.")).staggered(4)
-                tile("chart.xyaxis.line", Text("Weight"), Text("Your curve, in kg or lb.")).staggered(5)
-            }
+    private func field(_ title: Text, _ text: Binding<String>, unit: String?) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            title.font(.caption.weight(.semibold)).foregroundStyle(PLColor.muted)
+            NumberEntry(title: title, text: text, unit: unit, size: 30)
         }
-    }
-
-    private func tile(_ symbol: String, _ title: Text, _ detail: Text) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Image(systemName: symbol)
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(PLColor.accent)
-                .frame(width: 40, height: 40)
-                .background(PLColor.accent.opacity(0.12), in: Circle())
-            title.font(.headline).foregroundStyle(PLColor.text)
-            detail.font(.footnote).foregroundStyle(PLColor.muted).fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(14)
-        .plCard()
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -805,71 +607,6 @@ extension OnboardingAnswers.Goal {
         case .sleep: return "moon.zzz"
         case .longevity: return "leaf"
         case .other: return "ellipsis.circle"
-        }
-    }
-}
-
-extension OnboardingAnswers.Experience {
-    var symbol: String {
-        switch self {
-        case .new: return "leaf.fill"
-        case .starting: return "figure.walk"
-        case .experienced: return "checkmark.seal.fill"
-        case .multiple: return "square.stack.3d.up.fill"
-        }
-    }
-
-    var title: Text {
-        switch self {
-        case .new: return Text("Brand new")
-        case .starting: return Text("Getting started")
-        case .experienced: return Text("Comfortable")
-        case .multiple: return Text("Advanced")
-        }
-    }
-
-    var detail: Text {
-        switch self {
-        case .new: return Text("I haven't mixed a vial yet.")
-        case .starting: return Text("I've mixed a few vials.")
-        case .experienced: return Text("I mix my own vials regularly.")
-        case .multiple: return Text("I run several compounds at once.")
-        }
-    }
-}
-
-extension OnboardingAnswers.Trouble {
-    var title: Text {
-        switch self {
-        case .reconstitution: return Text("Reconstitution math")
-        case .readingSyringe: return Text("Reading the syringe")
-        case .remembering: return Text("Remembering my doses")
-        case .rotatingSites: return Text("Rotating injection sites")
-        case .runningOut: return Text("Running out of a vial")
-        case .doctorLog: return Text("Keeping a log for my doctor")
-        }
-    }
-
-    /// The mirrored line on "Pepline handles that".
-    var answer: Text {
-        switch self {
-        case .reconstitution: return Text("Exact units for any vial, water and dose. Decimals included.")
-        case .readingSyringe: return Text("Your syringe drawn to scale, filled to the mark.")
-        case .remembering: return Text("A reminder for every scheduled dose.")
-        case .rotatingSites: return Text("Every site and side logged, the last one shown.")
-        case .runningOut: return Text("The date your vial runs out, and a reminder to reorder.")
-        case .doctorLog: return Text("A clean CSV export of every dose.")
-        }
-    }
-
-    var symbol: String {
-        switch self {
-        case .reconstitution: return "function"
-        case .readingSyringe: return "syringe"
-        case .remembering: return "bell"
-        case .rotatingSites: return "figure.stand"
-        case .runningOut: return "shippingbox"
-        case .doctorLog: return "doc.text"
         }
     }
 }

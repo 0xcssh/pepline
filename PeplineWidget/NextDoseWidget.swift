@@ -27,6 +27,7 @@ struct NextDoseEntry: TimelineEntry {
     /// The dose to show: the first one not yet 12 h overdue.
     let dose: WidgetSnapshot.Dose?
     let following: [WidgetSnapshot.Dose]
+    var hasSchedules = false
 }
 
 struct NextDoseProvider: TimelineProvider {
@@ -57,7 +58,8 @@ struct NextDoseProvider: TimelineProvider {
         let doses = (snapshot?.doses ?? []).filter { $0.date.addingTimeInterval(tolerance) > now }
         func entry(at date: Date) -> NextDoseEntry {
             let remaining = doses.filter { $0.date.addingTimeInterval(tolerance) > date }
-            return NextDoseEntry(date: date, dose: remaining.first, following: Array(remaining.dropFirst().prefix(2)))
+            return NextDoseEntry(date: date, dose: remaining.first, following: Array(remaining.dropFirst().prefix(2)),
+                                 hasSchedules: snapshot?.hasSchedules ?? false)
         }
         var dates = [now]
         for dose in doses.prefix(6) {
@@ -165,7 +167,7 @@ struct NextDoseView: View {
             Text("No dose scheduled")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(PLColor.text)
-            Text("Plan a schedule in Pepline.")
+            (entry.hasSchedules ? Text("Open Pepline to refresh.") : Text("Plan a schedule in Pepline."))
                 .font(.caption)
                 .foregroundStyle(PLColor.muted)
         }

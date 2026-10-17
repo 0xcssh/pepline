@@ -60,6 +60,27 @@ final class ReminderPlannerTests: XCTestCase {
                        "a replan keeps the same IDs for the same doses")
     }
 
+    func testNoReminderForADoseAlreadyLoggedOrSkipped() {
+        var journal = Journal()
+        let daily = regimen(sema, .everyNDays(1))
+        journal.save(daily)
+        journal.save(DoseEntry(date: date(1, 1, 7), compoundID: sema.id, amount: daily.dose))
+        journal.save(SkippedDose(regimenID: daily.id, scheduledAt: date(1, 2, 8)))
+        let plan = ReminderPlanner.plan(journal, now: date(1, 1, 7), calendar: calendar, limit: 2)
+        XCTAssertEqual(plan.map(\.date), [date(1, 3, 8), date(1, 4, 8)])
+    }
+
+    func testIDsChangeWithTheDose() {
+        var journal = Journal()
+        var daily = regimen(sema, .everyNDays(1))
+        journal.save(daily)
+        let before = ReminderPlanner.plan(journal, now: date(1, 1), calendar: calendar, limit: 1)
+        daily.dose = DoseAmount(value: d("0.5"), unit: .mg)
+        journal.save(daily)
+        let after = ReminderPlanner.plan(journal, now: date(1, 1), calendar: calendar, limit: 1)
+        XCTAssertNotEqual(before.map(\.id), after.map(\.id), "pending reminders get the new text")
+    }
+
     func testSkipsRegimensWithRemindersOffOrEnded() {
         var journal = Journal()
         var off = regimen(sema, .everyNDays(1))

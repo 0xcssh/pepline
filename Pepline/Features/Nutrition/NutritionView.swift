@@ -1,4 +1,5 @@
 import SwiftUI
+import TipKit
 
 /// Nutrition: protein, water and calories of one day against the goals the
 /// user set (GLP-1 users eat less, so protein and water are what MeAgain and
@@ -18,6 +19,8 @@ struct NutritionView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
+                TipView(NutritionTip())
+                    .tipBackground(PLColor.card)
                 dayPicker
                 ringsCard
                 quickAddCard

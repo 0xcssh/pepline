@@ -35,8 +35,10 @@ struct DoseEditor: View {
         }
 
         /// Pre-filled from a schedule: compound, dose and its newest vial.
-        init(regimen: Regimen, journal: Journal) {
+        /// `date` is the slot for a late log, so it answers that slot.
+        init(regimen: Regimen, journal: Journal, date: Date = Date()) {
             self.init()
+            self.date = date
             compound = CompoundChoice(existingID: regimen.compoundID)
             amountText = Fmt.plain(regimen.dose.value)
             unit = regimen.dose.unit
@@ -56,14 +58,7 @@ struct DoseEditor: View {
     }
 
     /// Set after a NEW dose is saved: the editor turns into the reward screen.
-    @State private var logged: Logged?
-
-    private struct Logged {
-        var stars: Int
-        var summary: String
-        var dosesLeft: Int?
-        var next: Date?
-    }
+    @State private var logged: DoseReward?
 
     private var canSave: Bool { draft.compound.isValid && (decimalValue(draft.amountText) ?? 0) > 0 }
 
@@ -157,18 +152,32 @@ struct DoseEditor: View {
         Analytics.track(.doseLogged, ["isNew": String(draft.isNew), "hasSite": String(draft.site != nil)])
         guard draft.isNew else { return dismiss() }
 
-        // Reward screen: one star per dose of this compound.
-        let journal = store.journal
-        guard let saved = journal.doses.first(where: { $0.id == draft.id }) else { return dismiss() }
+        guard let reward = DoseReward(after: draft.id, in: store.journal) else { return dismiss() }
+        logged = reward
+    }
+}
+
+/// What the reward screen says after a new dose: one star per dose of the
+/// compound, full doses left in its vial, and the next dose still to take.
+struct DoseReward: Identifiable {
+    let id = UUID()
+    var stars: Int
+    var summary: String
+    var dosesLeft: Int?
+    var next: Date?
+
+    init?(after doseID: DoseEntry.ID, in journal: Journal) {
+        guard let saved = journal.doses.first(where: { $0.id == doseID }) else { return nil }
         let compound = journal.compound(saved.compoundID)
-        let dosesLeft = saved.vialID
+        stars = journal.doses(of: saved.compoundID).count
+        summary = "\(compound?.name ?? "") · \(Fmt.dose(saved.amount))"
+        dosesLeft = saved.vialID
             .flatMap { id in journal.vials.first { $0.id == id } }
             .flatMap { vial in saved.amount.mass(compound?.iuConversion)
                 .map { VialForecast.dosesLeft(remaining: journal.remaining(in: vial), dose: $0) } }
-        let next = journal.regimens.first { $0.compoundID == saved.compoundID }?
-            .schedule.next(after: Date(), calendar: .current)
-        logged = Logged(stars: journal.doses(of: saved.compoundID).count,
-                        summary: "\(compound?.name ?? "") · \(Fmt.dose(saved.amount))",
-                        dosesLeft: dosesLeft, next: next)
+        // The next dose not already logged (one logged early is not "next").
+        next = Adherence.upcoming(in: journal, now: Date(), calendar: .current)
+            .first { scheduled in journal.regimens.first { $0.id == scheduled.regimenID }?.compoundID == saved.compoundID }?
+            .date
     }
 }

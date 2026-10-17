@@ -245,63 +245,6 @@ struct QuestionScreen<Content: View>: View {
     }
 }
 
-/// One sentence under a pulsing symbol. The full sentence is laid out from
-/// the start and its words light up one after the other, so lines never
-/// jump while it appears. Continues only on tap: the user sets the pace.
-struct StatementScreen: View {
-    @ObservedObject var model: OnboardingModel
-    let text: String
-    var symbol = "sparkles"
-    @State private var revealed = 0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private var words: [String] { text.split(separator: " ").map(String.init) }
-
-    private var sentence: Text {
-        words.enumerated().reduce(Text(verbatim: "")) { partial, item in
-            let word = Text(verbatim: (item.offset == 0 ? "" : " ") + item.element)
-                .foregroundColor(item.offset < revealed ? PLColor.text : PLColor.text.opacity(0.1))
-            return partial + word
-        }
-    }
-
-    var body: some View {
-        VStack(spacing: 0) {
-            OnboardingChrome(model: model)
-            Spacer(minLength: 20)
-            PulseRings(symbol: symbol, size: 170)
-            Spacer(minLength: 28)
-            sentence
-                .font(.system(size: 34, weight: .heavy, design: .rounded))
-                .tracking(-0.6)
-                .lineSpacing(4)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 30)
-                .accessibilityLabel(Text(verbatim: text))
-            Spacer(minLength: 20)
-            Text("Tap to continue")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(PLColor.muted)
-                .padding(.bottom, 24)
-        }
-        .background(OnboardingBackdrop())
-        .contentShape(Rectangle())
-        .onTapGesture { model.advance() }
-        .task(id: text) {
-            revealed = 0
-            if reduceMotion {
-                revealed = words.count
-            } else {
-                for index in 1...max(words.count, 1) {
-                    try? await Task.sleep(nanoseconds: 110_000_000)
-                    withAnimation(.easeOut(duration: 0.3)) { revealed = index }
-                }
-            }
-        }
-    }
-}
-
 /// A selectable card for single and multiple choice questions.
 struct ChoiceCard: View {
     let symbol: String?

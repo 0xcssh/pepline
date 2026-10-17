@@ -53,7 +53,10 @@ struct WeightView: View {
                 }
                 .tint(.primary)
                 .swipeActions {
-                    Button("Delete", role: .destructive) { store.update { $0.deleteWeight(entry.id) } }
+                    Button("Delete", role: .destructive) {
+                        store.update { $0.deleteWeight(entry.id) }
+                        HealthService.shared.delete(entryID: entry.id)
+                    }
                 }
             }
         }

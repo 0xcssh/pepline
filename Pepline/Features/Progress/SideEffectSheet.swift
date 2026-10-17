@@ -7,8 +7,12 @@ struct SideEffectSheet: View {
     @State private var symptom: SideEffectEntry.Symptom?
     @State private var customName = ""
     @State private var severity = 2.0
-    @State private var date = Date()
+    @State private var date: Date
     @State private var notes = ""
+
+    init(date: Date = Date()) {
+        _date = State(initialValue: date)
+    }
 
     var body: some View {
         NavigationStack {

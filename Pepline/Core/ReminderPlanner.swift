@@ -25,9 +25,22 @@ enum ReminderPlanner {
         var reminders: [PlannedReminder] = []
 
         for regimen in journal.regimens where regimen.remindersOn {
-            for date in regimen.schedule.nextOccurrences(after: now, count: limit, calendar: calendar) {
+            // Twice the window: answered doses are dropped below.
+            let dates = regimen.schedule.nextOccurrences(after: now, count: limit * 2, calendar: calendar)
+            // Doses already logged early or skipped get no reminder.
+            let answered = Set(Adherence.doses(of: regimen, in: journal, from: now.addingTimeInterval(-Adherence.tolerance),
+                                               through: dates.last ?? now, now: now, calendar: calendar)
+                .filter { $0.status != .upcoming && $0.status != .missed }
+                .map(\.date))
+            // The ID carries what the text says (dose, vial), so a changed
+            // dose or a new vial replaces the pending reminders' text.
+            let vial = journal.vials
+                .filter { $0.compoundID == regimen.compoundID && !$0.isArchived }
+                .max { $0.mixedAt < $1.mixedAt }
+            let content = "\(regimen.dose.value)\(regimen.dose.unit.rawValue).\(vial?.id.uuidString.prefix(8) ?? "none")"
+            for date in dates where !answered.contains(date) {
                 reminders.append(PlannedReminder(
-                    id: "dose.\(regimen.id.uuidString).\(Int(date.timeIntervalSince1970))",
+                    id: "dose.\(regimen.id.uuidString).\(Int(date.timeIntervalSince1970)).\(content)",
                     kind: .dose(regimen.id),
                     date: date
                 ))

@@ -1,4 +1,5 @@
 import SwiftUI
+import TipKit
 
 /// Month calendar with a dot per scheduled dose (taken, skipped, missed),
 /// the month's adherence, and the selected day's doses and side effects.
@@ -20,6 +21,8 @@ struct HistoryView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
+                TipView(CalendarTip())
+                    .tipBackground(PLColor.card)
                 monthHeader
                 calendarGrid
                 adherenceCard
@@ -38,11 +41,24 @@ struct HistoryView: View {
         .background(PLBackground())
         .navigationTitle(Text("History"))
         .toolbar {
-            Button { editing = DoseEditor.Draft() } label: { Image(systemName: "plus") }
+            Button { editing = newDoseDraft() } label: { Image(systemName: "plus") }
                 .accessibilityLabel(Text("Log a dose"))
         }
         .sheet(item: $editing) { DoseEditor(draft: $0) }
-        .sheet(isPresented: $addingSideEffect) { SideEffectSheet() }
+        .sheet(isPresented: $addingSideEffect) { SideEffectSheet(date: entryDate) }
+    }
+
+    /// What is added from History belongs to the selected day: now when it
+    /// is today, midday otherwise (editable in the sheet).
+    private var entryDate: Date {
+        calendar.isDateInToday(selectedDay)
+            ? Date() : calendar.date(bySettingHour: 12, minute: 0, second: 0, of: selectedDay) ?? selectedDay
+    }
+
+    private func newDoseDraft() -> DoseEditor.Draft {
+        var draft = DoseEditor.Draft()
+        draft.date = entryDate
+        return draft
     }
 
     // MARK: Month
@@ -208,9 +224,6 @@ struct HistoryView: View {
                 }
                 .font(.subheadline)
                 .foregroundStyle(PLColor.text)
-                .swipeActions {
-                    Button("Delete", role: .destructive) { store.update { $0.deleteSideEffect(effect.id) } }
-                }
                 .contextMenu {
                     Button("Delete", role: .destructive) { store.update { $0.deleteSideEffect(effect.id) } }
                 }

@@ -3,23 +3,29 @@ import SwiftUI
 struct RootView: View {
     @EnvironmentObject private var store: DataStore
     @State private var showingSettings = false
+    @ObservedObject private var subs = SubscriptionManager.shared
+    @AppStorage("cancelSurveyAsked") private var surveyAsked = false
+
+    /// Auto-renew found off (cancelled in Apple's settings): ask why, once.
+    private var askWhyCancelled: Binding<Bool> {
+        Binding(get: { subs.entitlementChecked && subs.isPro && !subs.willAutoRenew && !surveyAsked },
+                set: { if !$0 { surveyAsked = true } })
+    }
 
     var body: some View {
-        // Today first: the daily loop (Shotsy, Peptide Tracker). Schedules
-        // are reached from Today; the full dose list from History.
+        // Three tabs (decision 2026-10-17): Today is the daily loop (next
+        // dose, one-tap log, nutrition, the week); Journal is the past
+        // (calendar, progress, report); Tools holds the calculator and vials.
         TabView {
             tab { TodayView() }
                 .tabItem { Label("Today", systemImage: "sun.max.fill") }
+            tab { JournalTab() }
+                .tabItem { Label("Journal", systemImage: "calendar") }
             tab { CalculatorView() }
-                .tabItem { Label("Calculator", systemImage: "syringe") }
-            tab { HistoryView() }
-                .tabItem { Label("History", systemImage: "calendar") }
-            tab { ProgressTab() }
-                .tabItem { Label("Progress", systemImage: "chart.xyaxis.line") }
-            tab { NutritionView() }
-                .tabItem { Label("Nutrition", systemImage: "fork.knife") }
+                .tabItem { Label("Tools", systemImage: "syringe") }
         }
         .sheet(isPresented: $showingSettings) { SettingsView() }
+        .sheet(isPresented: askWhyCancelled) { CancelSurveyView() }
         .safeAreaInset(edge: .top) {
             if store.loadError != nil {
                 Text("Your saved data could not be read. Nothing was deleted. Please contact support from Settings.")
@@ -41,6 +47,31 @@ struct RootView: View {
                             .accessibilityLabel(Text("Settings"))
                     }
                 }
+        }
+    }
+}
+
+/// History (calendar, doses, side effects) and Progress (weight, photos,
+/// levels, report) under one tab, switched at the top.
+private struct JournalTab: View {
+    private enum Section: String { case history, progress }
+    @AppStorage("journalSection") private var section = Section.history
+
+    var body: some View {
+        Group {
+            switch section {
+            case .history: HistoryView()
+            case .progress: ProgressTab()
+            }
+        }
+        .safeAreaInset(edge: .top) {
+            Picker(selection: $section) {
+                Text("History").tag(Section.history)
+                Text("Progress").tag(Section.progress)
+            } label: { Text("Journal") }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 6)
         }
     }
 }

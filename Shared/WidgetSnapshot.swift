@@ -21,6 +21,9 @@ struct WidgetSnapshot: Codable, Equatable {
 
     /// Time order, the first one possibly a little overdue.
     var doses: [Dose]
+    /// Lets the widget say "open Pepline" instead of "no schedule" once the
+    /// published doses have all passed.
+    var hasSchedules = false
 
     /// "TEAMID." from Info.plist (`$(AppIdentifierPrefix)`), the same in the
     /// app and the widget; empty in unsigned simulator builds.

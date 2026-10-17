@@ -50,14 +50,16 @@ final class NotificationScheduler: NSObject, UNUserNotificationCenterDelegate {
         }
     }
 
-    /// Two days before a free trial ends (the paywall's timeline promises it).
-    /// Its ID is outside ReminderPlanner's, so replans leave it alone.
-    func scheduleTrialReminder(trialDays: Int) {
+    /// On the trial day the user picked on the paywall (default two days
+    /// before the end; SOSA 2026 p78: choosing it builds trust). Its ID is
+    /// outside ReminderPlanner's, so replans leave it alone.
+    func scheduleTrialReminder(trialDays: Int, onDay day: Int) {
+        let reminderDay = min(max(day, 1), max(trialDays - 1, 1))
         let content = UNMutableNotificationContent()
         content.title = "Pepline"
-        content.body = String(localized: "Your free trial ends in 2 days. Cancel anytime in your App Store settings if Pepline is not for you.")
+        content.body = String(localized: "Your free trial ends in \(String(trialDays - reminderDay)) days. Cancel anytime in your App Store settings if Pepline is not for you.")
         content.sound = .default
-        let delay = TimeInterval(max(trialDays - 2, 1)) * 86_400
+        let delay = TimeInterval(reminderDay) * 86_400
         UNUserNotificationCenter.current().add(UNNotificationRequest(
             identifier: Self.trialReminderID,
             content: content,
@@ -80,7 +82,7 @@ final class NotificationScheduler: NSObject, UNUserNotificationCenterDelegate {
             if let regimen {
                 body += " · " + Fmt.dose(regimen.dose)
                 if let units = Self.unitsToDraw(regimen, in: journal) {
-                    body += " · " + String(localized: "Draw to \(Fmt.number(units)) units")
+                    body += " · " + String(localized: "Draw to \(Fmt.units(units)) units")
                 }
             }
             content.body = body
@@ -116,13 +118,18 @@ final class NotificationScheduler: NSObject, UNUserNotificationCenterDelegate {
         guard action == Self.logAction || action == Self.skipAction else { return }
         await MainActor.run {
             let store = DataStore.shared
-            guard let regimen = store.journal.regimens.first(where: { $0.id == regimenID }) else { return }
+            guard let regimen = store.journal.regimens.first(where: { $0.id == regimenID }),
+                  // Already logged in the app or skipped: a late tap changes nothing.
+                  !Adherence.isAnswered(regimen, at: scheduledAt, in: store.journal, calendar: .current)
+            else { return }
             if action == Self.logAction {
                 let vialID = store.journal.vials
                     .filter { $0.compoundID == regimen.compoundID && !$0.isArchived }
                     .max { $0.mixedAt < $1.mixedAt }?.id
                 store.update {
-                    $0.save(DoseEntry(date: Date(), compoundID: regimen.compoundID, vialID: vialID, amount: regimen.dose))
+                    // Logged at its slot when tapped hours later, so it answers that slot.
+                    $0.save(DoseEntry(date: QuickLog.date(forSlot: scheduledAt, now: Date()), compoundID: regimen.compoundID,
+                                      vialID: vialID, amount: regimen.dose))
                 }
                 Analytics.track(.doseLogged, ["isNew": "true", "hasSite": "false", "from": "notification"])
             } else {

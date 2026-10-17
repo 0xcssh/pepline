@@ -45,6 +45,7 @@ enum Analytics {
         case foodLogged = "Food.logged"              // source, count
         case foodScanned = "Food.scanned"            // items (count)
         case waterLogged = "Water.logged"
+        case cancelReason = "Subscription.cancelReason" // reason (enum)
         case exported = "Export.done"                // kind: doses|weight
         case notificationPermission = "Permission.notifications" // result: granted|denied
 

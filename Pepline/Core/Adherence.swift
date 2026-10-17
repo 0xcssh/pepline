@@ -37,7 +37,10 @@ enum Adherence {
     /// nearest one within the tolerance.
     static func doses(of regimen: Regimen, in journal: Journal, from: Date, through: Date,
                       now: Date, calendar: Calendar) -> [ScheduledDose] {
+        // Nothing is due before the schedule existed: a schedule created at
+        // 21:00 does not owe that morning's 08:00 dose.
         let scheduled = regimen.schedule.occurrences(from: from, through: through, calendar: calendar)
+            .filter { $0 >= regimen.schedule.start }
         let skips = journal.skippedDoses.filter { $0.regimenID == regimen.id }
 
         // Each logged dose goes to its nearest scheduled dose (within the
@@ -50,12 +53,13 @@ enum Adherence {
             if let nearest, takenBy[nearest] == nil { takenBy[nearest] = dose.id }
         }
 
+        // A dose logged for a slot wins over a skip tapped by mistake.
         return scheduled.map { date in
-            if let skip = skips.first(where: { $0.scheduledAt == date }) {
-                return ScheduledDose(regimenID: regimen.id, date: date, status: .skipped(skip.id))
-            }
             if let doseID = takenBy[date] {
                 return ScheduledDose(regimenID: regimen.id, date: date, status: .taken(doseID))
+            }
+            if let skip = skips.first(where: { $0.scheduledAt == date }) {
+                return ScheduledDose(regimenID: regimen.id, date: date, status: .skipped(skip.id))
             }
             return ScheduledDose(regimenID: regimen.id, date: date,
                                  status: date.addingTimeInterval(tolerance) < now ? .missed : .upcoming)
@@ -76,6 +80,14 @@ enum Adherence {
         let through = calendar.date(byAdding: .day, value: horizonDays, to: now)!
         let all = doses(in: journal, from: now.addingTimeInterval(-tolerance), through: through, now: now, calendar: calendar)
         return Array(all.filter { $0.status == .upcoming }.prefix(limit))
+    }
+
+    /// Whether the slot at `scheduledAt` was already logged or skipped, so a
+    /// late tap on its notification does not log it twice.
+    static func isAnswered(_ regimen: Regimen, at scheduledAt: Date, in journal: Journal, calendar: Calendar) -> Bool {
+        doses(of: regimen, in: journal, from: scheduledAt.addingTimeInterval(-tolerance),
+              through: scheduledAt.addingTimeInterval(tolerance), now: scheduledAt, calendar: calendar)
+            .contains { $0.date == scheduledAt && $0.status != .upcoming && $0.status != .missed }
     }
 
     static func summary(_ doses: [ScheduledDose]) -> AdherenceSummary {

@@ -1,3 +1,4 @@
+import StoreKit
 import SwiftUI
 
 /// One star per logged dose, linked in the order they were taken; the newest
@@ -81,6 +82,8 @@ struct DoseLoggedView: View {
     let dosesLeft: Int?
     let next: Date?
     let onDone: () -> Void
+    @Environment(\.requestReview) private var requestReview
+    @AppStorage("reviewMomentsAsked") private var asked = ""
 
     var body: some View {
         VStack(spacing: 18) {
@@ -113,5 +116,23 @@ struct DoseLoggedView: View {
         .padding(20)
         .background(PLBackground())
         .sensoryFeedback(.success, trigger: starCount)
+        .task { await askForReviewIfDue() }
+    }
+
+    /// Apple's own rating prompt after a moment of value (Core/DailyLoop.swift
+    /// ReviewMoment: 3rd dose, then a 7-dose streak), once each.
+    private func askForReviewIfDue() async {
+        let journal = DataStore.shared.journal
+        let now = Date()
+        let history = Adherence.doses(in: journal, from: now.addingTimeInterval(-90 * 86_400), through: now,
+                                      now: now, calendar: .current)
+        let alreadyAsked = Set(asked.split(separator: ",").map(String.init))
+        guard let moment = ReviewMoment.due(loggedDoses: journal.doses.count, streak: Adherence.streak(history),
+                                            alreadyAsked: alreadyAsked) else { return }
+        try? await Task.sleep(nanoseconds: 1_200_000_000)
+        guard !Task.isCancelled else { return }
+        asked = (alreadyAsked.union([moment.rawValue])).sorted().joined(separator: ",")
+        requestReview()
+        Analytics.track(.reviewRequested, ["where": moment.rawValue])
     }
 }

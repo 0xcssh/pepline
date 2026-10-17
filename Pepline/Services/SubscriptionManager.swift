@@ -195,7 +195,8 @@ final class SubscriptionManager: ObservableObject {
             Analytics.track(.purchaseResult, ["plan": plan.rawValue, "result": isPro ? "success" : "notEntitled"])
             // The paywall promises a reminder before the trial ends: keep it.
             if isPro, let days = trialDays(plan) {
-                NotificationScheduler.shared.scheduleTrialReminder(trialDays: days)
+                let chosen = UserDefaults.standard.integer(forKey: "trialReminderDay")
+                NotificationScheduler.shared.scheduleTrialReminder(trialDays: days, onDay: chosen > 0 ? chosen : days - 2)
             }
             return isPro ? .success : .failed
         } catch {
@@ -207,12 +208,16 @@ final class SubscriptionManager: ObservableObject {
         }
     }
 
-    func restore() async {
+    /// Nil when the App Store could not be reached, otherwise whether Pro is active.
+    @discardableResult
+    func restore() async -> Bool? {
         if let info = try? await Purchases.shared.restorePurchases() {
             apply(info)
             Analytics.track(.restoreResult, ["result": isPro ? "success" : "nothing"])
+            return isPro
         } else {
             Analytics.track(.restoreResult, ["result": "failed"])
+            return nil
         }
     }
 

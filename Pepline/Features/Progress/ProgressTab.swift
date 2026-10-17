@@ -60,6 +60,7 @@ struct ProgressTab: View {
     private var statsCard: some View {
         if let stats = WeightStats.compute(journal.weights, goalKg: journal.goalWeightKg) {
             let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
+            VStack(alignment: .leading, spacing: 12) {
             LazyVGrid(columns: columns, spacing: 12) {
                 stat(Text("Change"), signed(stats.changeKg))
                 stat(Text("Percent"), "\(Fmt.number(stats.changePercent, digits: 1)) %")
@@ -67,6 +68,12 @@ struct ProgressTab: View {
                 stat(Text("Start"), Fmt.weight(stats.startKg, in: unit))
                 stat(Text("Per week"), stats.weeklyChangeKg.map(signed) ?? "—")
                 stat(Text("To goal"), stats.toGoalKg.map { Fmt.weight(max($0, 0), in: unit) } ?? "—")
+            }
+            // Reachable from the first weigh-in, to fix or delete it.
+            NavigationLink { WeightView() } label: {
+                Label("All weigh-ins", systemImage: "list.bullet").font(.subheadline.weight(.semibold))
+            }
+            .padding(.top, 4)
             }
             .plCard()
         } else {

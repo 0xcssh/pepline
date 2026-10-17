@@ -182,5 +182,13 @@ copies.
 - [x] 2026-10-15 Bootstrap + core with tests: reconstitution, decimal input,
   schedules, journal, CSV, reminder planner — 72 tests, Core 100% covered
   (CI gate), translation check in CI. Plan: ~/.claude/plans/mellow-wondering-chipmunk.md
-- [ ] Journal, protocols, reminders, weight
+- [x] 2026-10-17 Leaders' feature set: Today loop, body map, adherence
+  calendar, side effects, levels, progress photos, Apple Health, nutrition
+  (OFF + Pro photo estimate), doctor PDF, next-dose widget.
+- [x] 2026-10-17 UX rethink from SOSA (user decision): 3 tabs (Today ·
+  Journal · Tools), one-tap "I injected" on Today, 11-screen onboarding with
+  the aha (own vial on own syringe) third, TipKit tips in context instead of a
+  tour (p116), weekly recap, trial-reminder day picked on the paywall (p78),
+  cancel-reason survey, Apple review prompt after the 3rd dose / 7-streak
+  (5.6.1: system prompt only, no custom pre-prompt). Editors stay iOS forms.
 - [ ] Paywall, onboarding, localization, listing, screenshots, TestFlight

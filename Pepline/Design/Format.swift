@@ -10,7 +10,10 @@ enum Fmt {
 
     /// No grouping: what a number field can be set to without being ambiguous.
     static func plain(_ value: Decimal) -> String {
-        value.formatted(.number.grouping(.never).precision(.fractionLength(0...6)))
+        let text = value.formatted(.number.grouping(.never).precision(.fractionLength(0...6)))
+        // "1.125" also reads as 1125 (a thousands separator), so DecimalInput
+        // asks; a trailing zero ("1.1250") makes what we write back unambiguous.
+        return DecimalInput.parse(text)?.alternative == nil ? text : text + "0"
     }
 
     static func symbol(_ unit: DoseUnit) -> String {
@@ -31,6 +34,10 @@ enum Fmt {
             ? "\(number(mass.value(in: .mg), digits: 3)) mg"
             : "\(number(mass.mcg, digits: 1)) mcg"
     }
+
+    /// Units to draw, the same everywhere (calculator, Today, reminders,
+    /// widget): up to two decimals, as the calculator computes them.
+    static func units(_ value: Decimal) -> String { number(value, digits: 2) }
 
     static func ml(_ value: Decimal) -> String { "\(number(value, digits: 3)) ml" }
 

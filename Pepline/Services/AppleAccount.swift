@@ -77,6 +77,10 @@ final class AppleAccount: NSObject, ObservableObject {
         Keychain.delete(Self.keychainAccount)
         userID = nil
         await SubscriptionManager.shared.logOut()
+        // logOut() switches RevenueCat to a fresh anonymous user: restore so
+        // the App Store receipt keeps Pro on this iPhone (the dialog promised
+        // the subscription stays active).
+        await SubscriptionManager.shared.restore()
     }
 
     private func reauthenticate() async throws -> ASAuthorizationAppleIDCredential {

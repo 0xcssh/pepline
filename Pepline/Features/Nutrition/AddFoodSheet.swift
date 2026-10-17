@@ -17,6 +17,7 @@ struct AddFoodSheet: View {
     @State private var message: Text?
     @State private var editing: FoodEntry?
     @State private var scanningBarcode = false
+    @State private var scannedCode: String?
     @State private var askingConsent = false
     @State private var photoAfterConsent = false
     @State private var takingPhoto = false
@@ -100,11 +101,17 @@ struct AddFoodSheet: View {
             }
             .presentationDetents([.large])
         }
-        .fullScreenCover(isPresented: $scanningBarcode) {
+        .fullScreenCover(isPresented: $scanningBarcode, onDismiss: {
+            // Looked up once the scanner is gone, so the editor sheet that
+            // follows can present.
+            guard let code = scannedCode else { return }
+            scannedCode = nil
+            Task { await lookup(code) }
+        }) {
             NavigationStack {
                 BarcodeScannerView { code in
+                    scannedCode = code
                     scanningBarcode = false
-                    Task { await lookup(code) }
                 }
                 .ignoresSafeArea()
                 .toolbar {

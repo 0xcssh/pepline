@@ -231,11 +231,34 @@ struct PaywallView: View {
 struct TrialTimeline: View {
     let days: Int
     let price: String?
+    /// The user picks the reminder day (Duolingo: the choice built trust and
+    /// raised conversion, SOSA 2026 p78). Read again at purchase time.
+    @AppStorage("trialReminderDay") private var reminderDay = 0
+
+    private var chosenDay: Int { reminderDay > 0 ? min(reminderDay, max(days - 1, 1)) : max(days - 2, 1) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             step("lock.open.fill", Text("Today"), Text("Full access. Nothing to pay now."))
-            step("bell.fill", Text("Day \(String(max(days - 2, 1)))"), Text("We remind you that your trial ends soon."))
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Image(systemName: "bell.fill").font(.footnote).foregroundStyle(PLColor.accent).frame(width: 20)
+                Menu {
+                    ForEach(1..<max(days, 2), id: \.self) { day in
+                        Button { reminderDay = day } label: { Text("Day \(String(day))") }
+                    }
+                } label: {
+                    HStack(spacing: 3) {
+                        Text("Day \(String(chosenDay))").bold().foregroundStyle(PLColor.accent)
+                        Image(systemName: "chevron.up.chevron.down").font(.caption2).foregroundStyle(PLColor.accent)
+                    }
+                }
+                (Text(verbatim: "· ") + Text("We remind you that your trial ends soon."))
+                    .foregroundStyle(PLColor.muted)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .font(.footnote)
+            .accessibilityElement(children: .contain)
             step("creditcard.fill", Text("Day \(String(days))"),
                  price.map { Text("You're billed \($0) unless you cancel before.") }
                      ?? Text("Your subscription starts unless you cancel before."))
@@ -263,6 +286,7 @@ struct TrialTimeline: View {
 struct PaywallFooter: View {
     @ObservedObject private var subs = SubscriptionManager.shared
     let plan: SubscriptionManager.Plan
+    @State private var restoreResult: Bool??
 
     static let privacyURL = URL(string: "https://0xcssh.github.io/pepline-legal/privacy.html")!
     static let termsURL = URL(string: "https://0xcssh.github.io/pepline-legal/terms.html")!
@@ -288,12 +312,24 @@ struct PaywallFooter: View {
 
             HStack(spacing: 22) {
                 Link(destination: Self.privacyURL) { Text("Privacy") }
-                Button { Task { await subs.restore() } } label: { Text("Restore Purchases") }
+                Button { Task { restoreResult = .some(await subs.restore()) } } label: { Text("Restore Purchases") }
                 Link(destination: Self.termsURL) { Text("Terms") }
             }
             .font(.footnote)
             .foregroundStyle(PLColor.text)
         }
         .frame(maxWidth: .infinity)
+        // Restore always answers: found, nothing to restore, or offline.
+        .alert(isPresented: Binding(get: { restoreResult != nil }, set: { if !$0 { restoreResult = nil } })) {
+            switch restoreResult {
+            case .some(.some(true)):
+                return Alert(title: Text("Pepline Pro is restored."))
+            case .some(.some(false)):
+                return Alert(title: Text("No subscription to restore"),
+                             message: Text("No active Pepline Pro was found for this Apple ID."))
+            default:
+                return Alert(title: Text("Couldn't reach the App Store"), message: Text("Check your connection and try again."))
+            }
+        }
     }
 }
