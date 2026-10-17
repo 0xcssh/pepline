@@ -13,6 +13,41 @@ struct CalculatorView: View {
     private enum Field: Hashable { case vial, water, dose, factor }
 
     var body: some View {
+        scroller
+            .navigationTitle(Text("Calculator"))
+            .toolbar { toolbar }
+            .sheet(isPresented: $savingVial) {
+                SaveVialSheet(model: model)
+            }
+            .onAppear {
+                if model.loadedVialID == nil, model.vialText.isEmpty, let preferred = store.journal.preferredSyringe {
+                    model.syringe = preferred
+                }
+            }
+            .onChange(of: model.draw != nil) { _, hasResult in
+                guard hasResult, let draw = model.draw else { return }
+                Analytics.track(.calculatorResult, [
+                    "syringe": "\(model.syringe.capacityMl)ml-\(model.syringe.tickUnits)u",
+                    "doseUnit": model.doseUnit.rawValue,
+                    "warnings": String(draw.warnings.count),
+                ])
+            }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbar: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            if model.loadedVialID != nil || !model.vialText.isEmpty {
+                Button("Clear") { model.clear() }
+            }
+        }
+        ToolbarItemGroup(placement: .keyboard) {
+            Spacer()
+            Button("Done") { focus = nil }
+        }
+    }
+
+    private var scroller: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -43,32 +78,6 @@ struct CalculatorView: View {
             }
             .animation(.spring(duration: 0.4), value: model.draw?.units)
         }
-        .navigationTitle(Text("Calculator"))
-        .toolbar {
-            if model.loadedVialID != nil || !model.vialText.isEmpty {
-                Button("Clear") { model.clear() }
-            }
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Done") { focus = nil }
-            }
-        }
-        .sheet(isPresented: $savingVial) {
-            SaveVialSheet(model: model)
-        }
-        .onAppear {
-            if model.loadedVialID == nil, model.vialText.isEmpty, let preferred = store.journal.preferredSyringe {
-                model.syringe = preferred
-            }
-        }
-        .onChange(of: model.draw != nil) { _, hasResult in
-            guard hasResult, let draw = model.draw else { return }
-            Analytics.track(.calculatorResult, [
-                "syringe": "\(model.syringe.capacityMl)ml-\(model.syringe.tickUnits)u",
-                "doseUnit": model.doseUnit.rawValue,
-                "warnings": String(draw.warnings.count),
-            ])
-        }
     }
 
     // MARK: Steps
@@ -77,7 +86,7 @@ struct CalculatorView: View {
         StepCard(number: 1, title: Text("Powder in the vial"), done: decimalValue(model.vialText).map { $0 > 0 } ?? false) {
             NumberEntry(title: Text("Powder in the vial"), text: $model.vialText)
                 .focused($focus, equals: .vial)
-            ChipPicker(selection: $model.vialUnit, options: [(.mg, "mg"), (.iu, Fmt.symbol(.iu))])
+            ChipPicker(selection: $model.vialUnit, options: [(DoseUnit.mg, "mg"), (DoseUnit.iu, Fmt.symbol(.iu))])
         }
     }
 
