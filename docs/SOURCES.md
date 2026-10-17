@@ -83,3 +83,18 @@ secondary source is marked as such and is never the only support for a constant.
   0.45359237 kg since the 1959 international yard and pound agreement —
   [Wikipedia, International yard and pound](https://en.wikipedia.org/wiki/International_yard_and_pound)
   (secondary; NIST SP 811 Appendix B lists 4.535 924 E-01).
+
+## Half-lives (`CompoundPreset.halfLifeHours`, `MedicationLevel`)
+
+The estimated-level curve uses first-order elimination,
+amount(t) = Σ doseᵢ · 0.5^((t − tᵢ)/t½), each dose counted as absorbed at once.
+It is shown as an estimate, never a measurement, with this method stated
+(App Review 1.4.1). Presets only where a product label states a half-life;
+otherwise the user types the value from their own label, or no curve is drawn.
+
+| Compound | t½ used | Source | Grade |
+|---|---|---|---|
+| Semaglutide | 168 h | Ozempic label §12.3, "an elimination half-life of approximately 1 week" (rev. 5/2026) — [DailyMed](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=adec4fd2-6858-4c99-91d4-531f5f2a2d79) | primary |
+| Tirzepatide | 120 h | "elimination half-life of approximately 5 days", citing the Mounjaro package insert — [Lilly Medical](https://medical.lilly.com/us/products/answers/what-is-the-half-life-of-mounjaro-tirzepatide-311137) | manufacturer |
+| Liraglutide | 13 h | Saxenda label, plasma half-life about 13 h — [label reproduction](https://medlibrary.org/lib/rx/meds/saxenda/page/5/), [SAHPRA label](https://www.sahpra.org.za/wp-content/uploads/2021/02/Saxenda_PI_Novo-Nordisk-Pty-Ltd_Old-MCC-Format31-March-2020.pdf) | label copies |
+| Retatrutide | none | ~6 days is quoted online but could not be found in the NEJM 2023 phase-2 paper (Jastreboff, DOI 10.1056/NEJMoa2301972) | not verified → no preset |

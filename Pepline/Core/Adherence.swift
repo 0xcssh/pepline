@@ -1,0 +1,95 @@
+import Foundation
+
+/// Taken / skipped / missed / upcoming for every scheduled dose, as the
+/// calendars of PeptidePal and Peptide Tracker show it.
+struct ScheduledDose: Hashable {
+    enum Status: Hashable {
+        case taken(DoseEntry.ID)
+        case skipped(SkippedDose.ID)
+        case missed
+        case upcoming
+    }
+
+    var regimenID: Regimen.ID
+    var date: Date
+    var status: Status
+}
+
+struct AdherenceSummary: Equatable {
+    var taken = 0
+    var skipped = 0
+    var missed = 0
+
+    /// Taken among the doses that are due (skipped counts against, so a
+    /// streak of skips is visible); nil when nothing was due yet.
+    var rate: Double? {
+        let due = taken + skipped + missed
+        return due == 0 ? nil : Double(taken) / Double(due)
+    }
+}
+
+enum Adherence {
+    /// A logged dose counts for a scheduled one when it is this close.
+    static let tolerance: TimeInterval = 12 * 3600
+
+    /// Every scheduled dose of `regimen` in `from...through`, matched to the
+    /// journal. Each logged dose answers at most one scheduled dose: the
+    /// nearest one within the tolerance.
+    static func doses(of regimen: Regimen, in journal: Journal, from: Date, through: Date,
+                      now: Date, calendar: Calendar) -> [ScheduledDose] {
+        let scheduled = regimen.schedule.occurrences(from: from, through: through, calendar: calendar)
+        let skips = journal.skippedDoses.filter { $0.regimenID == regimen.id }
+
+        // Each logged dose goes to its nearest scheduled dose (within the
+        // tolerance); a scheduled dose keeps the first one assigned to it.
+        var takenBy: [Date: DoseEntry.ID] = [:]
+        for dose in journal.doses.filter({ $0.compoundID == regimen.compoundID }).sorted(by: { $0.date < $1.date }) {
+            let nearest = scheduled
+                .filter { abs(dose.date.timeIntervalSince($0)) <= tolerance }
+                .min { abs(dose.date.timeIntervalSince($0)) < abs(dose.date.timeIntervalSince($1)) }
+            if let nearest, takenBy[nearest] == nil { takenBy[nearest] = dose.id }
+        }
+
+        return scheduled.map { date in
+            if let skip = skips.first(where: { $0.scheduledAt == date }) {
+                return ScheduledDose(regimenID: regimen.id, date: date, status: .skipped(skip.id))
+            }
+            if let doseID = takenBy[date] {
+                return ScheduledDose(regimenID: regimen.id, date: date, status: .taken(doseID))
+            }
+            return ScheduledDose(regimenID: regimen.id, date: date,
+                                 status: date.addingTimeInterval(tolerance) < now ? .missed : .upcoming)
+        }
+    }
+
+    /// Every regimen's scheduled doses in the range, in time order.
+    static func doses(in journal: Journal, from: Date, through: Date, now: Date, calendar: Calendar) -> [ScheduledDose] {
+        journal.regimens
+            .flatMap { doses(of: $0, in: journal, from: from, through: through, now: now, calendar: calendar) }
+            .sorted { $0.date < $1.date }
+    }
+
+    static func summary(_ doses: [ScheduledDose]) -> AdherenceSummary {
+        doses.reduce(into: AdherenceSummary()) { summary, dose in
+            switch dose.status {
+            case .taken: summary.taken += 1
+            case .skipped: summary.skipped += 1
+            case .missed: summary.missed += 1
+            case .upcoming: break
+            }
+        }
+    }
+
+    /// Consecutive taken doses, counting back from the most recent due one.
+    static func streak(_ doses: [ScheduledDose]) -> Int {
+        var count = 0
+        for dose in doses.sorted(by: { $0.date > $1.date }) {
+            switch dose.status {
+            case .upcoming: continue
+            case .taken: count += 1
+            case .skipped, .missed: return count
+            }
+        }
+        return count
+    }
+}

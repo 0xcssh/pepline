@@ -29,6 +29,9 @@ struct Compound: Codable, Hashable, Identifiable {
     var name: String
     /// Only for compounds dosed in IU; factor from the user's label.
     var iuConversion: IUConversion?
+    /// Elimination half-life for the estimated-level curve: a sourced preset
+    /// (CompoundPreset) or the value from the user's own label; nil = no curve.
+    var halfLifeHours: Decimal?
 }
 
 /// A reconstituted vial, saved with the syringe it is drawn with.

@@ -17,6 +17,14 @@ struct Journal: Codable, Equatable {
     var goalWeightKg: Decimal?
     /// Syringe the calculator starts with (onboarding answer).
     var preferredSyringe: SyringeModel?
+    /// Scheduled doses the user chose to skip (they are not "missed").
+    var skippedDoses: [SkippedDose] = []
+    var sideEffects: [SideEffectEntry] = []
+    var foods: [FoodEntry] = []
+    var favoriteFoods: [FoodItem] = []
+    var water: [WaterEntry] = []
+    var nutritionGoals = NutritionGoals()
+    var photos: [ProgressPhoto] = []
 
     // MARK: Edits — every entry can be added, edited and deleted.
 
@@ -25,6 +33,26 @@ struct Journal: Codable, Equatable {
     mutating func save(_ dose: DoseEntry) { Journal.upsert(dose, in: &doses) }
     mutating func save(_ regimen: Regimen) { Journal.upsert(regimen, in: &regimens) }
     mutating func save(_ weight: WeightEntry) { Journal.upsert(weight, in: &weights) }
+    mutating func save(_ skipped: SkippedDose) { Journal.upsert(skipped, in: &skippedDoses) }
+    mutating func save(_ entry: SideEffectEntry) { Journal.upsert(entry, in: &sideEffects) }
+    mutating func save(_ entry: FoodEntry) { Journal.upsert(entry, in: &foods) }
+    mutating func save(_ entry: WaterEntry) { Journal.upsert(entry, in: &water) }
+    mutating func save(_ photo: ProgressPhoto) { Journal.upsert(photo, in: &photos) }
+
+    mutating func deleteSkipped(_ id: SkippedDose.ID) { skippedDoses.removeAll { $0.id == id } }
+    mutating func deleteSideEffect(_ id: SideEffectEntry.ID) { sideEffects.removeAll { $0.id == id } }
+    mutating func deleteFood(_ id: FoodEntry.ID) { foods.removeAll { $0.id == id } }
+    mutating func deleteWater(_ id: WaterEntry.ID) { water.removeAll { $0.id == id } }
+    mutating func deletePhoto(_ id: ProgressPhoto.ID) { photos.removeAll { $0.id == id } }
+
+    /// Adds the item to the favourites, or removes it when already there.
+    mutating func toggleFavorite(_ item: FoodItem) {
+        if let index = favoriteFoods.firstIndex(where: { $0.name == item.name }) {
+            favoriteFoods.remove(at: index)
+        } else {
+            favoriteFoods.append(item)
+        }
+    }
 
     mutating func deleteDose(_ id: DoseEntry.ID) { doses.removeAll { $0.id == id } }
     mutating func deleteRegimen(_ id: Regimen.ID) { regimens.removeAll { $0.id == id } }
@@ -92,4 +120,34 @@ struct Journal: Codable, Equatable {
 
     /// Weights oldest first, for the chart.
     var weightSeries: [WeightEntry] { weights.sorted { $0.date < $1.date } }
+}
+
+// Decoding by hand so files written by older versions (without the newer
+// collections) still load: every field falls back to its default. Kept in
+// an extension so the memberwise and empty initialisers stay synthesised.
+extension Journal {
+    private enum CodingKeys: String, CodingKey {
+        case version, compounds, vials, doses, regimens, weights, goalWeightKg, preferredSyringe
+        case skippedDoses, sideEffects, foods, favoriteFoods, water, nutritionGoals, photos
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.init()
+        version = try c.decodeIfPresent(Int.self, forKey: .version) ?? Journal.currentVersion
+        compounds = try c.decodeIfPresent([Compound].self, forKey: .compounds) ?? []
+        vials = try c.decodeIfPresent([Vial].self, forKey: .vials) ?? []
+        doses = try c.decodeIfPresent([DoseEntry].self, forKey: .doses) ?? []
+        regimens = try c.decodeIfPresent([Regimen].self, forKey: .regimens) ?? []
+        weights = try c.decodeIfPresent([WeightEntry].self, forKey: .weights) ?? []
+        goalWeightKg = try c.decodeIfPresent(Decimal.self, forKey: .goalWeightKg)
+        preferredSyringe = try c.decodeIfPresent(SyringeModel.self, forKey: .preferredSyringe)
+        skippedDoses = try c.decodeIfPresent([SkippedDose].self, forKey: .skippedDoses) ?? []
+        sideEffects = try c.decodeIfPresent([SideEffectEntry].self, forKey: .sideEffects) ?? []
+        foods = try c.decodeIfPresent([FoodEntry].self, forKey: .foods) ?? []
+        favoriteFoods = try c.decodeIfPresent([FoodItem].self, forKey: .favoriteFoods) ?? []
+        water = try c.decodeIfPresent([WaterEntry].self, forKey: .water) ?? []
+        nutritionGoals = try c.decodeIfPresent(NutritionGoals.self, forKey: .nutritionGoals) ?? NutritionGoals()
+        photos = try c.decodeIfPresent([ProgressPhoto].self, forKey: .photos) ?? []
+    }
 }

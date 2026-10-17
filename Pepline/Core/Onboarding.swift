@@ -43,7 +43,8 @@ struct OnboardingAnswers: Codable, Equatable {
             guard !name.isEmpty,
                   !journal.compounds.contains(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame })
             else { continue }
-            journal.save(Compound(name: name, iuConversion: CompoundPreset.named(name)?.iuConversion))
+            let preset = CompoundPreset.named(name)
+            journal.save(Compound(name: name, iuConversion: preset?.iuConversion, halfLifeHours: preset?.halfLifeHours))
         }
         journal.preferredSyringe = syringe
         guard asksWeight else { return }
@@ -61,10 +62,17 @@ struct OnboardingAnswers: Codable, Equatable {
 struct CompoundPreset: Equatable {
     var name: String
     var iuConversion: IUConversion?
+    /// Elimination half-life from the product label (docs/SOURCES.md
+    /// § Half-lives); nil when no label states one.
+    var halfLifeHours: Decimal?
 
     static let all: [CompoundPreset] = [
-        CompoundPreset(name: "Semaglutide"),
-        CompoundPreset(name: "Tirzepatide"),
+        // Ozempic label §12.3: "approximately 1 week".
+        CompoundPreset(name: "Semaglutide", halfLifeHours: 168),
+        // Mounjaro label (via Lilly Medical): approximately 5 days.
+        CompoundPreset(name: "Tirzepatide", halfLifeHours: 120),
+        // Saxenda label: approximately 13 hours.
+        CompoundPreset(name: "Liraglutide", halfLifeHours: 13),
         CompoundPreset(name: "Retatrutide"),
         CompoundPreset(name: "BPC-157"),
         CompoundPreset(name: "TB-500"),
