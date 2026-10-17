@@ -98,7 +98,7 @@ struct PulseRings: View {
                 .plGlow()
                 .symbolEffect(.pulse, isActive: !reduceMotion)
         }
-        .frame(width: size, height: size)
+        .frame(width: size * 1.45, height: size * 1.45)
         .onAppear {
             guard !reduceMotion else { return }
             withAnimation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true)) { pulse = true }
@@ -176,7 +176,8 @@ struct QuestionScreen<Content: View>: View {
                         if let hero {
                             hero
                                 .frame(maxWidth: .infinity)
-                                .padding(.top, 8)
+                                .frame(minHeight: proxy.size.height * 0.34)
+                                .padding(.bottom, 12)
                                 .staggered(0)
                         }
                         VStack(alignment: .leading, spacing: 10) {
@@ -223,30 +224,44 @@ struct QuestionScreen<Content: View>: View {
     }
 }
 
-/// One sentence, typed out under a pulsing symbol; continues by itself or on tap.
+/// One sentence under a pulsing symbol. The full sentence is laid out from
+/// the start and its words light up one after the other, so lines never
+/// jump while it appears. Continues by itself or on tap.
 struct StatementScreen: View {
     @ObservedObject var model: OnboardingModel
     let text: String
     var symbol = "sparkles"
-    var autoAdvanceAfter: Double = 2.4
-    @State private var shown = 0
+    var autoAdvanceAfter: Double = 2.2
+    @State private var revealed = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var words: [String] { text.split(separator: " ").map(String.init) }
+
+    private var sentence: Text {
+        words.enumerated().reduce(Text(verbatim: "")) { partial, item in
+            let word = Text(verbatim: (item.offset == 0 ? "" : " ") + item.element)
+                .foregroundColor(item.offset < revealed ? PLColor.text : PLColor.text.opacity(0.1))
+            return partial + word
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             OnboardingChrome(model: model)
-            Spacer()
-            PulseRings(symbol: symbol, size: 220)
-            Text(verbatim: String(text.prefix(shown)))
-                .font(.system(size: 30, weight: .bold, design: .rounded))
-                .foregroundStyle(PLColor.text)
+            Spacer(minLength: 20)
+            PulseRings(symbol: symbol, size: 170)
+            Spacer(minLength: 28)
+            sentence
+                .font(.system(size: 34, weight: .heavy, design: .rounded))
+                .tracking(-0.6)
+                .lineSpacing(4)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
-                .padding(.horizontal, 28)
-                .padding(.top, 28)
+                .padding(.horizontal, 30)
                 .accessibilityLabel(Text(verbatim: text))
-            Spacer()
+            Spacer(minLength: 20)
             Text("Tap to continue")
-                .font(.footnote)
+                .font(.footnote.weight(.semibold))
                 .foregroundStyle(PLColor.muted)
                 .padding(.bottom, 24)
         }
@@ -254,11 +269,14 @@ struct StatementScreen: View {
         .contentShape(Rectangle())
         .onTapGesture { model.advance() }
         .task(id: text) {
-            shown = 0
-            // Typewriter: about 30 characters a second.
-            for count in 0...text.count {
-                shown = count
-                try? await Task.sleep(nanoseconds: 33_000_000)
+            revealed = 0
+            if reduceMotion {
+                revealed = words.count
+            } else {
+                for index in 1...max(words.count, 1) {
+                    try? await Task.sleep(nanoseconds: 110_000_000)
+                    withAnimation(.easeOut(duration: 0.3)) { revealed = index }
+                }
             }
             try? await Task.sleep(nanoseconds: UInt64(autoAdvanceAfter * 1_000_000_000))
             if !Task.isCancelled { model.advance() }

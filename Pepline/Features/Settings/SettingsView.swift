@@ -7,6 +7,14 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage(WeightUnitSetting.key) private var unitSetting = WeightUnitSetting.defaultValue
     @State private var deleting: Compound?
+    /// Hidden developer menu (tap the version 7 times): lets the owner see
+    /// the paywall and the onboarding again on a subscribed device. Its
+    /// labels are not localized on purpose: no user ever sees them.
+    @AppStorage("developerMenu") private var developerMenu = false
+    @AppStorage("onboardingDone") private var onboardingDone = true
+    @State private var versionTaps = 0
+    @State private var previewingPaywall = false
+    @State private var previewingExitOffer = false
     @ObservedObject private var account = AppleAccount.shared
     @State private var confirmingAccountDeletion = false
     @State private var accountDeletionFailed = false
@@ -90,10 +98,31 @@ struct SettingsView: View {
                         Text(verbatim: "Pepline \(version)")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
+                            .onTapGesture {
+                                versionTaps += 1
+                                if versionTaps >= 7 { developerMenu = true }
+                            }
+                    }
+                }
+
+                if developerMenu {
+                    Section {
+                        Button { previewingPaywall = true } label: { Text(verbatim: "Show paywall") }
+                        Button { previewingExitOffer = true } label: { Text(verbatim: "Show exit offer") }
+                        Button {
+                            UserDefaults.standard.set(false, forKey: "exitOfferShown")
+                            onboardingDone = false
+                            dismiss()
+                        } label: { Text(verbatim: "Replay onboarding") }
+                        Button(role: .destructive) { developerMenu = false } label: { Text(verbatim: "Hide developer menu") }
+                    } header: {
+                        Text(verbatim: "Developer")
                     }
                 }
             }
             .plScreen()
+            .sheet(isPresented: $previewingPaywall) { PaywallView(preview: true) }
+            .sheet(isPresented: $previewingExitOffer) { ExitOfferView() }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

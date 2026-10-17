@@ -8,6 +8,9 @@ struct PaywallView: View {
     @ObservedObject private var subs = SubscriptionManager.shared
     @AppStorage("exitOfferShown") private var exitOfferShown = false
     @AppStorage("firstName") private var firstName = ""
+    @Environment(\.dismiss) private var dismiss
+    /// Opened from the hidden developer menu while subscribed: closable.
+    var preview = false
     @State private var purchasing = false
     @State private var showingExitOffer = false
     @State private var storeUnavailable = false
@@ -70,7 +73,17 @@ struct PaywallView: View {
             .padding(20)
         }
         .background(OnboardingBackdrop())
+        .overlay(alignment: .topTrailing) {
+            if preview {
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark.circle.fill").font(.title).foregroundStyle(PLColor.muted)
+                }
+                .padding(16)
+                .accessibilityLabel(Text("Close"))
+            }
+        }
         .task {
+            guard !preview else { return }
             Analytics.track(.paywallShown, ["kind": "main"])
             if !subs.hasProduct(.yearly) { await subs.refresh() }
         }
@@ -170,7 +183,7 @@ struct PaywallView: View {
             purchasing = false
             // Closing Apple's sheet on the yearly plan opens the exit offer,
             // once per install (the competitor's pattern the user liked).
-            if outcome == .cancelled, subs.selectedPlan == .yearly, !exitOfferShown, subs.hasProduct(.exitOffer) {
+            if outcome == .cancelled, subs.selectedPlan == .yearly, !exitOfferShown || preview, subs.hasProduct(.exitOffer) {
                 exitOfferShown = true
                 showingExitOffer = true
             }

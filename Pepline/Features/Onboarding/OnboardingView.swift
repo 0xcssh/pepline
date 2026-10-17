@@ -538,6 +538,13 @@ private struct NotificationPreview: View {
     @State private var shown = false
 
     var body: some View {
+        VStack(spacing: 22) {
+            PulseRings(symbol: "bell.fill", size: 110)
+            banner
+        }
+    }
+
+    private var banner: some View {
         HStack(spacing: 12) {
             Image("Logo")
                 .resizable()
@@ -559,9 +566,7 @@ private struct NotificationPreview: View {
         .shadow(color: .black.opacity(0.25), radius: 20, y: 10)
         .offset(y: shown ? 0 : -40)
         .opacity(shown ? 1 : 0)
-        .padding(.vertical, 30)
         .frame(maxWidth: .infinity)
-        .background(PulseRings(symbol: "bell.fill", size: 210).opacity(0.5))
         .onAppear { withAnimation(.spring(duration: 0.7).delay(0.4)) { shown = true } }
         .sensoryFeedback(.success, trigger: shown)
     }
