@@ -115,6 +115,7 @@ struct WeightEditor: View {
         guard let value = decimalValue(draft.valueText) else { return }
         let entry = WeightEntry(id: draft.id, date: draft.date, kilograms: Fmt.kilograms(value, from: unit))
         store.update { $0.save(entry) }
+        HealthService.shared.write(entry)
         Analytics.track(.weightLogged)
         dismiss()
     }

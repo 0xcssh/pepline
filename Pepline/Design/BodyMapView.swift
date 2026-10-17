@@ -20,6 +20,7 @@ struct BodyMapView: View {
                 figure(front: false)
             }
             .frame(height: 260)
+            .padding(.bottom, 16)
             HStack(spacing: 14) {
                 legend(color: PLColor.warning, Text("Used recently"))
                 legend(color: PLColor.accent, Text("Rested"))
@@ -43,9 +44,9 @@ struct BodyMapView: View {
     private func center(_ zone: SiteZone, front: Bool) -> CGPoint? {
         let mirror: CGFloat = zone.side == .left ? 1 : -1
         switch (zone.site, front) {
-        case (.abdomen, true): return CGPoint(x: 50 + 11 * mirror, y: 92)
-        case (.thigh, true): return CGPoint(x: 50 + 13 * mirror, y: 148)
-        case (.glute, false): return CGPoint(x: 50 - 13 * mirror, y: 116)
+        case (.abdomen, true): return CGPoint(x: 50 + 12 * mirror, y: 76)
+        case (.thigh, true): return CGPoint(x: 50 + 11 * mirror, y: 140)
+        case (.glute, false): return CGPoint(x: 50 - 11 * mirror, y: 98)
         case (.arm, false): return CGPoint(x: 50 - 33 * mirror, y: 70)
         default: return nil
         }
@@ -63,7 +64,7 @@ struct BodyMapView: View {
                     .offset(x: origin.x, y: origin.y)
                 ForEach(SiteZone.allCases, id: \.self) { zone in
                     if let point = center(zone, front: front) {
-                        zoneButton(zone, size: 22 * scale)
+                        zoneButton(zone, size: 17 * scale)
                             .position(x: origin.x + point.x * scale, y: origin.y + point.y * scale)
                     }
                 }

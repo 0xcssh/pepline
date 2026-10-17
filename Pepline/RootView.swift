@@ -14,7 +14,7 @@ struct RootView: View {
                 .tabItem { Label("Calculator", systemImage: "syringe") }
             tab { HistoryView() }
                 .tabItem { Label("History", systemImage: "calendar") }
-            tab { WeightView() }
+            tab { ProgressTab() }
                 .tabItem { Label("Progress", systemImage: "chart.xyaxis.line") }
         }
         .sheet(isPresented: $showingSettings) { SettingsView() }

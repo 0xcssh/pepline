@@ -40,6 +40,8 @@ enum Analytics {
         case sideEffectLogged = "SideEffect.logged"  // symptom, severity
         case regimenSaved = "Regimen.saved"          // pattern, times (count), reminders, reorder
         case weightLogged = "Weight.logged"
+        case photoAdded = "Photo.added"
+        case healthImported = "Health.imported"      // count
         case exported = "Export.done"                // kind: doses|weight
         case notificationPermission = "Permission.notifications" // result: granted|denied
 

@@ -39,6 +39,8 @@ targets:
       properties:
         com.apple.developer.applesignin:
           - Default
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
     dependencies:
       - package: RevenueCat
         product: RevenueCat
@@ -52,6 +54,10 @@ targets:
         # it to MARKETING_VERSION. Every new release train must bump it.
         CFBundleShortVersionString: "1.0.0"
         UILaunchScreen: {}
+        # Localized in InfoPlist.xcstrings.
+        NSHealthShareUsageDescription: Pepline reads your weight from Apple Health to draw your progress curve.
+        NSHealthUpdateUsageDescription: Pepline saves the weights you log to Apple Health.
+        NSCameraUsageDescription: Pepline uses the camera for your progress photos and to scan food barcodes.
         ITSAppUsesNonExemptEncryption: false
         # iPhone-only portrait app: opting out of iPad multitasking satisfies
         # App Store validation without declaring all four orientations.
