@@ -15,3 +15,18 @@ Environment variables (Vercel project settings, never committed):
 | `APPLE_CLIENT_ID` | `com.awdia.pepline` |
 | `APPLE_KEY_ID` | Key ID of the "Sign in with Apple" key (developer portal → Keys) |
 | `APPLE_PRIVATE_KEY` | contents of that key's `.p8` |
+
+## `POST /api/food/scan` (Pepline Pro)
+
+Estimates the foods in one meal photo with Claude (`claude-opus-5-5`, low
+effort, JSON-schema output; roughly a cent per photo). Checks the
+`pepline_pro` entitlement in RevenueCat first; 20 scans per user per hour.
+The photo is not stored. Pin `@anthropic-ai/sdk` with the lockfile on the
+first deploy.
+
+| Name | Value |
+|---|---|
+| `ANTHROPIC_API_KEY` | from console.anthropic.com |
+| `REVENUECAT_SECRET_KEY` | RevenueCat v2 secret key |
+| `REVENUECAT_PROJECT_ID` | `proj33517486` |
+| `PEPLINE_ENTITLEMENT_ID` | `entlb31718d3df` |

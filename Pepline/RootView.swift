@@ -16,6 +16,8 @@ struct RootView: View {
                 .tabItem { Label("History", systemImage: "calendar") }
             tab { ProgressTab() }
                 .tabItem { Label("Progress", systemImage: "chart.xyaxis.line") }
+            tab { NutritionView() }
+                .tabItem { Label("Nutrition", systemImage: "fork.knife") }
         }
         .sheet(isPresented: $showingSettings) { SettingsView() }
         .safeAreaInset(edge: .top) {

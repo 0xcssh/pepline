@@ -81,7 +81,7 @@ private struct TrustChips: View {
     var body: some View {
         HStack(spacing: 8) {
             chip("person.crop.circle.badge.xmark", Text("No account"))
-            chip("cpu", Text("No AI"))
+            chip("hand.raised", Text("No dose advice"))
             chip("iphone", Text("On your iPhone"))
         }
     }

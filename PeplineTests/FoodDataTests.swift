@@ -30,6 +30,7 @@ final class FoodDataTests: XCTestCase {
         XCTAssertNil(FoodData.item(fromLookup: data(#"{"status":0}"#), barcode: "1"))
         XCTAssertNil(FoodData.item(fromLookup: data("not json"), barcode: "1"))
         XCTAssertNil(FoodData.item(fromLookup: data(#"{"status":1,"product":{"product_name":"","nutriments":{}}}"#), barcode: "1"))
+        XCTAssertNil(FoodData.item(fromLookup: data(#"{"status":1,"product":{"nutriments":{"energy-kcal_100g":50}}}"#), barcode: "1"))
         XCTAssertNil(FoodData.item(fromLookup: data(#"{"status":1,"product":{"product_name":"Water"}}"#), barcode: "1"))
         XCTAssertNil(FoodData.item(fromLookup: data(#"{"status":1,"product":{"product_name":"Water","nutriments":{"energy-kcal_100g":0}}}"#), barcode: "1"))
     }

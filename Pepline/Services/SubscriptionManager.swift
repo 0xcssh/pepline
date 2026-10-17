@@ -216,6 +216,9 @@ final class SubscriptionManager: ObservableObject {
         }
     }
 
+    /// RevenueCat's ID for this user; the food-scan server checks Pro with it.
+    var appUserID: String { Purchases.isConfigured ? Purchases.shared.appUserID : "" }
+
     // MARK: - Sign in with Apple
 
     /// Ties the subscription to the Apple account, so it follows the user to

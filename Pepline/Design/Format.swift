@@ -34,6 +34,9 @@ enum Fmt {
 
     static func ml(_ value: Decimal) -> String { "\(number(value, digits: 3)) ml" }
 
+    /// Water drunk: whole millilitres.
+    static func water(_ milliliters: Decimal) -> String { "\(number(milliliters, digits: 0)) ml" }
+
     /// User's weight unit: kg or lb, from Settings (default from the locale).
     static func weight(_ kilograms: Decimal, in unit: UnitMass) -> String {
         let value = Measurement(value: NSDecimalNumber(decimal: kilograms).doubleValue, unit: UnitMass.kilograms)

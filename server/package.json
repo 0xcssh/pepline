@@ -1,10 +1,13 @@
 {
   "name": "pepline-api",
   "private": true,
-  "description": "Stateless helpers for the Pepline iOS app. Only Sign in with Apple token revocation (App Review 5.1.1(v)).",
+  "description": "Stateless helpers for the Pepline iOS app: Sign in with Apple token revocation (App Review 5.1.1(v)) and the Pro-only food photo estimate.",
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
-    "jose": "5.9.6"
+    "jose": "5.9.6",
+    "@anthropic-ai/sdk": "latest"
   }
 }

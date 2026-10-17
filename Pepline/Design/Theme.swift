@@ -26,6 +26,8 @@ enum PLColor {
     static let onAccent = adaptive(dark: 0x052018, light: 0xFFFFFF)
     /// Warnings (a fact about the syringe, never a judgement on the dose).
     static let warning = adaptive(dark: 0xFFB547, light: 0xC77800)
+    /// Water intake rings and drops.
+    static let water = adaptive(dark: 0x5CC8FF, light: 0x0A7FC2)
 
     private static func adaptive(dark: UInt32, darkAlpha: CGFloat = 1, light: UInt32, lightAlpha: CGFloat = 1) -> Color {
         Color(UIColor { traits in

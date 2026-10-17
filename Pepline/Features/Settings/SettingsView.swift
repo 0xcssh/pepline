@@ -13,6 +13,7 @@ struct SettingsView: View {
     @AppStorage("developerMenu") private var developerMenu = false
     @AppStorage("onboardingDone") private var onboardingDone = true
     @State private var versionTaps = 0
+    @AppStorage("foodScanConsent") private var scanConsent = false
     @State private var previewingPaywall = false
     @State private var previewingExitOffer = false
     @ObservedObject private var account = AppleAccount.shared
@@ -82,6 +83,18 @@ struct SettingsView: View {
                     Text("Account")
                 } footer: {
                     Text("Signing in only ties Pepline Pro to your Apple ID. Deleting the account revokes Pepline's access at Apple.")
+                }
+
+                Section {
+                    Toggle("Meal photo estimates", isOn: $scanConsent)
+                    Link(destination: URL(string: "https://world.openfoodfacts.org")!) {
+                        Text("Food data © Open Food Facts contributors, ODbL.")
+                            .font(.footnote)
+                    }
+                } header: {
+                    Text("Nutrition")
+                } footer: {
+                    Text("Meal photos are sent to Anthropic's Claude for the estimate only, and are not kept.")
                 }
 
                 Section {

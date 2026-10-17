@@ -2,7 +2,8 @@
 
 Pepline is a native iOS app for people who inject peptides and GLP-1 compounds:
 a **reconstitution calculator that is correct and saveable**, plus a **dose
-journal**, reminders and a weight curve. No account, no AI, no dosing advice,
+journal**, reminders, progress and nutrition. No account, no dosing advice
+(AI only estimates food macros from a meal photo, with consent),
 on-device data, honest paywall. It is the exact inverse of the category
 leaders, whose reviews are majority 1-star (see "Why this app").
 
@@ -37,7 +38,7 @@ complaints, each one a requirement for us:
   input broken, wrong result). → Calculator first, exact, decimals OK, tested.
 - Calculations cannot be saved; doses cannot be edited/deleted when logged on
   the wrong date. → Save per vial; every entry editable and deletable.
-- AI assistant giving dangerous doses. → No AI. Journal + math only. This is
+- AI assistant giving dangerous doses. → No AI advice. Journal + math only. This is
   also our App Review line (guideline 1.4 health): we never recommend a dose.
 - Bloated updates, mascots, broken timer, unreachable support. → Small,
   calm UI (RepLock design system), support email answered.
@@ -74,19 +75,24 @@ take with day-one localization (smaller volume, stricter regulation).
    left/right), notes; edit/delete anything; history by day and by compound.
 3. **Protocols**: several compounds with different schedules (daily, EOD,
    weekly, N-on/N-off); reminders; "vial runs out on …" + reorder reminder.
-4. **Weight** log with chart (HealthKit read optional, later).
-5. **Export** CSV. Data in the app sandbox (no App Group needed — no extensions).
-6. **Monetization**: hard paywall after the onboarding, 7-day trial on yearly,
+4. **Progress**: weight (Apple Health read/write), photos, estimated levels,
+   side effects, adherence calendar, body-map site rotation.
+5. **Nutrition** (decision 2026-10-17, to match MeAgain/Shotsy): protein,
+   water and calorie goals set by the user, Open Food Facts search and
+   barcode, Pro meal-photo estimate via `server/api/food/scan` (Claude).
+6. **Export** CSV + PDF doctor report; next-dose widget (App Group then).
+7. **Monetization**: hard paywall after the onboarding, 7-day trial on yearly,
    monthly without trial. **Prices aligned on PeptidePal (decision
    2026-10-15): yearly $44.99, monthly $14.99**, plus an exit offer
    `com.awdia.pepline.pro.yearly.offer` at $34.99/yr (−22%, 7-day trial) shown
    once when the user cancels Apple's payment sheet. All in
    `scripts/store.json`, created by `scripts/asc_admin.py` (ACTION=setup).
    Consider a one-time "calculator only" unlock later (PepCalc's audience).
-7. **9 languages** from day one (en, fr, es, de, it, pt-BR, ja, ko, zh-Hans) —
+8. **9 languages** from day one (en, fr, es, de, it, pt-BR, ja, ko, zh-Hans) —
    the leaders are US-only.
 
-Out of scope v1: AI, food/macros, community, Android, web.
+Out of scope v1: AI dosing advice or chat, community, compound library,
+Android, web.
 
 ## Identifiers (already created 2026-10-15 — don't re-derive)
 

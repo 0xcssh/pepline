@@ -98,3 +98,24 @@ otherwise the user types the value from their own label, or no curve is drawn.
 | Tirzepatide | 120 h | "elimination half-life of approximately 5 days", citing the Mounjaro package insert — [Lilly Medical](https://medical.lilly.com/us/products/answers/what-is-the-half-life-of-mounjaro-tirzepatide-311137) | manufacturer |
 | Liraglutide | 13 h | Saxenda label, plasma half-life about 13 h — [label reproduction](https://medlibrary.org/lib/rx/meds/saxenda/page/5/), [SAHPRA label](https://www.sahpra.org.za/wp-content/uploads/2021/02/Saxenda_PI_Novo-Nordisk-Pty-Ltd_Old-MCC-Format31-March-2020.pdf) | label copies |
 | Retatrutide | none | ~6 days is quoted online but could not be found in the NEJM 2023 phase-2 paper (Jastreboff, DOI 10.1056/NEJMoa2301972) | not verified → no preset |
+
+## Nutrition data (`FoodData`, `FoodService`)
+
+- **Open Food Facts**: product data under the Open Database License (ODbL),
+  which requires attribution — shown in Add food and Settings
+  ("Food data © Open Food Facts contributors, ODbL").
+  [openfoodfacts.org/terms-of-use](https://world.openfoodfacts.org/terms-of-use),
+  [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/).
+- API etiquette from the [Open Food Facts API docs](https://openfoodfacts.github.io/openfoodfacts-server/api/):
+  a custom `User-Agent` "AppName/Version (contact)", at most 15 product
+  reads/min and 10 searches/min per user. Search therefore runs on submit
+  only, never per keystroke.
+- **Meal photo estimate**: Claude (`claude-opus-5-5`) through
+  `server/api/food/scan`, Pro only. Values are labelled "AI estimate" and
+  always editable before saving. No nutrition goal is suggested: the user
+  types targets agreed with their clinician.
+- App Review 5.1.2(i): an app must disclose and get permission before it
+  shares personal data with a third party, **including third-party AI** (this
+  wording was added in 2025). Covered by `ScanConsentView` before the first
+  photo and a Settings toggle. ⚠️ Quote the exact wording here before
+  submission (developer.apple.com was unreachable on 2026-10-17).

@@ -42,6 +42,9 @@ enum Analytics {
         case weightLogged = "Weight.logged"
         case photoAdded = "Photo.added"
         case healthImported = "Health.imported"      // count
+        case foodLogged = "Food.logged"              // source, count
+        case foodScanned = "Food.scanned"            // items (count)
+        case waterLogged = "Water.logged"
         case exported = "Export.done"                // kind: doses|weight
         case notificationPermission = "Permission.notifications" // result: granted|denied
 
