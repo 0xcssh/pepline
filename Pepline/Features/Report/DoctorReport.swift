@@ -10,7 +10,8 @@ enum DoctorReport {
         Locale.current.measurementSystem == .us ? CGSize(width: 612, height: 792) : CGSize(width: 595, height: 842)
     }
 
-    static let rowsPerPage = 26
+    /// Rows can wrap to two lines (notes); 15 always fit between header and footer.
+    static let rowsPerPage = 15
 
     @MainActor
     static func pages(_ data: ReportData, journal: Journal, unit: UnitMass) -> [AnyView] {
@@ -219,7 +220,7 @@ private struct DoseLogPage: View {
                       header: true)
             ForEach(doses) { dose in
                 ReportRow(cells: [
-                    (Text(dose.date, format: .dateTime.day().month(.abbreviated).year().hour().minute()), 120),
+                    (Text(dose.date, format: .dateTime.day().month(.twoDigits).year(.twoDigits).hour().minute()), 120),
                     (Text(verbatim: journal.compound(dose.compoundID)?.name ?? "—"), 110),
                     (Text(verbatim: Fmt.dose(dose.amount)), 70),
                     (Text(verbatim: dose.site.map { Fmt.site($0, dose.side) } ?? "—"), 90),
@@ -240,7 +241,7 @@ private struct SideEffectLogPage: View {
                       header: true)
             ForEach(entries) { entry in
                 ReportRow(cells: [
-                    (Text(entry.date, format: .dateTime.day().month(.abbreviated).year().hour().minute()), 120),
+                    (Text(entry.date, format: .dateTime.day().month(.twoDigits).year(.twoDigits).hour().minute()), 120),
                     (entry.symptom == .other && !entry.customName.isEmpty ? Text(verbatim: entry.customName) : entry.symptom.title, 130),
                     (Text(verbatim: "\(entry.severity)/5"), 60),
                     (Text(verbatim: entry.notes), nil),
