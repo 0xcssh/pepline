@@ -33,7 +33,8 @@ PeptidePal (4.7k ratings since 2026-04, ~10k ratings/year pace) and Pep AI
 complaints, each one a requirement for us:
 
 - Paywall hidden behind a long quiz + mandatory sign-up ("bait and switch").
-  → Paywall announced on screen 2, trial terms and price visible, no account.
+  → Short onboarding with value first, trial terms and price visible, no
+  account required.
 - Reconstitution calculator missing, removed by an update, or wrong (decimal
   input broken, wrong result). → Calculator first, exact, decimals OK, tested.
 - Calculations cannot be saved; doses cannot be edited/deleted when logged on
@@ -70,17 +71,22 @@ take with day-one localization (smaller volume, stricter regulation).
 
 1. **Calculator**: vial mg, bacteriostatic water ml, desired dose (mcg or mg),
    syringe size (0.3/0.5/1 ml) → units on the syringe with a drawn syringe,
-   concentration, doses per vial, IU↔mcg↔mg conversions. Saved per vial.
-2. **Journal**: dose, time, compound, injection site (abdomen/thigh/glute,
-   left/right), notes; edit/delete anything; history by day and by compound.
+   concentration, doses per vial, IU↔mcg↔mg conversions. Saved per vial,
+   vial manager (archive/restore/delete).
+2. **Journal**: dose, time, compound, injection site (body map: abdomen/thigh/
+   glute/arm × left/right, least-rested zone pulses), notes; edit/delete
+   anything; month calendar taken/skipped/missed; side effects.
 3. **Protocols**: several compounds with different schedules (daily, EOD,
-   weekly, N-on/N-off); reminders; "vial runs out on …" + reorder reminder.
-4. **Progress**: weight (Apple Health read/write), photos, estimated levels,
-   side effects, adherence calendar, body-map site rotation.
+   every N days, weekdays, N-on/N-off); actionable reminders (Log/Skip from
+   the notification); "vial runs out on …" + reorder reminder. Editing a
+   started schedule versions it (`Journal.saveEdited`, `Regimen.replacedAt`).
+4. **Progress**: weight (Apple Health read/write, no duplicates), photos with
+   compare slider, estimated levels (sourced half-lives only), weekly recap.
 5. **Nutrition** (decision 2026-10-17, to match MeAgain/Shotsy): protein,
    water and calorie goals set by the user, Open Food Facts search and
-   barcode, Pro meal-photo estimate via `server/api/food/scan` (Claude).
-6. **Export** CSV + PDF doctor report; next-dose widget (App Group then).
+   barcode, Pro meal-photo estimate via `server/api/food/scan` (Claude, with
+   a consent screen, guideline 5.1.2(i)).
+6. **Export** CSV + PDF doctor report; next-dose widget (Home + Lock Screen).
 7. **Monetization**: hard paywall after the onboarding, 7-day trial on yearly,
    monthly without trial. **Prices aligned on PeptidePal (decision
    2026-10-15): yearly $44.99, monthly $14.99**, plus an exit offer
@@ -113,25 +119,61 @@ Meta/Google health ad policies first. App Store/ASO comes first.
 | ASC API key | RepLock's `R3CPFXXF92` (account-level) — secrets `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_API_KEY_P8_BASE64` must be copied to this repo's GitHub secrets, plus the signing secrets (`CERT_P12_BASE64`, `CERT_DIST_P12_BASE64`, `CERT_P12_PASSWORD`, variable `APPLE_TEAM_ID`) |
 | Subscriptions in ASC | group "Pepline Pro" `22481589`: `.yearly` `6823217429` ($44.99, 7-day trial), `.monthly` `6823220365` ($14.99), `.yearly.offer` `6823221387` ($34.99, 7-day trial); 175 territories, 9 locales, 16-day grace period (2026-10-15, `scripts/asc_admin.py`). Still MISSING_METADATA: review screenshot before submission. RevenueCat: offer product `prod2bf1c4f118` in `pepline_pro`, package `exit_offer` in offering `pepline` (RepLock's "Pro" stays the project's current offering; the app matches products across all offerings) |
 
-## Build plan
+## App structure (2026-10-17)
 
-1. Bootstrap from RepLock: `project.yml` (XcodeGen), `.github/workflows/ios.yml`,
-   `Design/Theme.swift`, `Services/SubscriptionManager.swift` (swap product
-   IDs, entitlement, key), `Services/Analytics.swift` (swap app ID; write a
-   new event vocabulary), paywall views, `Localizable.xcstrings` skeleton,
-   `scripts/asc_*.py` + listing/screenshot workflows.
-2. `Core/Reconstitution.swift` + tests (pure math), `Core/DoseSchedule.swift`
-   (schedule → next doses, vial run-out; not `Protocol`, an ObjC runtime class) + tests. Nothing else until these are green.
-3. Journal + calculator UI, protocols, reminders, weight.
-4. Onboarding close to PeptidePal's (~22 screens, teardown in the local-only
-   `research/competitor-onboarding.md`), but every answer configures the app
-   and every fact shown is sourced; paywall at the end. SOSA: day 0 decides
-   (p17, p57: 82.1% of H&F trial starts on day 0) and a paywall before
-   context "feels jarring" (p67). Rating prompt right after the user's first
-   real result. Optional Sign in with Apple (ties Pro to the Apple ID; account
-   deletion revokes the token through `server/`, a stateless Vercel function).
-5. Localization, listing (12 locales, en-GB/AU/CA keyword variants),
-   screenshots generated with the RepLock generator pattern, TestFlight.
+- **Tabs**: Today · Journal (History | Progress switch) · Nutrition · Tools
+  (calculator + saved vials). Settings behind the gear on every tab.
+- **Today** is the daily loop (SOSA p116): next dose with units to draw on
+  the drawn syringe and the most rested site, one-tap **I injected**
+  (`QuickLog`: newest vial, least-recent zone, logged at its slot when late),
+  then today's doses (Log / Undo skip), nutrition shortcuts, the week's
+  recap, estimated level, vial, quick actions.
+- **Onboarding**: 11 screens, order in `Core/Onboarding.swift`: welcome →
+  compounds → **first vial (the aha, third)** → name → goals → weight (weight
+  loss only) → reminders → account (optional SIWA) → disclaimer → building →
+  summary → paywall. Long web quizzes are for web funnels, not the app (SOSA
+  p26-27); a paywall without context feels jarring (p67). Screens with text
+  fields set `hasTextInput: true` (always scroll, see Pipeline lessons).
+- **Paywall**: one screen (scroll only on SE), yearly shown per month
+  (p22), trial-reminder day picked by the user (p78), exit offer on cancel.
+- **In-context help**: TipKit tips (`Design/Tips.swift`), each shown once.
+- **Ratings**: Apple's prompt only (5.6.1, no custom pre-prompt) after the
+  first onboarding result, the 3rd logged dose and a 7-dose streak
+  (`ReviewMoment`); "Rate Pepline" link in Settings.
+- **Churn signal**: `CancelSurveyView` before Apple's subscription page and
+  once when auto-renew is found off; reason sent as an enum.
+- **Shared UI**: `Design/Controls.swift` (`NumberEntry`, `ChipPicker`,
+  `ChipStyle`, `StepCard`, `FormCard`, `CompoundChips`, `DoseAmountCard`) —
+  every editor uses cards with big numerals, no plain iOS forms.
+- **Server** (`server/`, Vercel, not deployed yet): `api/apple/revoke.js`
+  (SIWA token revocation, 5.1.1(v)), `api/food/scan.js` (Claude
+  `claude-opus-5-5`, entitlement checked through RevenueCat, photo not kept).
+  Env vars listed in `server/README.md`; secrets only in Vercel.
+
+## Pipeline lessons (this repo)
+
+- Bash heredocs choke on quotes and mangle non-ASCII on this machine: write
+  patch scripts with the Write tool into the scratchpad, then run them.
+  New translations go through a JSON file + a merge into the catalog that
+  keeps key order (sorting rewrites the whole file).
+- `ViewThatFits` that depends on height re-creates its subtree when the
+  keyboard opens (fields lose focus): keep layout choices keyboard-proof
+  (`.ignoresSafeArea(.keyboard)`) and make text-input screens always scroll.
+  Number pads have no return key: offer a Done button.
+- A `.toolbar` mixing a bare `Button` with `ToolbarItemGroup` makes the type
+  checker give up ("failed to produce diagnostic"): wrap every item.
+- The Core coverage gate counts autoclosures (`??`) and default property
+  values: test the empty and fallback paths too.
+- App Groups cannot be created through the ASC API; shared keychain groups
+  (`TEAMID.*`) need no portal step.
+- Info.plist strings need an `en` entry in `InfoPlist.xcstrings`, or ASC
+  flags the key name as the purpose string.
+
+## Still needed from the user
+
+- Vercel access (or a deploy token) and an Anthropic API key, to deploy the
+  food scan and the SIWA revocation; the RevenueCat secret key goes there too.
+- Sign in with Apple key (.p8 + Key ID) for `server/api/apple/revoke.js`.
 
 ## Conventions
 
@@ -196,5 +238,15 @@ copies.
   the aha (own vial on own syringe) third, TipKit tips in context instead of a
   tour (p116), weekly recap, trial-reminder day picked on the paywall (p78),
   cancel-reason survey, Apple review prompt after the 3rd dose / 7-streak
-  (5.6.1: system prompt only, no custom pre-prompt). Editors stay iOS forms.
-- [ ] Paywall, onboarding, localization, listing, screenshots, TestFlight
+  (5.6.1: system prompt only, no custom pre-prompt).
+- [x] 2026-10-17 Code audit (21 findings) fixed: late logs answer their slot,
+  no reminder/double log for answered doses, Health de-duplication, schedule
+  versions, vial manager, editors as cards, keyboard-safe onboarding.
+  123 tests, Core 100%. TestFlight builds go out with every round.
+- [ ] Deploy `server/` (food scan, SIWA revocation) — waiting on Vercel +
+  Anthropic key.
+- [ ] Legal pages (`pepline-legal` on GitHub Pages: privacy, terms), App
+  Privacy questionnaire (photos sent for the estimate, analytics), quote
+  guidelines 3.1.2 and 5.1.2(i) verbatim in `docs/SOURCES.md`.
+- [ ] Listing in 12 locales, screenshots, subscription review screenshots,
+  review notes, submission.
