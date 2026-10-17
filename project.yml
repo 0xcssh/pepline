@@ -42,9 +42,11 @@ targets:
           - Default
         com.apple.developer.healthkit: true
         com.apple.developer.healthkit.access: []
-        # Shared with the widget: only widget.json (the upcoming doses).
-        com.apple.security.application-groups:
-          - group.com.awdia.pepline
+        # The app's own group stays first (default for its keychain items);
+        # the shared one carries only the widget snapshot (upcoming doses).
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.awdia.pepline
+          - $(AppIdentifierPrefix)com.awdia.pepline.shared
     dependencies:
       - target: PeplineWidget
       - package: RevenueCat
@@ -55,6 +57,8 @@ targets:
       path: Pepline/Info.plist
       properties:
         CFBundleDisplayName: Pepline
+        # Read by WidgetSnapshot to name the shared keychain group.
+        AppIdentifierPrefix: $(AppIdentifierPrefix)
         # Explicit — XcodeGen defaults this to a literal "1.0" and does NOT wire
         # it to MARKETING_VERSION. Every new release train must bump it.
         CFBundleShortVersionString: "1.0.0"
@@ -85,13 +89,14 @@ targets:
       properties:
         CFBundleDisplayName: Pepline
         CFBundleShortVersionString: "1.0.0"
+        AppIdentifierPrefix: $(AppIdentifierPrefix)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     entitlements:
       path: PeplineWidget/PeplineWidget.entitlements
       properties:
-        com.apple.security.application-groups:
-          - group.com.awdia.pepline
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.awdia.pepline.shared
 
   PeplineTests:
     type: bundle.unit-test

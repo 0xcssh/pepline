@@ -101,7 +101,7 @@ Android, web.
 | Bundle ID | `com.awdia.pepline` (registered in the portal, id `DNMW4F45LX`) |
 | App Store record | app ID **`6823184469`**, name "Pepline: Peptide Calculator", SKU `pepline`, primary locale en-US (created 2026-10-15) |
 | Team ID | `8L8G4P4Z9X` |
-| Widget / App Group | extension `com.awdia.pepline.widget`, group `group.com.awdia.pepline` (2026-10-17). The group only holds `widget.json` (upcoming doses); the journal stays in the app container |
+| Widget | extension `com.awdia.pepline.widget` (2026-10-17). Shares only the upcoming doses with the app through the keychain group `TEAMID.com.awdia.pepline.shared`, NOT an App Group: the ASC API cannot create App Groups (`/v1/appGroups` → 404) and every profile already allows `TEAMID.*` keychain groups. The journal stays in the app container |
 | RevenueCat | same project as RepLock (`proj33517486`), app `app5a505ff039`, **public SDK key `appl_dEELKElrptAkKrvAAbPAKwdrnaT`** (ships in the binary by design), entitlement lookup key **`pepline_pro`** (`entlb31718d3df`), offering `pepline` (`ofrng97715eb10e`) with `$rc_annual` → `com.awdia.pepline.pro.yearly`, `$rc_monthly` → `com.awdia.pepline.pro.monthly` |
 | IAP key (RevenueCat) | `QL2P7M4WRG` (configured for Pepline 2026-10-16 by API) — the account-level In-App Purchase key **shared with RepLock and Flux**, same as RepLock's CLAUDE.md. Needed for StoreKit 2 transaction validation. ⚠️ Revoking it in ASC breaks purchases in all three apps |
 | TelemetryDeck | app ID **`CAA9F19C-A911-46FE-B97A-AB0EB9E70748`** (org H&A Ltd, namespace `com.haltd`) |
