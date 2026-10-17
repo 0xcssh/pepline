@@ -1,5 +1,5 @@
 {
-  "_comment": "Pepline Pro subscriptions. Prices aligned on PeptidePal (2026-10-15 decision): yearly 44.99, monthly 14.99, exit offer 34.99 (-22%). USD base price; Apple's equalizations give the other territories. Descriptions max 55 characters.",
+  "_comment": "Pepline Pro subscriptions. Prices aligned on PeptidePal (2026-10-15 decision): yearly 44.99, monthly 14.99, exit offer 34.99 (-22% in the US; the discount differs per storefront, so no percent in display names). USD base price; Apple's equalizations give the other territories. Descriptions max 55 characters.",
   "group": {
     "referenceName": "Pepline Pro",
     "name": {"en": "Pepline Pro", "fr": "Pepline Pro", "es": "Pepline Pro", "de": "Pepline Pro", "it": "Pepline Pro", "pt-BR": "Pepline Pro", "ja": "Pepline Pro", "ko": "Pepline Pro", "zh-Hans": "Pepline Pro"}
@@ -40,7 +40,7 @@
       "period": "ONE_YEAR",
       "usd": "34.99",
       "freeTrial": "ONE_WEEK",
-      "name": {"en": "Pepline Pro Yearly -22%", "fr": "Pepline Pro annuel -22 %", "es": "Pepline Pro anual -22 %", "de": "Pepline Pro jährlich -22 %", "it": "Pepline Pro annuale -22%", "pt-BR": "Pepline Pro anual -22%", "ja": "Pepline Pro 年額 22%オフ", "ko": "Pepline Pro 연간 22% 할인", "zh-Hans": "Pepline Pro 年度 优惠22%"},
+      "name": {"en": "Pepline Pro Yearly Offer", "fr": "Pepline Pro annuel offre", "es": "Pepline Pro anual oferta", "de": "Pepline Pro jährlich Angebot", "it": "Pepline Pro annuale offerta", "pt-BR": "Pepline Pro anual oferta", "ja": "Pepline Pro 年額特別オファー", "ko": "Pepline Pro 연간 특별 혜택", "zh-Hans": "Pepline Pro 年度特惠"},
       "reviewNote": "Discounted yearly plan of the same Pepline Pro entitlement, offered once when a user cancels the purchase sheet of the regular yearly plan. 7-day free trial."
     }
   ]

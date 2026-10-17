@@ -63,7 +63,7 @@ struct PaywallView: View {
                         .foregroundStyle(PLColor.accent)
                     // Personalised: the user just built their setup (endowment).
                     (firstName.isEmpty ? Text("Everything to get every dose right.") : Text("Your Pepline is ready, \(firstName)."))
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundStyle(PLColor.text)
                         .lineLimit(2)
                         .minimumScaleFactor(0.8)
@@ -71,7 +71,7 @@ struct PaywallView: View {
             }
             .padding(.top, 6)
 
-            VStack(alignment: .leading, spacing: 7) {
+            VStack(alignment: .leading, spacing: 11) {
                 benefit("function", Text("Vial, water, dose: units on your syringe, exact.")).staggered(1)
                 benefit("list.bullet.clipboard", Text("Edit or delete anything. Export to CSV.")).staggered(2)
                 benefit("bell.badge", Text("Reminders for each dose and for reordering.")).staggered(3)
@@ -103,7 +103,7 @@ struct PaywallView: View {
                 .disabled(purchasing)
                 if subs.trialDays(subs.selectedPlan) != nil {
                     Label("No payment now. Cancel anytime in two taps.", systemImage: "checkmark.shield.fill")
-                        .font(.caption.weight(.semibold))
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(PLColor.text)
                 }
             }
@@ -118,11 +118,11 @@ struct PaywallView: View {
     private func benefit(_ symbol: String, _ text: Text) -> some View {
         HStack(spacing: 10) {
             Image(systemName: symbol)
-                .font(.footnote.weight(.semibold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(PLColor.accent)
-                .frame(width: 26, height: 26)
+                .frame(width: 32, height: 32)
                 .background(PLColor.accent.opacity(0.12), in: Circle())
-            text.font(.subheadline).foregroundStyle(PLColor.text)
+            text.font(.body).foregroundStyle(PLColor.text)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -160,7 +160,7 @@ struct PaywallView: View {
                     if plan == .yearly {
                         if let perMonth = subs.perMonth(.yearly) {
                             Text("Only \(perMonth) / month")
-                                .font(.system(size: 24, weight: .heavy, design: .rounded))
+                                .font(.system(size: 30, weight: .heavy, design: .rounded))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.7)
                                 .foregroundStyle(selected ? PLColor.accent : PLColor.text)
@@ -173,16 +173,16 @@ struct PaywallView: View {
                                     Text("\(price) per year")
                                 }
                             }
-                            .font(.subheadline.weight(.semibold))
+                            .font(.body.weight(.semibold))
                             .foregroundStyle(PLColor.text)
                         }
                     } else {
                         if let price = subs.price(.monthly) {
                             HStack(alignment: .firstTextBaseline, spacing: 8) {
                                 Text("\(price) / month")
-                                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                                    .font(.system(size: 24, weight: .bold, design: .rounded))
                                     .foregroundStyle(PLColor.text)
-                                Text("No free trial").font(.caption).foregroundStyle(PLColor.muted)
+                                Text("No free trial").font(.subheadline).foregroundStyle(PLColor.muted)
                             }
                         }
                     }
@@ -193,8 +193,8 @@ struct PaywallView: View {
                     .foregroundStyle(selected ? PLColor.accent : PLColor.muted.opacity(0.5))
                     .contentTransition(.symbolEffect(.replace))
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 16)
             .background(selected ? PLColor.accent.opacity(0.1) : PLColor.card,
                         in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
@@ -240,10 +240,10 @@ struct TrialTimeline: View {
     private var chosenDay: Int { reminderDay > 0 ? min(reminderDay, max(days - 1, 1)) : max(days - 2, 1) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 10) {
             step("lock.open.fill", Text("Today"), Text("Full access. Nothing to pay now."))
             HStack(alignment: .firstTextBaseline, spacing: 10) {
-                Image(systemName: "bell.fill").font(.footnote).foregroundStyle(PLColor.accent).frame(width: 20)
+                Image(systemName: "bell.fill").font(.subheadline).foregroundStyle(PLColor.accent).frame(width: 22)
                 Menu {
                     ForEach(1..<max(days, 2), id: \.self) { day in
                         Button { reminderDay = day } label: { Text("Day \(String(day))") }
@@ -259,14 +259,14 @@ struct TrialTimeline: View {
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .font(.footnote)
+            .font(.subheadline)
             .accessibilityElement(children: .contain)
             step("creditcard.fill", Text("Day \(String(days))"),
                  price.map { Text("You're billed \($0) unless you cancel before.") }
                      ?? Text("Your subscription starts unless you cancel before."))
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(PLColor.card, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
@@ -274,9 +274,9 @@ struct TrialTimeline: View {
     private func step(_ symbol: String, _ title: Text, _ detail: Text) -> some View {
         // One line per step: "Today · Full access. Nothing to pay now."
         HStack(alignment: .firstTextBaseline, spacing: 10) {
-            Image(systemName: symbol).font(.footnote).foregroundStyle(PLColor.accent).frame(width: 20)
+            Image(systemName: symbol).font(.subheadline).foregroundStyle(PLColor.accent).frame(width: 22)
             (title.bold().foregroundColor(PLColor.text) + Text(verbatim: " · ") + detail.foregroundColor(PLColor.muted))
-                .font(.footnote)
+                .font(.subheadline)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -307,7 +307,7 @@ struct PaywallFooter: View {
                     Text("Auto-renews until cancelled. Cancel anytime in your App Store settings, at least 24 hours before renewal.")
                 }
             }
-            .font(.caption2)
+            .font(.caption)
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
@@ -317,7 +317,7 @@ struct PaywallFooter: View {
                 Button { Task { restoreResult = .some(await subs.restore()) } } label: { Text("Restore Purchases") }
                 Link(destination: Self.termsURL) { Text("Terms") }
             }
-            .font(.footnote)
+            .font(.subheadline)
             .foregroundStyle(PLColor.text)
         }
         .frame(maxWidth: .infinity)

@@ -1,17 +1,38 @@
 import SwiftUI
 
 /// Shown once, when the user closes Apple's payment sheet on the yearly plan.
-/// A real cheaper product (com.awdia.pepline.pro.yearly.offer), the billed
-/// price as the big number, a real "before" price (the same yearly plan), and
-/// a close button — no countdown, no "lowest price ever".
+/// A real cheaper product (com.awdia.pepline.pro.yearly.offer) against a real
+/// "before" price (the same yearly plan): the saving in money and per month,
+/// what the user keeps, and the same trial timeline as the paywall (SOSA 2026
+/// p78: clarity converts). Honest scarcity only: it is shown once, which is
+/// true. No countdown (p70: under 2% of apps, a cheap-app signal).
 struct ExitOfferView: View {
     @ObservedObject private var subs = SubscriptionManager.shared
     @Environment(\.dismiss) private var dismiss
     @State private var purchasing = false
+    @State private var appeared = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        ViewThatFits(in: .vertical) {
+            content
+            ScrollView { content }
+        }
+        .background(PLBackground())
+        .task {
+            Analytics.track(.paywallShown, ["kind": "exitOffer"])
+            withAnimation(.spring(duration: 0.6).delay(0.15)) { appeared = true }
+        }
+    }
+
+    private var content: some View {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
+                Label { Text("One-time offer") } icon: { Image(systemName: "gift.fill") }
+                    .font(.footnote.weight(.heavy))
+                    .foregroundStyle(PLColor.onAccent)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(PLColor.accent, in: Capsule())
                 Spacer()
                 Button {
                     Analytics.track(.exitOfferDismissed)
@@ -19,63 +40,125 @@ struct ExitOfferView: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(PLColor.muted)
                 }
                 .accessibilityLabel(Text("Close"))
             }
 
-            if let percent = subs.exitOfferPercent {
-                Text("\(percent.formatted(.percent)) off Pepline Pro")
-                    .font(.largeTitle.bold())
-                    .foregroundStyle(PLColor.text)
-            } else {
-                Text("A better price for Pepline Pro")
-                    .font(.largeTitle.bold())
-                    .foregroundStyle(PLColor.text)
+            Group {
+                if let percent = subs.exitOfferPercent {
+                    Text("Wait: \(percent.formatted(.percent)) off, just for you")
+                } else {
+                    Text("A better price for Pepline Pro")
+                }
             }
-            Text("Same app, same features. A lower yearly price, for as long as you stay subscribed.")
-                .foregroundStyle(.secondary)
+            .font(.system(size: 32, weight: .bold, design: .rounded))
+            .foregroundStyle(PLColor.text)
+            .fixedSize(horizontal: false, vertical: true)
 
-            VStack(alignment: .leading, spacing: 6) {
-                if let regular = subs.price(.yearly) {
-                    Text(verbatim: regular)
-                        .strikethrough()
-                        .foregroundStyle(.secondary)
-                }
-                if let price = subs.price(.exitOffer) {
-                    Text("\(price) / year")
-                        .plNumeral(size: 40)
-                        .foregroundStyle(PLColor.text)
-                }
-                if let days = subs.trialDays(.exitOffer) {
-                    Text("\(String(days)) days free, then billed yearly.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+            Text("Same app, same features. A lower yearly price, for as long as you stay subscribed.")
+                .font(.body)
+                .foregroundStyle(PLColor.muted)
+                .fixedSize(horizontal: false, vertical: true)
+
+            priceCard
+                .scaleEffect(appeared ? 1 : 0.94)
+                .opacity(appeared ? 1 : 0)
+
+            VStack(alignment: .leading, spacing: 10) {
+                keep("function", Text("Exact units for every vial and dose."))
+                keep("bell.badge", Text("Reminders, and a warning before the vial runs out."))
+                keep("doc.richtext", Text("Your journal, nutrition and doctor report."))
             }
-            .padding(18)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(PLColor.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+
+            if let days = subs.trialDays(.exitOffer) {
+                TrialTimeline(days: days, price: subs.price(.exitOffer))
+            }
 
             Spacer(minLength: 0)
 
-            Button {
-                purchasing = true
-                Task {
-                    let outcome = await subs.purchase(.exitOffer)
-                    purchasing = false
-                    if outcome == .success { dismiss() }
+            VStack(spacing: 8) {
+                Button(action: purchase) {
+                    if purchasing {
+                        ProgressView().tint(PLColor.onAccent)
+                    } else if let days = subs.trialDays(.exitOffer) {
+                        Text("Start my \(String(days))-day free trial")
+                    } else {
+                        Text("Get this offer")
+                    }
                 }
-            } label: {
-                if purchasing { ProgressView().tint(PLColor.onAccent) } else { Text("Get this offer") }
+                .buttonStyle(.primaryPill)
+                .disabled(purchasing || !subs.hasProduct(.exitOffer))
+                Text("This offer is shown only once.")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(PLColor.muted)
             }
-            .buttonStyle(.primaryPill)
-            .disabled(purchasing || !subs.hasProduct(.exitOffer))
+            .frame(maxWidth: .infinity)
 
             PaywallFooter(plan: .exitOffer)
         }
-        .padding(20)
-        .background(PLBackground())
-        .task { Analytics.track(.paywallShown, ["kind": "exitOffer"]) }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+    }
+
+    private var priceCard: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline) {
+                if let regular = subs.price(.yearly) {
+                    Text(verbatim: regular)
+                        .font(.title3.weight(.semibold))
+                        .strikethrough()
+                        .foregroundStyle(PLColor.muted)
+                }
+                Spacer()
+                if let saving = subs.exitOfferSaving {
+                    Text("You save \(saving) a year")
+                        .font(.footnote.weight(.heavy))
+                        .foregroundStyle(PLColor.onAccent)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(PLColor.accent, in: Capsule())
+                }
+            }
+            if let price = subs.price(.exitOffer) {
+                Text("\(price) / year")
+                    .plNumeral(size: 44)
+                    .foregroundStyle(PLColor.text)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            }
+            if let perMonth = subs.perMonth(.exitOffer) {
+                Text("Only \(perMonth) / month")
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(PLColor.accent)
+                    .plGlow()
+            }
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PLColor.accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(PLColor.accent, lineWidth: 2))
+        .shadow(color: PLColor.accent.opacity(0.25), radius: 16)
+    }
+
+    private func keep(_ symbol: String, _ text: Text) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: symbol)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(PLColor.accent)
+                .frame(width: 28, height: 28)
+                .background(PLColor.accent.opacity(0.12), in: Circle())
+            text.font(.subheadline).foregroundStyle(PLColor.text)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func purchase() {
+        purchasing = true
+        Task {
+            let outcome = await subs.purchase(.exitOffer)
+            purchasing = false
+            if outcome == .success { dismiss() }
+        }
     }
 }

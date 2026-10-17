@@ -114,6 +114,14 @@ final class SubscriptionManager: ObservableObject {
         return percent > 0 ? percent : nil
     }
 
+    /// What the exit offer saves per year against the regular yearly price,
+    /// formatted in the store's currency ("10,00 €").
+    var exitOfferSaving: String? {
+        guard let regular = product(.yearly), let offer = product(.exitOffer), regular.price > offer.price,
+              let formatter = offer.priceFormatter else { return nil }
+        return formatter.string(from: (regular.price - offer.price) as NSDecimalNumber)
+    }
+
     /// Free-trial length in days, read from the product's introductory offer
     /// (change it in App Store Connect, the paywall follows). Nil = no trial.
     func trialDays(_ plan: Plan) -> Int? {
