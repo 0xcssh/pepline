@@ -70,6 +70,12 @@ final class ReminderPlannerTests: XCTestCase {
         XCTAssertEqual(plan.map(\.date), [date(1, 3, 8), date(1, 4, 8)])
     }
 
+    func testEndedScheduleWithRemindersPlansNothing() {
+        var journal = Journal()
+        journal.save(regimen(sema, .everyNDays(1), end: date(1, 2)))
+        XCTAssertTrue(ReminderPlanner.plan(journal, now: date(1, 5), calendar: calendar).isEmpty)
+    }
+
     func testIDsChangeWithTheDose() {
         var journal = Journal()
         var daily = regimen(sema, .everyNDays(1))

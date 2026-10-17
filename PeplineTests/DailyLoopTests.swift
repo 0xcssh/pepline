@@ -41,6 +41,9 @@ final class DailyLoopTests: XCTestCase {
         var archived = Vial(compoundID: sema.id, reconstitution: try Reconstitution(vial: .mg(5), waterMl: 2),
                             syringe: .ml05, mixedAt: date(3))
         archived.isArchived = true
+        let older = Vial(compoundID: sema.id, reconstitution: try Reconstitution(vial: .mg(5), waterMl: 2),
+                         syringe: .ml05, mixedAt: date(1, 0))
+        journal.save(older)
         journal.save(old)
         journal.save(archived)
         var used = dose(2)
@@ -147,6 +150,7 @@ final class DailyLoopTests: XCTestCase {
         XCTAssertEqual(recap, WeeklyRecap(taken: 2, due: 2, weightChangeKg: d("-0.6"), sideEffects: 1, streak: 3))
         XCTAssertFalse(recap.isEmpty)
         XCTAssertTrue(WeeklyRecap.make(Journal(), now: date(4), calendar: calendar).isEmpty)
+        XCTAssertTrue(WeeklyRecap().isEmpty)
     }
 
     // MARK: Review moments
