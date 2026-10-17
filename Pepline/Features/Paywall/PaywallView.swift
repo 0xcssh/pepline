@@ -227,9 +227,9 @@ struct PaywallView: View {
             }
             let outcome = await subs.purchase(subs.selectedPlan)
             purchasing = false
-            // Closing Apple's sheet on the yearly plan opens the exit offer,
-            // once per install (the competitor's pattern the user liked).
-            if outcome == .cancelled, subs.selectedPlan == .yearly, !exitOfferShown || preview, subs.hasProduct(.exitOffer) {
+            // Closing Apple's sheet on either plan opens the exit offer, once
+            // per install (the competitor's pattern the user liked).
+            if outcome == .cancelled, !exitOfferShown || preview, subs.hasProduct(.exitOffer) {
                 exitOfferShown = true
                 showingExitOffer = true
             }

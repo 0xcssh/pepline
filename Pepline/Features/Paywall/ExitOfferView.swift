@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Shown once, when the user closes Apple's payment sheet on the yearly plan.
+/// Shown once, when the user closes Apple's payment sheet on either plan.
 /// A real cheaper product (com.awdia.pepline.pro.yearly.offer) against a real
 /// "before" price (the same yearly plan): the saving in money and per month,
 /// what the user keeps, and the same trial timeline as the paywall (SOSA 2026
