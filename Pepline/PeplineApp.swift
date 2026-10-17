@@ -5,6 +5,9 @@ import TipKit
 struct PeplineApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage("onboardingDone") private var onboardingDone = false
+    /// Developer menu "Replay onboarding": end on the paywall even when
+    /// subscribed, like a new user would see it.
+    @AppStorage("devPaywallAfterOnboarding") private var devPaywallAfterOnboarding = false
     @ObservedObject private var subscription = SubscriptionManager.shared
 
     init() {
@@ -21,6 +24,8 @@ struct PeplineApp: App {
             Group {
                 if !onboardingDone {
                     OnboardingView()
+                } else if devPaywallAfterOnboarding {
+                    PaywallView(preview: true, onClose: { devPaywallAfterOnboarding = false })
                 } else if subscription.isPro {
                     RootView()
                 } else if !subscription.entitlementChecked {

@@ -11,6 +11,8 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     /// Opened from the hidden developer menu while subscribed: closable.
     var preview = false
+    /// How a preview closes when it is not a sheet (after a replayed onboarding).
+    var onClose: (() -> Void)?
     @State private var purchasing = false
     @State private var showingExitOffer = false
     @State private var storeUnavailable = false
@@ -26,7 +28,7 @@ struct PaywallView: View {
         .background(OnboardingBackdrop())
         .overlay(alignment: .topTrailing) {
             if preview {
-                Button { dismiss() } label: {
+                Button { (onClose ?? { dismiss() })() } label: {
                     Image(systemName: "xmark.circle.fill").font(.title).foregroundStyle(PLColor.muted)
                 }
                 .padding(16)

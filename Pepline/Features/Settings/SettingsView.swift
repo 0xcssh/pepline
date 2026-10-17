@@ -135,6 +135,7 @@ struct SettingsView: View {
                         Button { previewingExitOffer = true } label: { Text(verbatim: "Show exit offer") }
                         Button {
                             UserDefaults.standard.set(false, forKey: "exitOfferShown")
+                            UserDefaults.standard.set(true, forKey: "devPaywallAfterOnboarding")
                             onboardingDone = false
                             dismiss()
                         } label: { Text(verbatim: "Replay onboarding") }
