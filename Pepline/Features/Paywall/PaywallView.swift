@@ -16,6 +16,7 @@ struct PaywallView: View {
     @State private var purchasing = false
     @State private var showingExitOffer = false
     @State private var storeUnavailable = false
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         // One screen, no scrolling (decision 2026-10-17): everything needed to
@@ -23,6 +24,13 @@ struct PaywallView: View {
         // rather than cutting anything 3.1.2 requires.
         ViewThatFits(in: .vertical) {
             content
+            // Text a notch or two smaller before ever scrolling, unless the
+            // user chose larger text in Settings (then it scrolls).
+            if typeSize <= .large {
+                content.dynamicTypeSize(.medium)
+                content.dynamicTypeSize(.small)
+                content.dynamicTypeSize(.xSmall)
+            }
             ScrollView { content }
         }
         .background(OnboardingBackdrop())
@@ -63,7 +71,7 @@ struct PaywallView: View {
                         .foregroundStyle(PLColor.accent)
                     // Personalised: the user just built their setup (endowment).
                     (firstName.isEmpty ? Text("Everything to get every dose right.") : Text("Your Pepline is ready, \(firstName)."))
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .font(.title2.weight(.bold))
                         .foregroundStyle(PLColor.text)
                         .lineLimit(2)
                         .minimumScaleFactor(0.8)
@@ -160,7 +168,7 @@ struct PaywallView: View {
                     if plan == .yearly {
                         if let perMonth = subs.perMonth(.yearly) {
                             Text("Only \(perMonth) / month")
-                                .font(.system(size: 30, weight: .heavy, design: .rounded))
+                                .font(.title.weight(.heavy))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.7)
                                 .foregroundStyle(selected ? PLColor.accent : PLColor.text)
@@ -180,7 +188,7 @@ struct PaywallView: View {
                         if let price = subs.price(.monthly) {
                             HStack(alignment: .firstTextBaseline, spacing: 8) {
                                 Text("\(price) / month")
-                                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                                    .font(.title2.weight(.bold))
                                     .foregroundStyle(PLColor.text)
                                 Text("No free trial").font(.subheadline).foregroundStyle(PLColor.muted)
                             }

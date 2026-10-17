@@ -11,10 +11,18 @@ struct ExitOfferView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var purchasing = false
     @State private var appeared = false
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         ViewThatFits(in: .vertical) {
             content
+            // Text a notch or two smaller before ever scrolling, unless the
+            // user chose larger text in Settings (then it scrolls).
+            if typeSize <= .large {
+                content.dynamicTypeSize(.medium)
+                content.dynamicTypeSize(.small)
+                content.dynamicTypeSize(.xSmall)
+            }
             ScrollView { content }
         }
         .background(PLBackground())
@@ -52,7 +60,7 @@ struct ExitOfferView: View {
                     Text("A better price for Pepline Pro")
                 }
             }
-            .font(.system(size: 32, weight: .bold, design: .rounded))
+            .font(.largeTitle.weight(.bold))
             .foregroundStyle(PLColor.text)
             .fixedSize(horizontal: false, vertical: true)
 
