@@ -154,7 +154,7 @@ private struct FactsScreen: View {
             }
             .tabViewStyle(.page)
             .indexViewStyle(.page(backgroundDisplayMode: .always))
-            .frame(height: 280)
+            .frame(height: 250)
             .staggered(2)
             Text("Source: FDA alert on compounded semaglutide dosing errors, July 2024.")
                 .font(.caption)
@@ -165,16 +165,20 @@ private struct FactsScreen: View {
     private func fact(_ number: String, _ text: Text) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             Text(verbatim: number)
-                .plNumeral(size: 56)
+                .plNumeral(size: 48)
                 .foregroundStyle(PLColor.accent)
                 .plGlow()
-            text.font(.title3.weight(.medium)).foregroundStyle(PLColor.text)
-            Spacer()
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            text.font(.headline.weight(.medium)).foregroundStyle(PLColor.text)
+                .fixedSize(horizontal: false, vertical: true)
+                .minimumScaleFactor(0.8)
+            Spacer(minLength: 0)
         }
-        .padding(22)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .plCard()
-        .padding(.bottom, 36)
+        .padding(.bottom, 34)
     }
 }
 
@@ -274,13 +278,15 @@ private struct TroublesEchoScreen: View {
             ? OnboardingAnswers.Trouble.allCases : model.answers.orderedTroubles
         QuestionScreen(model: model, title: Text("Pepline handles that."),
                        hero: AnyView(PulseRings(symbol: "checkmark.shield.fill", size: 180))) {
-            ForEach(Array(troubles.enumerated()), id: \.element) { index, trouble in
-                FeatureLine(symbol: trouble.symbol, text: trouble.answer)
-                    .padding(14)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .plCard()
-                    .staggered(index + 2)
+            VStack(alignment: .leading, spacing: 14) {
+                ForEach(Array(troubles.enumerated()), id: \.element) { index, trouble in
+                    FeatureLine(symbol: trouble.symbol, text: trouble.answer)
+                        .staggered(index + 2)
+                }
             }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .plCard()
         }
     }
 }
@@ -515,17 +521,17 @@ private struct OverviewScreen: View {
     }
 
     private func tile(_ symbol: String, _ title: Text, _ detail: Text) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 6) {
             Image(systemName: symbol)
-                .font(.title2.weight(.semibold))
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(PLColor.accent)
-                .frame(width: 48, height: 48)
+                .frame(width: 40, height: 40)
                 .background(PLColor.accent.opacity(0.12), in: Circle())
             title.font(.headline).foregroundStyle(PLColor.text)
             detail.font(.footnote).foregroundStyle(PLColor.muted).fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, minHeight: 170, alignment: .topLeading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(14)
         .plCard()
     }

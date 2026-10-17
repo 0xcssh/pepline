@@ -174,35 +174,19 @@ struct QuestionScreen<Content: View>: View {
         VStack(spacing: 0) {
             OnboardingChrome(model: model)
             GeometryReader { proxy in
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 18) {
-                        if let hero {
-                            hero
-                                .frame(maxWidth: .infinity)
-                                .frame(minHeight: proxy.size.height * 0.34)
-                                .padding(.bottom, 12)
-                                .staggered(0)
-                        }
-                        VStack(alignment: .leading, spacing: 10) {
-                            title
-                                .font(.system(size: 30, weight: .bold, design: .rounded))
-                                .foregroundStyle(PLColor.text)
-                                .fixedSize(horizontal: false, vertical: true)
-                            if let subtitle {
-                                subtitle
-                                    .font(.body)
-                                    .foregroundStyle(PLColor.muted)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-                        }
-                        .staggered(1)
-                        content
-                        Spacer(minLength: 0)
+                // One page whenever possible: the full hero, then a smaller
+                // one, then none; scrolling only as the last resort (long
+                // translations, small phones, the keyboard).
+                ViewThatFits(in: .vertical) {
+                    column(hero: proxy.size.height * 0.34, scale: 1)
+                    column(hero: proxy.size.height * 0.2, scale: 0.6)
+                    column(hero: nil, scale: 0)
+                    ScrollView {
+                        column(hero: nil, scale: 0)
+                            .frame(minHeight: proxy.size.height, alignment: .topLeading)
                     }
-                    .padding(20)
-                    .frame(maxWidth: .infinity, minHeight: proxy.size.height, alignment: .topLeading)
+                    .scrollDismissesKeyboard(.interactively)
                 }
-                .scrollDismissesKeyboard(.interactively)
             }
             VStack(spacing: 10) {
                 Button {
@@ -224,6 +208,40 @@ struct QuestionScreen<Content: View>: View {
             .padding(.bottom, 12)
         }
         .background(OnboardingBackdrop())
+    }
+
+    private func column(hero height: CGFloat?, scale: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if let hero, let height {
+                Group {
+                    if scale < 1 {
+                        hero.scaleEffect(scale).frame(height: height)
+                    } else {
+                        hero.frame(minHeight: height)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .staggered(0)
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                title
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .foregroundStyle(PLColor.text)
+                    .fixedSize(horizontal: false, vertical: true)
+                if let subtitle {
+                    subtitle
+                        .font(.body)
+                        .foregroundStyle(PLColor.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .staggered(1)
+            content
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 }
 
