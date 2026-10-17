@@ -16,7 +16,7 @@ enum WidgetBridge {
                                        dose: Fmt.dose(regimen.dose),
                                        units: units)
         }
-        let snapshot = WidgetSnapshot(doses: doses, hasSchedules: !journal.regimens.isEmpty)
+        let snapshot = WidgetSnapshot(doses: doses, hasSchedules: !journal.activeRegimens.isEmpty)
         guard snapshot != WidgetSnapshot.read() else { return }
         snapshot.write()
         WidgetCenter.shared.reloadAllTimelines()

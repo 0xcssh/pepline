@@ -26,7 +26,9 @@ final class HealthService: ObservableObject {
         guard isAvailable else { return }
         do {
             try await store.requestAuthorization(toShare: [bodyMass], read: [bodyMass])
-            isOn = true
+            // iOS does not reveal read access, but it does reveal write access:
+            // if that was refused, the link is off rather than falsely on.
+            isOn = store.authorizationStatus(for: bodyMass) == .sharingAuthorized
             await importWeights(into: dataStore)
         } catch {
             isOn = false

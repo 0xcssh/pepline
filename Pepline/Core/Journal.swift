@@ -55,6 +55,26 @@ struct Journal: Codable, Equatable {
     }
 
     mutating func deleteDose(_ id: DoseEntry.ID) { doses.removeAll { $0.id == id } }
+    /// Saves an edited schedule. When its rhythm, times, dose or compound
+    /// change after it has begun, the old version ends `now` and a new one
+    /// starts, so past doses are still judged against what was planned then.
+    mutating func saveEdited(_ regimen: Regimen, now: Date) {
+        guard let old = regimens.first(where: { $0.id == regimen.id }),
+              old.schedule.start < now,
+              old.schedule != regimen.schedule || old.dose != regimen.dose || old.compoundID != regimen.compoundID
+        else { return save(regimen) }
+        var closed = old
+        closed.replacedAt = now
+        save(closed)
+        var next = regimen
+        next.id = UUID()
+        next.schedule.start = max(regimen.schedule.start, now)
+        save(next)
+    }
+
+    /// Schedules in force (older versions of edited ones are left out).
+    var activeRegimens: [Regimen] { regimens.filter { $0.replacedAt == nil } }
+
     mutating func deleteRegimen(_ id: Regimen.ID) { regimens.removeAll { $0.id == id } }
     mutating func deleteWeight(_ id: WeightEntry.ID) { weights.removeAll { $0.id == id } }
 

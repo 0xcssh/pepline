@@ -97,11 +97,17 @@ struct WeightEditor: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                DecimalField(title: "Weight", text: $draft.valueText, unit: unit.symbol)
-                DatePicker("Date", selection: $draft.date, displayedComponents: .date)
+            VStack(spacing: 14) {
+                FormCard(title: Text("Weight")) {
+                    NumberEntry(title: Text("Weight"), text: $draft.valueText, unit: unit.symbol, size: 48)
+                }
+                FormCard {
+                    DatePicker("Date", selection: $draft.date, displayedComponents: .date)
+                }
+                Spacer(minLength: 0)
             }
-            .plScreen()
+            .padding(20)
+            .background(PLBackground())
             .navigationTitle(draft.isNew ? Text("Log weight") : Text("Edit weight"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

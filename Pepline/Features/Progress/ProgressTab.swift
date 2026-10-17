@@ -103,7 +103,7 @@ struct ProgressTab: View {
     // MARK: Chart
 
     /// The compound whose dose colours the curve: the one with a schedule.
-    private var mainCompoundID: Compound.ID? { journal.regimens.first?.compoundID ?? journal.compounds.first?.id }
+    private var mainCompoundID: Compound.ID? { journal.activeRegimens.first?.compoundID ?? journal.compounds.first?.id }
 
     @ViewBuilder
     private var chartCard: some View {

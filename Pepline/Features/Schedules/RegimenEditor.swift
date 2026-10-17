@@ -77,71 +77,30 @@ struct RegimenEditor: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    CompoundField(choice: $draft.compound)
-                    DoseAmountField(text: $draft.amountText, unit: $draft.unit)
-                }
-
-                Section("Repeat") {
-                    Picker("Repeat", selection: $draft.kind) {
-                        ForEach(PatternKind.allCases, id: \.self) { Text(verbatim: $0.title).tag($0) }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    FormCard(title: Text("Compound")) {
+                        CompoundChips(choice: $draft.compound)
                     }
-                    switch draft.kind {
-                    case .everyNDays:
-                        Stepper(value: $draft.everyN, in: 3...60) {
-                            Text("Every \(String(draft.everyN)) days")
-                        }
-                    case .weekdays:
-                        WeekdayPicker(selection: $draft.weekdays)
-                    case .cycle:
-                        Stepper(value: $draft.onDays, in: 1...90) { Text("\(String(draft.onDays)) days on") }
-                        Stepper(value: $draft.offDays, in: 0...90) { Text("\(String(draft.offDays)) days off") }
-                    case .daily, .everyOtherDay:
-                        EmptyView()
-                    }
-                    DatePicker("Starts", selection: $draft.start, displayedComponents: .date)
-                }
-
-                Section("Times") {
-                    ForEach(draft.times.indices, id: \.self) { index in
-                        // Bounds-checked binding: a row being deleted can
-                        // still be read once with its old index.
-                        DatePicker("Time", selection: Binding(
-                            get: { draft.times.indices.contains(index) ? draft.times[index] : Date() },
-                            set: { if draft.times.indices.contains(index) { draft.times[index] = $0 } }
-                        ), displayedComponents: .hourAndMinute)
-                    }
-                    .onDelete { offsets in
-                        if draft.times.count > offsets.count { draft.times.remove(atOffsets: offsets) }
-                    }
-                    Button("Add a time") {
-                        draft.times.append(draft.times.last ?? Date())
-                    }
-                }
-
-                Section {
-                    Toggle("Dose reminders", isOn: $draft.remindersOn)
-                    Toggle("Reorder reminder", isOn: $draft.reorderOn)
-                    if draft.reorderOn {
-                        Stepper(value: $draft.reorderLeadDays, in: 1...30) {
-                            Text("\(String(draft.reorderLeadDays)) days before the vial runs out")
-                        }
-                    }
-                } footer: {
-                    Text("Pepline reminds you of the schedule you enter. It does not recommend doses or schedules.")
-                }
-
-                if !draft.isNew {
-                    Section {
-                        Button("Delete this schedule", role: .destructive) {
+                    DoseAmountCard(text: $draft.amountText, unit: $draft.unit)
+                    repeatCard
+                    timesCard
+                    remindersCard
+                    if !draft.isNew {
+                        Button(role: .destructive) {
                             store.update { $0.deleteRegimen(draft.id) }
                             dismiss()
+                        } label: {
+                            Label { Text("Delete this schedule") } icon: { Image(systemName: "trash") }
+                                .frame(maxWidth: .infinity)
                         }
+                        .padding(.top, 6)
                     }
                 }
+                .padding(20)
             }
-            .plScreen()
+            .scrollDismissesKeyboard(.interactively)
+            .background(PLBackground())
             .navigationTitle(draft.isNew ? Text("New schedule") : Text("Edit schedule"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -151,15 +110,86 @@ struct RegimenEditor: View {
         }
     }
 
+    private var repeatCard: some View {
+        FormCard(title: Text("Repeat")) {
+            FlowLayout(spacing: 8) {
+                ForEach(PatternKind.allCases, id: \.self) { kind in
+                    Button { draft.kind = kind } label: { Text(verbatim: kind.title) }
+                        .buttonStyle(ChipStyle(selected: draft.kind == kind))
+                }
+            }
+            switch draft.kind {
+            case .everyNDays:
+                Stepper(value: $draft.everyN, in: 3...60) {
+                    Text("Every \(String(draft.everyN)) days")
+                }
+            case .weekdays:
+                WeekdayPicker(selection: $draft.weekdays)
+            case .cycle:
+                Stepper(value: $draft.onDays, in: 1...90) { Text("\(String(draft.onDays)) days on") }
+                Stepper(value: $draft.offDays, in: 0...90) { Text("\(String(draft.offDays)) days off") }
+            case .daily, .everyOtherDay:
+                EmptyView()
+            }
+            DatePicker("Starts", selection: $draft.start, displayedComponents: .date)
+        }
+    }
+
+    private var timesCard: some View {
+        FormCard(title: Text("Times")) {
+            ForEach(draft.times.indices, id: \.self) { index in
+                HStack {
+                    // Bounds-checked binding: a row being removed can still
+                    // be read once with its old index.
+                    DatePicker("Time", selection: Binding(
+                        get: { draft.times.indices.contains(index) ? draft.times[index] : Date() },
+                        set: { if draft.times.indices.contains(index) { draft.times[index] = $0 } }
+                    ), displayedComponents: .hourAndMinute)
+                    if draft.times.count > 1 {
+                        Button {
+                            if draft.times.indices.contains(index) { draft.times.remove(at: index) }
+                        } label: {
+                            Image(systemName: "minus.circle.fill").foregroundStyle(PLColor.warning)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(Text("Delete"))
+                    }
+                }
+            }
+            Button {
+                draft.times.append(draft.times.last ?? Date())
+            } label: {
+                Label { Text("Add a time") } icon: { Image(systemName: "plus.circle.fill") }
+                    .font(.subheadline.weight(.semibold))
+            }
+        }
+    }
+
+    private var remindersCard: some View {
+        FormCard(title: Text("Reminders")) {
+            Toggle("Dose reminders", isOn: $draft.remindersOn)
+            Toggle("Reorder reminder", isOn: $draft.reorderOn)
+            if draft.reorderOn {
+                Stepper(value: $draft.reorderLeadDays, in: 1...30) {
+                    Text("\(String(draft.reorderLeadDays)) days before the vial runs out")
+                }
+            }
+            Text("Pepline reminds you of the schedule you enter. It does not recommend doses or schedules.")
+                .font(.footnote)
+                .foregroundStyle(PLColor.muted)
+        }
+        .tint(PLColor.accent)
+    }
+
     private func save() {
         guard let value = decimalValue(draft.amountText) else { return }
         let draft = draft
         store.update { journal in
             let compoundID = draft.compound.resolve(in: &journal)
-            journal.save(Regimen(id: draft.id, compoundID: compoundID,
+            journal.saveEdited(Regimen(id: draft.id, compoundID: compoundID,
                                  dose: DoseAmount(value: value, unit: draft.unit),
                                  schedule: draft.schedule, remindersOn: draft.remindersOn,
-                                 reorderLeadDays: draft.reorderOn ? draft.reorderLeadDays : nil))
+                                 reorderLeadDays: draft.reorderOn ? draft.reorderLeadDays : nil), now: Date())
         }
         Analytics.track(.regimenSaved, [
             "pattern": String(describing: draft.kind),

@@ -24,7 +24,7 @@ enum ReminderPlanner {
                      limit: Int = ReminderPlanner.maxPending) -> [PlannedReminder] {
         var reminders: [PlannedReminder] = []
 
-        for regimen in journal.regimens where regimen.remindersOn {
+        for regimen in journal.activeRegimens where regimen.remindersOn {
             // Twice the window: answered doses are dropped below.
             let dates = regimen.schedule.nextOccurrences(after: now, count: limit * 2, calendar: calendar)
             // Doses already logged early or skipped get no reminder.

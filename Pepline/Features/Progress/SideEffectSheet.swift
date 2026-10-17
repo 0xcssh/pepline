@@ -10,8 +10,21 @@ struct SideEffectSheet: View {
     @State private var date: Date
     @State private var notes = ""
 
+    /// The entry being edited; nil for a new one.
+    private let editing: SideEffectEntry?
+
     init(date: Date = Date()) {
+        editing = nil
         _date = State(initialValue: date)
+    }
+
+    init(editing entry: SideEffectEntry) {
+        editing = entry
+        _symptom = State(initialValue: entry.symptom)
+        _customName = State(initialValue: entry.customName)
+        _severity = State(initialValue: Double(entry.severity))
+        _date = State(initialValue: entry.date)
+        _notes = State(initialValue: entry.notes)
     }
 
     var body: some View {
@@ -78,7 +91,7 @@ struct SideEffectSheet: View {
 
     private func save() {
         guard let symptom else { return }
-        let entry = SideEffectEntry(date: date, symptom: symptom,
+        let entry = SideEffectEntry(id: editing?.id ?? UUID(), date: date, symptom: symptom,
                                     customName: customName.trimmingCharacters(in: .whitespaces),
                                     severity: Int(severity), notes: notes.trimmingCharacters(in: .whitespacesAndNewlines))
         store.update { $0.save(entry) }

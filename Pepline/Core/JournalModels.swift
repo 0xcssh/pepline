@@ -78,6 +78,9 @@ struct Regimen: Codable, Hashable, Identifiable {
     var remindersOn = true
     /// Days before the vial runs out to remind about reordering; nil = off.
     var reorderLeadDays: Int? = 7
+    /// Set when an edit started a new version of this schedule: doses from
+    /// this instant on belong to the new one (Journal.saveEdited).
+    var replacedAt: Date?
 }
 
 struct WeightEntry: Codable, Hashable, Identifiable {

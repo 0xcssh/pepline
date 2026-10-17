@@ -7,11 +7,11 @@ struct SchedulesView: View {
 
     var body: some View {
         List {
-            if store.journal.regimens.isEmpty {
+            if store.journal.activeRegimens.isEmpty {
                 Text("No schedule yet. Tap + to add the schedule your prescriber gave you.")
                     .foregroundStyle(.secondary)
             }
-            ForEach(store.journal.regimens) { regimen in
+            ForEach(store.journal.activeRegimens) { regimen in
                 Button { editing = RegimenEditor.Draft(regimen) } label: { row(regimen) }
                     .tint(.primary)
                     .swipeActions {

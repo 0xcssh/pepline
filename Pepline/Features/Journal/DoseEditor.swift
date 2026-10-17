@@ -73,60 +73,64 @@ struct DoseEditor: View {
 
     private var editor: some View {
         NavigationStack {
-            Form {
-                Section {
-                    CompoundField(choice: $draft.compound)
-                    DoseAmountField(text: $draft.amountText, unit: $draft.unit)
-                    DatePicker("Date", selection: $draft.date)
-                }
-
-                if !vials.isEmpty {
-                    Section {
-                        Picker("Drawn from", selection: $draft.vialID) {
-                            Text("No vial").tag(Vial.ID?.none)
-                            ForEach(vials) { vial in
-                                Text(verbatim: "\(Fmt.mass(vial.reconstitution.vial)) · \(vial.mixedAt.formatted(date: .abbreviated, time: .omitted))")
-                                    .tag(Optional(vial.id))
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    FormCard(title: Text("Compound")) {
+                        CompoundChips(choice: $draft.compound)
+                    }
+                    DoseAmountCard(text: $draft.amountText, unit: $draft.unit)
+                    FormCard(title: Text("When")) {
+                        DatePicker("Date", selection: $draft.date)
+                        if !vials.isEmpty {
+                            Text("Drawn from").font(.subheadline.weight(.semibold)).foregroundStyle(PLColor.muted)
+                            FlowLayout(spacing: 8) {
+                                Button { draft.vialID = nil } label: { Text("No vial") }
+                                    .buttonStyle(ChipStyle(selected: draft.vialID == nil))
+                                ForEach(vials) { vial in
+                                    Button { draft.vialID = vial.id } label: {
+                                        Text(verbatim: "\(Fmt.mass(vial.reconstitution.vial)) · \(vial.mixedAt.formatted(date: .abbreviated, time: .omitted))")
+                                    }
+                                    .buttonStyle(ChipStyle(selected: draft.vialID == vial.id))
+                                }
                             }
                         }
                     }
-                }
-
-                Section {
-                    // Body map: tap the zone; the least recently used one pulses.
-                    BodyMapView(selection: Binding(
-                        get: { draft.site.flatMap { site in draft.side.map { SiteZone(site: site, side: $0) } } },
-                        set: { zone in
-                            draft.site = zone?.site
-                            draft.side = zone?.side
+                    FormCard(title: Text("Injection site")) {
+                        // Body map: tap the zone; the least recently used one pulses.
+                        BodyMapView(selection: Binding(
+                            get: { draft.site.flatMap { site in draft.side.map { SiteZone(site: site, side: $0) } } },
+                            set: { zone in
+                                draft.site = zone?.site
+                                draft.side = zone?.side
+                            }
+                        ), lastUse: SiteRotation.lastUse(in: store.journal, compoundID: draft.compound.existingID))
+                        if let compoundID = draft.compound.existingID,
+                           let last = store.journal.lastSite(of: compoundID) {
+                            Text("Last site: \(Fmt.site(last.site, last.side))")
+                                .font(.footnote)
+                                .foregroundStyle(PLColor.muted)
                         }
-                    ), lastUse: SiteRotation.lastUse(in: store.journal, compoundID: draft.compound.existingID))
-                    .padding(.vertical, 8)
-                } header: {
-                    Text("Injection site")
-                } footer: {
-                    if let compoundID = draft.compound.existingID,
-                       let last = store.journal.lastSite(of: compoundID) {
-                        Text("Last site: \(Fmt.site(last.site, last.side))")
                     }
-                }
-
-                Section("Notes") {
-                    TextField("Notes", text: $draft.notes, axis: .vertical)
-                        .lineLimit(3...8)
-                }
-
-                if !draft.isNew {
-                    Section {
-                        Button("Delete this dose", role: .destructive) {
+                    FormCard(title: Text("Notes")) {
+                        TextField("Notes", text: $draft.notes, axis: .vertical)
+                            .lineLimit(3...8)
+                    }
+                    if !draft.isNew {
+                        Button(role: .destructive) {
                             store.update { $0.deleteDose(draft.id) }
                             Analytics.track(.doseDeleted)
                             dismiss()
+                        } label: {
+                            Label { Text("Delete this dose") } icon: { Image(systemName: "trash") }
+                                .frame(maxWidth: .infinity)
                         }
+                        .padding(.top, 6)
                     }
                 }
+                .padding(20)
             }
-            .plScreen()
+            .scrollDismissesKeyboard(.interactively)
+            .background(PLBackground())
             .navigationTitle(draft.isNew ? Text("Log a dose") : Text("Edit dose"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

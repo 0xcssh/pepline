@@ -87,6 +87,49 @@ final class DailyLoopTests: XCTestCase {
         XCTAssertTrue(Adherence.isAnswered(regimen, at: date(3), in: journal, calendar: calendar))
     }
 
+    // MARK: Schedule versions
+
+    func testEditingAStartedScheduleKeepsItsHistory() {
+        var journal = Journal()
+        let original = daily()
+        journal.save(original)
+        for day in [1, 2, 3] { journal.save(dose(day)) }
+
+        // On the 3rd at 21:00 the time moves from 08:00 to 21:30.
+        var edited = original
+        edited.schedule.times = [TimeOfDay(hour: 21, minute: 30)]
+        journal.saveEdited(edited, now: date(3, 21))
+
+        XCTAssertEqual(journal.regimens.count, 2)
+        XCTAssertEqual(journal.activeRegimens.count, 1)
+        let next = journal.activeRegimens[0]
+        XCTAssertNotEqual(next.id, original.id)
+        XCTAssertEqual(next.schedule.start, date(3, 21))
+
+        // The past stays taken; the new version owes 21:30 from the 3rd on.
+        let doses = Adherence.doses(in: journal, from: date(1, 0), through: date(4, 23), now: date(5, 12), calendar: calendar)
+        XCTAssertEqual(doses.map(\.date), [date(1), date(2), date(3), calendar.date(byAdding: .minute, value: 30, to: date(3, 21))!,
+                                           calendar.date(byAdding: .minute, value: 30, to: date(4, 21))!])
+        XCTAssertEqual(Adherence.summary(doses), AdherenceSummary(taken: 3, skipped: 0, missed: 2))
+    }
+
+    func testEditsThatDoNotChangeThePlanStayInPlace() {
+        var journal = Journal()
+        var regimen = daily()
+        journal.save(regimen)
+        regimen.remindersOn = false
+        journal.saveEdited(regimen, now: date(3))
+        XCTAssertEqual(journal.regimens, [regimen])
+
+        // A schedule that has not begun yet is simply replaced too.
+        var future = daily(start: date(10))
+        journal.save(future)
+        future.dose = DoseAmount(value: 2, unit: .mg)
+        journal.saveEdited(future, now: date(3))
+        XCTAssertEqual(journal.regimens.count, 2)
+        XCTAssertEqual(journal.activeRegimens.count, 2)
+    }
+
     // MARK: Weekly recap
 
     func testWeeklyRecap() {

@@ -36,17 +36,3 @@ struct CompoundField: View {
         }
     }
 }
-
-/// Amount + unit, used by the dose and schedule editors.
-struct DoseAmountField: View {
-    @Binding var text: String
-    @Binding var unit: DoseUnit
-
-    var body: some View {
-        DecimalField(title: "Dose", text: $text)
-        Picker("Unit", selection: $unit) {
-            ForEach(DoseUnit.allCases, id: \.self) { Text(verbatim: Fmt.symbol($0)).tag($0) }
-        }
-        .pickerStyle(.segmented)
-    }
-}

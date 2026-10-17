@@ -37,7 +37,7 @@ struct TodayView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 header
-                if journal.regimens.isEmpty {
+                if journal.activeRegimens.isEmpty {
                     emptyState
                 } else {
                     TipView(InjectTip())
@@ -366,7 +366,7 @@ struct TodayView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(verbatim: compoundName(vial.compoundID)).font(.headline).foregroundStyle(PLColor.text)
                     Text("\(Fmt.mass(remaining)) left").font(.subheadline).foregroundStyle(PLColor.text)
-                    if let regimen = journal.regimens.first(where: { $0.compoundID == vial.compoundID }),
+                    if let regimen = journal.activeRegimens.first(where: { $0.compoundID == vial.compoundID }),
                        let dose = regimen.dose.mass(journal.compound(vial.compoundID)?.iuConversion),
                        let runOut = VialForecast.runOutDate(remaining: remaining, dose: dose, schedule: regimen.schedule,
                                                             after: now, calendar: calendar) {

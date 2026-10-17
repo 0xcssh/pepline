@@ -40,7 +40,7 @@ enum Adherence {
         // Nothing is due before the schedule existed: a schedule created at
         // 21:00 does not owe that morning's 08:00 dose.
         let scheduled = regimen.schedule.occurrences(from: from, through: through, calendar: calendar)
-            .filter { $0 >= regimen.schedule.start }
+            .filter { $0 >= regimen.schedule.start && $0 < (regimen.replacedAt ?? .distantFuture) }
         let skips = journal.skippedDoses.filter { $0.regimenID == regimen.id }
 
         // Each logged dose goes to its nearest scheduled dose (within the

@@ -46,7 +46,7 @@ struct PeplineApp: App {
                 Analytics.track(.appForegrounded, [
                     "doses": String(journal.doses.count),
                     "vials": String(journal.vials.count),
-                    "regimens": String(journal.regimens.count),
+                    "regimens": String(journal.activeRegimens.count),
                     "pro": String(subscription.isPro),
                 ])
                 // The reminder window rolls forward: refill it on every return.

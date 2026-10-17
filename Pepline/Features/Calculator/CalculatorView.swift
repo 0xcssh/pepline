@@ -238,7 +238,8 @@ struct DisclaimerText: View {
     }
 }
 
-/// Saved vials as cards in a row: tap to reload, hold to archive.
+/// Saved vials as cards in a row: tap to reload, hold to archive (undone
+/// in VialsView).
 private struct SavedVialsStrip: View {
     @EnvironmentObject private var store: DataStore
     @ObservedObject var model: CalculatorModel
@@ -250,7 +251,11 @@ private struct SavedVialsStrip: View {
     var body: some View {
         if !vials.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Saved vials").font(.headline).foregroundStyle(PLColor.text)
+                HStack {
+                    Text("Saved vials").font(.headline).foregroundStyle(PLColor.text)
+                    Spacer()
+                    NavigationLink { VialsView() } label: { Text("Manage").font(.subheadline.weight(.semibold)) }
+                }
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
                         ForEach(vials) { vial in
@@ -276,7 +281,7 @@ private struct SavedVialsStrip: View {
     }
 
     private func regimen(for vial: Vial) -> Regimen? {
-        store.journal.regimens.first { $0.compoundID == vial.compoundID }
+        store.journal.activeRegimens.first { $0.compoundID == vial.compoundID }
     }
 
     private func load(_ vial: Vial) {

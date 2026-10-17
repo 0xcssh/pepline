@@ -105,3 +105,62 @@ struct ChipStyle: ButtonStyle {
             .animation(.spring(duration: 0.25), value: selected)
     }
 }
+
+/// A titled card for the V2 editors (dose, schedule, weight).
+struct FormCard<Content: View>: View {
+    var title: Text?
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if let title {
+                title.font(.subheadline.weight(.semibold)).foregroundStyle(PLColor.muted)
+            }
+            content()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .plCard()
+    }
+}
+
+/// The compound as chips: the user's compounds, plus "New" for a typed one.
+struct CompoundChips: View {
+    @EnvironmentObject private var store: DataStore
+    @Binding var choice: CompoundChoice
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            FlowLayout(spacing: 8) {
+                ForEach(store.journal.compounds.sorted { $0.name < $1.name }) { compound in
+                    Button { choice = CompoundChoice(existingID: compound.id) } label: { Text(verbatim: compound.name) }
+                        .buttonStyle(ChipStyle(selected: choice.existingID == compound.id))
+                }
+                Button { choice = CompoundChoice() } label: {
+                    Label { Text("New") } icon: { Image(systemName: "plus") }
+                }
+                .buttonStyle(ChipStyle(selected: choice.existingID == nil))
+            }
+            if choice.existingID == nil {
+                TextField("Compound name", text: $choice.newName)
+                    .textInputAutocapitalization(.words)
+                    .font(.headline)
+                    .padding(12)
+                    .background(PLColor.accent.opacity(0.06), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+        }
+        .sensoryFeedback(.selection, trigger: choice)
+    }
+}
+
+/// Dose in big numerals with its unit chips.
+struct DoseAmountCard: View {
+    @Binding var text: String
+    @Binding var unit: DoseUnit
+
+    var body: some View {
+        FormCard(title: Text("Dose")) {
+            NumberEntry(title: Text("Dose"), text: $text)
+            ChipPicker(selection: $unit, options: DoseUnit.allCases.map { ($0, Fmt.symbol($0)) })
+        }
+    }
+}

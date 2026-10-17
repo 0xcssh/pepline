@@ -10,6 +10,7 @@ struct HistoryView: View {
     @State private var selectedDay = Calendar.current.startOfDay(for: Date())
     @State private var editing: DoseEditor.Draft?
     @State private var addingSideEffect = false
+    @State private var editingEffect: SideEffectEntry?
 
     private var calendar: Calendar { .current }
 
@@ -46,6 +47,7 @@ struct HistoryView: View {
         }
         .sheet(item: $editing) { DoseEditor(draft: $0) }
         .sheet(isPresented: $addingSideEffect) { SideEffectSheet(date: entryDate) }
+        .sheet(item: $editingEffect) { SideEffectSheet(editing: $0) }
     }
 
     /// What is added from History belongs to the selected day: now when it
@@ -224,6 +226,8 @@ struct HistoryView: View {
                 }
                 .font(.subheadline)
                 .foregroundStyle(PLColor.text)
+                .contentShape(Rectangle())
+                .onTapGesture { editingEffect = effect }
                 .contextMenu {
                     Button("Delete", role: .destructive) { store.update { $0.deleteSideEffect(effect.id) } }
                 }
