@@ -10,9 +10,23 @@ final class NotificationScheduler: NSObject, UNUserNotificationCenterDelegate {
         super.init()
     }
 
+    static let doseCategory = "DOSE"
+    static let logAction = "LOG"
+    static let skipAction = "SKIP"
+
     /// Call once at app launch so taps are delivered even on cold start.
+    /// Dose reminders carry two actions, so a dose can be logged or skipped
+    /// from the notification without opening the app.
     func setup() {
-        UNUserNotificationCenter.current().delegate = self
+        let center = UNUserNotificationCenter.current()
+        center.delegate = self
+        let log = UNNotificationAction(identifier: Self.logAction, title: String(localized: "Log dose"),
+                                       options: [], icon: UNNotificationActionIcon(systemImageName: "checkmark.circle"))
+        let skip = UNNotificationAction(identifier: Self.skipAction, title: String(localized: "Skip"),
+                                        options: [], icon: UNNotificationActionIcon(systemImageName: "forward"))
+        center.setNotificationCategories([
+            UNNotificationCategory(identifier: Self.doseCategory, actions: [log, skip], intentIdentifiers: []),
+        ])
     }
 
     func requestPermission() async -> Bool {
@@ -59,9 +73,19 @@ final class NotificationScheduler: NSObject, UNUserNotificationCenterDelegate {
         content.sound = .default
         switch reminder.kind {
         case .dose(let regimenID):
-            let name = journal.regimens.first { $0.id == regimenID }
-                .flatMap { journal.compound($0.compoundID)?.name } ?? ""
-            content.body = String(localized: "Scheduled dose: \(name)")
+            let regimen = journal.regimens.first { $0.id == regimenID }
+            let name = regimen.flatMap { journal.compound($0.compoundID)?.name } ?? ""
+            // "Scheduled dose: Semaglutide · 0.25 mg · draw to 10 units"
+            var body = String(localized: "Scheduled dose: \(name)")
+            if let regimen {
+                body += " · " + Fmt.dose(regimen.dose)
+                if let units = Self.unitsToDraw(regimen, in: journal) {
+                    body += " · " + String(localized: "Draw to \(Fmt.number(units)) units")
+                }
+            }
+            content.body = body
+            content.categoryIdentifier = Self.doseCategory
+            content.userInfo = ["regimenID": regimenID.uuidString, "scheduledAt": reminder.date.timeIntervalSince1970]
         case .reorder(let vialID):
             let name = journal.vials.first { $0.id == vialID }
                 .flatMap { journal.compound($0.compoundID)?.name } ?? ""
@@ -78,5 +102,43 @@ final class NotificationScheduler: NSObject, UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         [.banner, .sound]
+    }
+
+    /// "Log dose" writes the regimen's dose now (from its newest vial);
+    /// "Skip" records the scheduled dose as skipped.
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse) async {
+        let info = response.notification.request.content.userInfo
+        guard let idString = info["regimenID"] as? String, let regimenID = UUID(uuidString: idString),
+              let scheduledAt = (info["scheduledAt"] as? TimeInterval).map(Date.init(timeIntervalSince1970:))
+        else { return }
+        let action = response.actionIdentifier
+        guard action == Self.logAction || action == Self.skipAction else { return }
+        await MainActor.run {
+            let store = DataStore.shared
+            guard let regimen = store.journal.regimens.first(where: { $0.id == regimenID }) else { return }
+            if action == Self.logAction {
+                let vialID = store.journal.vials
+                    .filter { $0.compoundID == regimen.compoundID && !$0.isArchived }
+                    .max { $0.mixedAt < $1.mixedAt }?.id
+                store.update {
+                    $0.save(DoseEntry(date: Date(), compoundID: regimen.compoundID, vialID: vialID, amount: regimen.dose))
+                }
+                Analytics.track(.doseLogged, ["isNew": "true", "hasSite": "false", "from": "notification"])
+            } else {
+                store.update { $0.save(SkippedDose(regimenID: regimenID, scheduledAt: scheduledAt)) }
+                Analytics.track(.doseSkipped, ["from": "notification"])
+            }
+        }
+    }
+
+    /// Units to draw for the regimen's dose from its newest active vial.
+    static func unitsToDraw(_ regimen: Regimen, in journal: Journal) -> Decimal? {
+        guard let vial = journal.vials.filter({ $0.compoundID == regimen.compoundID && !$0.isArchived })
+                .max(by: { $0.mixedAt < $1.mixedAt }),
+              let dose = regimen.dose.mass(journal.compound(regimen.compoundID)?.iuConversion),
+              let draw = try? vial.reconstitution.draw(dose, with: vial.syringe)
+        else { return nil }
+        return draw.units
     }
 }

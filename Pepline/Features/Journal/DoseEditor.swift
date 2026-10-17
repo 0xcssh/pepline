@@ -98,16 +98,17 @@ struct DoseEditor: View {
                 }
 
                 Section {
-                    Picker("Injection site", selection: $draft.site) {
-                        Text("Not logged").tag(InjectionSite?.none)
-                        ForEach(InjectionSite.allCases, id: \.self) { Text(verbatim: $0.label).tag(Optional($0)) }
-                    }
-                    if draft.site != nil {
-                        Picker("Side", selection: $draft.side) {
-                            ForEach(BodySide.allCases, id: \.self) { Text(verbatim: $0.label).tag(Optional($0)) }
+                    // Body map: tap the zone; the least recently used one pulses.
+                    BodyMapView(selection: Binding(
+                        get: { draft.site.flatMap { site in draft.side.map { SiteZone(site: site, side: $0) } } },
+                        set: { zone in
+                            draft.site = zone?.site
+                            draft.side = zone?.side
                         }
-                        .pickerStyle(.segmented)
-                    }
+                    ), lastUse: SiteRotation.lastUse(in: store.journal, compoundID: draft.compound.existingID))
+                    .padding(.vertical, 8)
+                } header: {
+                    Text("Injection site")
                 } footer: {
                     if let compoundID = draft.compound.existingID,
                        let last = store.journal.lastSite(of: compoundID) {

@@ -182,10 +182,12 @@ private struct CompoundEditor: View {
     @Environment(\.dismiss) private var dismiss
     @State private var compound: Compound
     @State private var iuText: String
+    @State private var halfLifeText: String
 
     init(compound: Compound) {
         _compound = State(initialValue: compound)
         _iuText = State(initialValue: compound.iuConversion.map { Fmt.plain($0.iuPerMg) } ?? "")
+        _halfLifeText = State(initialValue: compound.halfLifeHours.map { Fmt.plain($0) } ?? "")
     }
 
     var body: some View {
@@ -196,6 +198,11 @@ private struct CompoundEditor: View {
             } footer: {
                 Text("Only for compounds dosed in IU. Leave empty otherwise.")
             }
+            Section {
+                DecimalField(title: "Half-life (hours, from the label)", text: $halfLifeText, unit: "h")
+            } footer: {
+                Text("Used only to draw the estimated level. Leave empty if your label does not state it.")
+            }
         }
         .plScreen()
         .navigationTitle(Text(verbatim: compound.name))
@@ -204,6 +211,7 @@ private struct CompoundEditor: View {
                 var edited = compound
                 edited.name = edited.name.trimmingCharacters(in: .whitespaces)
                 edited.iuConversion = decimalValue(iuText).map(IUConversion.init(iuPerMg:)).flatMap { $0.isValid ? $0 : nil }
+                edited.halfLifeHours = decimalValue(halfLifeText).flatMap { $0 > 0 ? $0 : nil }
                 store.update { $0.save(edited) }
                 dismiss()
             }

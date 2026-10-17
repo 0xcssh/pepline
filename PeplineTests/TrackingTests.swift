@@ -55,6 +55,8 @@ final class TrackingTests: XCTestCase {
         let json = #"{"compounds":[],"vials":[],"doses":[],"regimens":[],"weights":[]}"#
         let journal = try JSONDecoder().decode(Journal.self, from: Data(json.utf8))
         XCTAssertEqual(journal, Journal())
+        // Even an empty object loads as an empty journal.
+        XCTAssertEqual(try JSONDecoder().decode(Journal.self, from: Data("{}".utf8)), Journal())
     }
 
     func testFullRoundTrip() throws {

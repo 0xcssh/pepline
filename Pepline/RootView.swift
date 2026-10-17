@@ -5,15 +5,17 @@ struct RootView: View {
     @State private var showingSettings = false
 
     var body: some View {
+        // Today first: the daily loop (Shotsy, Peptide Tracker). Schedules
+        // are reached from Today; the full dose list from History.
         TabView {
+            tab { TodayView() }
+                .tabItem { Label("Today", systemImage: "sun.max.fill") }
             tab { CalculatorView() }
                 .tabItem { Label("Calculator", systemImage: "syringe") }
-            tab { JournalView() }
-                .tabItem { Label("Journal", systemImage: "list.bullet.rectangle") }
-            tab { SchedulesView() }
-                .tabItem { Label("Schedules", systemImage: "calendar") }
+            tab { HistoryView() }
+                .tabItem { Label("History", systemImage: "calendar") }
             tab { WeightView() }
-                .tabItem { Label("Weight", systemImage: "chart.xyaxis.line") }
+                .tabItem { Label("Progress", systemImage: "chart.xyaxis.line") }
         }
         .sheet(isPresented: $showingSettings) { SettingsView() }
         .safeAreaInset(edge: .top) {

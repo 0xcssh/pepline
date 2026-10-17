@@ -53,6 +53,13 @@ final class SnapshotTests: XCTestCase {
             ("screen-onboarding-welcome", AnyView(OnboardingView().environmentObject(DataStore.shared))),
             ("screen-dose-logged", AnyView(DoseLoggedView(starCount: 18, summary: "Semaglutide · 0.25 mg", dosesLeft: 15,
                                                          next: Date(timeIntervalSince1970: 1_800_000_000)) {})),
+            ("body-map", AnyView(BodyMapView(
+                selection: .constant(SiteZone(site: .thigh, side: .left)),
+                lastUse: [SiteZone(site: .abdomen, side: .left): Date(),
+                          SiteZone(site: .abdomen, side: .right): Date().addingTimeInterval(-6 * 86_400),
+                          SiteZone(site: .glute, side: .right): Date().addingTimeInterval(-9 * 86_400)])
+                .padding(30)
+                .background(PLBackground()))),
         ]
         for (name, view) in screens {
             let renderer = ImageRenderer(content: view.frame(width: 393, height: 852)

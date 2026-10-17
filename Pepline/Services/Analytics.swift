@@ -36,6 +36,8 @@ enum Analytics {
         case vialSaved = "Vial.saved"
         case doseLogged = "Dose.logged"              // isNew, fromSchedule, hasSite
         case doseDeleted = "Dose.deleted"
+        case doseSkipped = "Dose.skipped"            // from
+        case sideEffectLogged = "SideEffect.logged"  // symptom, severity
         case regimenSaved = "Regimen.saved"          // pattern, times (count), reminders, reorder
         case weightLogged = "Weight.logged"
         case exported = "Export.done"                // kind: doses|weight
