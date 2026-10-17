@@ -4,6 +4,12 @@
     "NSHealthShareUsageDescription" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pepline reads your weight from Apple Health to draw your progress curve."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -57,6 +63,12 @@
     "NSHealthUpdateUsageDescription" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pepline saves the weights you log to Apple Health."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -110,52 +122,58 @@
     "NSCameraUsageDescription" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pepline uses the camera for your progress photos, meal photos and food barcodes."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pepline utilise l'appareil photo pour vos photos de progrès et pour scanner les codes-barres des aliments."
+            "value" : "Pepline utilise l'appareil photo pour vos photos de progression, vos photos de repas et les codes-barres des aliments."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pepline usa la cámara para tus fotos de progreso y para escanear códigos de barras de alimentos."
+            "value" : "Pepline usa la cámara para tus fotos de progreso, fotos de comidas y códigos de barras de alimentos."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pepline nutzt die Kamera für deine Fortschrittsfotos und zum Scannen von Lebensmittel-Barcodes."
+            "value" : "Pepline nutzt die Kamera für deine Fortschrittsfotos, Mahlzeit-Fotos und Lebensmittel-Barcodes."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pepline usa la fotocamera per le foto dei progressi e per scansionare i codici a barre degli alimenti."
+            "value" : "Pepline usa la fotocamera per le foto dei progressi, le foto dei pasti e i codici a barre degli alimenti."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O Pepline usa a câmera para suas fotos de progresso e para escanear códigos de barras de alimentos."
+            "value" : "O Pepline usa a câmera para suas fotos de progresso, fotos de refeições e códigos de barras de alimentos."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pepline は進捗写真の撮影と食品バーコードの読み取りにカメラを使用します。"
+            "value" : "Pepline は経過写真、食事の写真、食品バーコードの読み取りにカメラを使用します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pepline은 진행 사진과 식품 바코드 스캔에 카메라를 사용합니다."
+            "value" : "Pepline은 진행 사진, 식사 사진, 식품 바코드 스캔에 카메라를 사용합니다."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pepline 使用相机拍摄进展照片和扫描食品条形码。"
+            "value" : "Pepline 使用相机拍摄进度照片、餐食照片和扫描食品条形码。"
           }
         }
       }
