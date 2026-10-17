@@ -87,7 +87,7 @@ private struct NameScreen: View {
     @ObservedObject var model: OnboardingModel
 
     var body: some View {
-        QuestionScreen(model: model, title: Text("What should we call you?"),
+        QuestionScreen(model: model, title: Text("What should we call you?"), hasTextInput: true,
                        subtitle: Text("Only used inside the app, on this iPhone."),
                        buttonTitle: model.answers.trimmedName.isEmpty ? Text("Skip") : Text("Continue"),
                        hero: AnyView(PulseRings(symbol: "hand.wave.fill", size: 200))) {
@@ -127,7 +127,7 @@ private struct CompoundsScreen: View {
     @State private var other = ""
 
     var body: some View {
-        QuestionScreen(model: model, title: Text("What do you use?"),
+        QuestionScreen(model: model, title: Text("What do you use?"), hasTextInput: true,
                        subtitle: Text("Pick all that apply, or add your own. You can change this later."),
                        buttonTitle: model.answers.compounds.isEmpty ? Text("Skip") : Text("Continue"),
                        hero: AnyView(PulseRings(symbol: "cross.vial.fill", size: 170))) {
@@ -234,7 +234,7 @@ private struct WeightScreen: View {
     private var unit: UnitMass { WeightUnitSetting.unit(unitSetting) }
 
     var body: some View {
-        QuestionScreen(model: model, title: Text("Your weight"),
+        QuestionScreen(model: model, title: Text("Your weight"), hasTextInput: true,
                        subtitle: Text("Pepline draws your curve from here. Stays on this iPhone."),
                        buttonTitle: nowText.isEmpty ? Text("Skip") : Text("Continue"),
                        onContinue: save,
@@ -270,7 +270,7 @@ private struct FirstVialScreen: View {
     }
 
     var body: some View {
-        QuestionScreen(model: model, title: Text("Your vial"),
+        QuestionScreen(model: model, title: Text("Your vial"), hasTextInput: true,
                        subtitle: Text("Enter the dose your prescriber gave you. Pepline does the math; it never suggests a dose."),
                        buttonTitle: calculator.draw == nil ? Text("Skip for now") : Text("Continue")) {
             if model.answers.compounds.count > 1 {

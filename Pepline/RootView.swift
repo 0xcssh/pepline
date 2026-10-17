@@ -13,14 +13,17 @@ struct RootView: View {
     }
 
     var body: some View {
-        // Three tabs (decision 2026-10-17): Today is the daily loop (next
-        // dose, one-tap log, nutrition, the week); Journal is the past
-        // (calendar, progress, report); Tools holds the calculator and vials.
+        // Four tabs (decisions 2026-10-17): Today is the daily loop (next
+        // dose, one-tap log, nutrition shortcuts, the week); Journal is the
+        // past (calendar, progress, report); Nutrition is its own daily
+        // routine on a GLP-1 (MeAgain, Shotsy); Tools holds the calculator.
         TabView {
             tab { TodayView() }
                 .tabItem { Label("Today", systemImage: "sun.max.fill") }
             tab { JournalTab() }
                 .tabItem { Label("Journal", systemImage: "calendar") }
+            tab { NutritionView() }
+                .tabItem { Label("Nutrition", systemImage: "fork.knife") }
             tab { CalculatorView() }
                 .tabItem { Label("Tools", systemImage: "syringe") }
         }

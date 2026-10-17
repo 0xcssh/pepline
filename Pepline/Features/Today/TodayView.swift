@@ -424,30 +424,52 @@ struct TodayView: View {
     }
 }
 
-/// Today's protein, water and calories at a glance, with the water quick
-/// add; the full nutrition screen is one tap away.
+/// Today's protein, water and calories at a glance, with the two actions
+/// people repeat all day (add a food, add water); the full nutrition screen
+/// is one tap away (and a tab).
 private struct NutritionGlance: View {
     @EnvironmentObject private var store: DataStore
+    @State private var addingFood = false
 
     var body: some View {
         let totals = store.journal.nutrition(on: Date(), calendar: .current)
         let goals = store.journal.nutritionGoals
-        NavigationLink { NutritionView() } label: {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Text("Nutrition").font(.headline).foregroundStyle(PLColor.text)
-                    Spacer()
-                    Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(PLColor.muted)
-                }
-                HStack(spacing: 10) {
-                    ring(Text("Protein"), totals.protein, goals.protein, "\(Fmt.number(totals.protein, digits: 0)) g", PLColor.accent)
-                    ring(Text("Water"), totals.waterMl, goals.waterMl, Fmt.water(totals.waterMl), PLColor.water)
-                    ring(Text("Calories"), totals.kcal, goals.kcal, Fmt.number(totals.kcal, digits: 0), PLColor.warning)
+        VStack(alignment: .leading, spacing: 12) {
+            NavigationLink { NutritionView() } label: {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("Nutrition").font(.headline).foregroundStyle(PLColor.text)
+                        Spacer()
+                        Text("See all").font(.subheadline.weight(.semibold)).foregroundStyle(PLColor.accent)
+                        Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(PLColor.accent)
+                    }
+                    HStack(spacing: 10) {
+                        ring(Text("Protein"), totals.protein, goals.protein, "\(Fmt.number(totals.protein, digits: 0)) g", PLColor.accent)
+                        ring(Text("Water"), totals.waterMl, goals.waterMl, Fmt.water(totals.waterMl), PLColor.water)
+                        ring(Text("Calories"), totals.kcal, goals.kcal, Fmt.number(totals.kcal, digits: 0), PLColor.warning)
+                    }
                 }
             }
-            .plCard()
+            .buttonStyle(.plain)
+            HStack(spacing: 10) {
+                Button { addingFood = true } label: {
+                    Label { Text("Add food") } icon: { Image(systemName: "plus") }
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(ChipStyle(selected: true))
+                Button {
+                    store.update { $0.save(WaterEntry(date: Date(), milliliters: 250)) }
+                    Analytics.track(.waterLogged)
+                } label: {
+                    Label { Text(verbatim: "+250 ml") } icon: { Image(systemName: "drop.fill") }
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(ChipStyle(selected: false))
+                .sensoryFeedback(.increase, trigger: totals.waterMl)
+            }
         }
-        .buttonStyle(.plain)
+        .plCard()
+        .sheet(isPresented: $addingFood) { AddFoodSheet(day: Date()) }
     }
 
     private func ring(_ title: Text, _ value: Decimal, _ goal: Decimal?, _ text: String, _ color: Color) -> some View {

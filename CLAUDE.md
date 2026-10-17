@@ -190,8 +190,9 @@ copies.
 - [x] 2026-10-17 Leaders' feature set: Today loop, body map, adherence
   calendar, side effects, levels, progress photos, Apple Health, nutrition
   (OFF + Pro photo estimate), doctor PDF, next-dose widget.
-- [x] 2026-10-17 UX rethink from SOSA (user decision): 3 tabs (Today ·
-  Journal · Tools), one-tap "I injected" on Today, 11-screen onboarding with
+- [x] 2026-10-17 UX rethink from SOSA (user decision): tabs Today ·
+  Journal · Nutrition · Tools (Nutrition tab restored the same day: users
+  did not find it on Today), one-tap "I injected" on Today, 11-screen onboarding with
   the aha (own vial on own syringe) third, TipKit tips in context instead of a
   tour (p116), weekly recap, trial-reminder day picked on the paywall (p78),
   cancel-reason survey, Apple review prompt after the 3rd dose / 7-streak

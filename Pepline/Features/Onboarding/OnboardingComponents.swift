@@ -163,32 +163,58 @@ extension View {
 struct QuestionScreen<Content: View>: View {
     @ObservedObject var model: OnboardingModel
     let title: Text
+    /// Screens with text fields always scroll: a layout that switches as the
+    /// keyboard opens would rebuild the field and drop the keyboard.
+    var hasTextInput = false
     var subtitle: Text?
     var buttonTitle: Text = Text("Continue")
     var secondary: (title: Text, action: () -> Void)?
     var onContinue: (() -> Void)?
     var hero: AnyView?
     @ViewBuilder var content: Content
+    @State private var keyboardShown = false
 
     var body: some View {
         VStack(spacing: 0) {
             OnboardingChrome(model: model)
-            GeometryReader { proxy in
-                // One page whenever possible: the full hero, then a smaller
-                // one, then none; scrolling only as the last resort (long
-                // translations, small phones, the keyboard).
-                ViewThatFits(in: .vertical) {
-                    column(hero: proxy.size.height * 0.34, scale: 1)
-                    column(hero: proxy.size.height * 0.2, scale: 0.6)
-                    column(hero: nil, scale: 0)
+            if hasTextInput {
+                GeometryReader { proxy in
                     ScrollView {
-                        column(hero: nil, scale: 0)
+                        column(hero: hero == nil ? nil : proxy.size.height * 0.2, scale: 0.6)
                             .frame(minHeight: proxy.size.height, alignment: .topLeading)
                     }
                     .scrollDismissesKeyboard(.interactively)
                 }
+            } else {
+                GeometryReader { proxy in
+                    // One page whenever possible: the full hero, then a smaller
+                    // one, then none; scrolling only as the last resort (long
+                    // translations, small phones).
+                    ViewThatFits(in: .vertical) {
+                        column(hero: proxy.size.height * 0.34, scale: 1)
+                        column(hero: proxy.size.height * 0.2, scale: 0.6)
+                        column(hero: nil, scale: 0)
+                        ScrollView {
+                            column(hero: nil, scale: 0)
+                                .frame(minHeight: proxy.size.height, alignment: .topLeading)
+                        }
+                    }
+                }
+                // The choice never depends on the keyboard.
+                .ignoresSafeArea(.keyboard)
             }
             VStack(spacing: 10) {
+                // Number pads have no return key: this closes the keyboard so
+                // the result underneath can be seen.
+                if keyboardShown {
+                    Button {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    } label: {
+                        Label { Text("Done") } icon: { Image(systemName: "keyboard.chevron.compact.down") }
+                            .font(.subheadline.weight(.semibold))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                }
                 Button {
                     (onContinue ?? model.advance)()
                 } label: {
@@ -208,6 +234,12 @@ struct QuestionScreen<Content: View>: View {
             .padding(.bottom, 12)
         }
         .background(OnboardingBackdrop())
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            keyboardShown = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            keyboardShown = false
+        }
     }
 
     private func column(hero height: CGFloat?, scale: CGFloat) -> some View {
