@@ -85,6 +85,9 @@ struct PulseRings: View {
             ForEach(0..<3) { ring in
                 Circle()
                     .stroke(PLColor.accent.opacity(0.35 - Double(ring) * 0.1), lineWidth: 1.5)
+                    // Sized so the widest pulse (×1.44) stays inside the
+                    // view's frame: nothing spills over the card around it.
+                    .frame(width: size, height: size)
                     .scaleEffect(pulse ? 1 + CGFloat(ring) * 0.22 : 0.7 + CGFloat(ring) * 0.15)
                     .opacity(pulse ? 0.25 : 0.9)
             }

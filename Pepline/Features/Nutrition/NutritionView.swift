@@ -184,6 +184,13 @@ struct NutritionView: View {
                         } label: { Label { Text("Delete") } icon: { Image(systemName: "trash") } }
                     }
                 }
+                // Always there: logging the next meal is the main action.
+                Button { adding = true } label: {
+                    Label { Text("Add food") } icon: { Image(systemName: "plus") }
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.primaryPill)
+                .padding(.top, 4)
             }
             .plCard()
         }
