@@ -1,14 +1,16 @@
-# RepLock — leçons et playbook pour la prochaine app
+# RepLock et Pepline — leçons et playbook pour la prochaine app
 
 Document personnel, écrit en français, pour réutiliser ce qui a marché sur
-RepLock (juillet → octobre 2026) et éviter de repayer les erreurs. Il croise
+RepLock (juillet → octobre 2026) puis Pepline (octobre 2026), et éviter de
+repayer les erreurs. Il croise
 trois sources : ce qu'on a vécu sur le projet, les chiffres réels de RepLock
 (Apple, RevenueCat, TelemetryDeck), et le rapport RevenueCat *State of
 Subscription Apps 2026* (SOSA, 115 000 apps, 16 Md$ de revenus — le PDF est
 dans `docs/`). Les benchmarks cités sont les médianes SOSA sauf mention.
 
 Lecture rapide : la partie 1 est la méthode, la partie 2 le marché et les
-chiffres, la partie 3 la checklist à copier pour la prochaine app.
+chiffres, la partie 3 la checklist à copier pour la prochaine app, la
+partie 4 le design thinking appris sur Pepline.
 
 ---
 
@@ -367,3 +369,132 @@ exactement ce que le rapport décrit comme la bataille de 2026.
     performer ; seules 4,6 % atteignent 10 k$ par mois, et elles ressemblent
     toutes à ça : paywall dur, prix sur l'ancre, jour 0 soigné, rétention
     mesurée.
+
+---
+
+## Partie 4 — Pepline : le design thinking (octobre 2026)
+
+Ce qui a le plus fait progresser Pepline en deux jours, ce n'est pas une
+fonctionnalité de plus, c'est la façon de décider de l'expérience.
+
+### 4.1 Partir de la douleur des utilisateurs des leaders
+
+Les avis 1 étoile des leaders (PeptidePal, Pep AI) ont donné le cahier des
+charges : paywall caché derrière un quiz, calculateur faux ou supprimé, doses
+impossibles à corriger, IA qui donne des doses dangereuses. Chaque plainte est
+devenue une exigence écrite dans CLAUDE.md. Les avis 5 étoiles ont donné les
+envies (notes, site gauche/droite, calendrier, rappel de réachat). Ensuite
+seulement, l'étude des fonctions des 13 meilleures apps a fixé le niveau à
+atteindre (MeAgain, Shotsy : écran du jour, carte du corps, calendrier
+pris/sauté/manqué, nutrition, rapport, widget).
+
+### 4.2 Choisir le design pour la cible, pas pour soi
+
+Le fondateur aimait une ambiance « JARVIS ». Question posée : la cible
+aimera-t-elle ? Les avis vantent « simple, facile », et les utilisateurs de
+GLP-1 ont surtout 50-64 ans. Choix : « calm futurism » (sombre, menthe, cartes
+en verre, typo arrondie, une seule valeur lumineuse par écran : les unités à
+prélever). Le futuriste reste dans les détails, jamais au détriment de la
+lisibilité.
+
+### 4.3 Construire l'app autour d'une seule action
+
+SOSA p116 : bâtir la boucle produit autour du résultat que les avis 5 étoiles
+récompensent. Pour Pepline : savoir quoi prélever → injecter → noter → voir sa
+semaine. L'écran Aujourd'hui commence donc par la prochaine dose, les unités
+sur la seringue dessinée, le site le plus reposé et un gros bouton « J'ai
+injecté » qui enregistre tout en un geste (le bon vial, le bon site, le bon
+créneau même en retard). Le reste vient dessous. Une app « has been » empile
+des formulaires ; une app moderne fait gagner le geste quotidien.
+
+### 4.4 L'onboarding : le « aha » d'abord, le contexte ensuite
+
+- SOSA p26-27 : le long quiz façon Noom, c'est pour un funnel **web** qui doit
+  vendre le problème. Dans l'app, l'utilisateur veut déjà une solution : on
+  file au « aha ».
+- SOSA p67 : un paywall sans contexte paraît brutal. Après le aha, juste assez
+  d'écrans qui configurent l'app (objectifs, rappels, récapitulatif).
+- Résultat : 22 écrans → 11, le aha (sa seringue remplie avec ses chiffres) au
+  3e écran, chaque question configure quelque chose, aucun écran « phrase »
+  pour meubler, jamais d'avance automatique (l'utilisateur garde la main), et
+  un récapitulatif de ce qu'il a déjà construit juste avant le paywall (effet
+  de dotation).
+- Honnêteté : SOSA ne donne pas de nombre d'écrans. 11 est une hypothèse à
+  vérifier avec l'événement `Onboarding.step` (où les gens décrochent).
+
+### 4.5 Enseigner en contexte, pas en visite guidée
+
+SOSA p116 : les fonctions sont adoptées quand on les montre pendant l'action.
+La visite des fonctionnalités a quitté l'onboarding au profit d'astuces TipKit,
+chacune montrée une fois, au bon endroit (« Notez en un geste » sur
+Aujourd'hui, « Enregistrez ce vial » sur le résultat du calcul).
+
+### 4.6 Déplacer une fonction, c'est risquer de la perdre
+
+La nutrition a été rangée dans une carte d'Aujourd'hui pour passer à 3
+onglets. Premier retour du fondateur : « tu as enlevé l'alimentation ? ». Une
+fonction quotidienne doit rester visible : onglet rétabli ET raccourcis
+(« Ajouter un aliment », « +250 ml ») sur Aujourd'hui. Règle : avant de retirer
+un point d'entrée, se demander comment l'utilisateur le retrouvera sans qu'on
+le lui dise.
+
+### 4.7 Le paywall : clarté, une page, arguments positifs
+
+- Une seule page sans défilement : tout ce qu'il faut pour décider est visible.
+  Pour remplir l'espace sans déborder, la vue essaie le grand texte puis
+  descend d'un, deux, trois crans de Dynamic Type avant de défiler (et défile
+  si l'utilisateur a choisi un grand texte d'accessibilité).
+- L'annuel affiché par mois (SOSA p22), la chronologie de l'essai, et le jour
+  du rappel de fin d'essai **choisi par l'utilisateur** (Duolingo, p78 : la
+  transparence convertit mieux que la persuasion).
+- Retirer la redondance (« No free trial » : le badge d'essai, la chronologie
+  et le bouton le disent déjà) et dire le positif (« Résiliable à tout
+  moment »).
+- Offre de sortie honnête : un vrai produit moins cher face au vrai prix
+  annuel, l'économie en argent et par mois, affichée une seule fois (c'est
+  vrai), après l'annulation de n'importe quel plan. Pas de compte à rebours
+  (p70 : moins de 2 % des apps, signal d'app bas de gamme).
+- Ne jamais figer un pourcentage dans le nom d'un produit : la remise varie
+  selon les pays (-22 % aux États-Unis, -20 % en zone euro).
+
+### 4.8 Vérifier le design sans iPhone
+
+Pas de Mac : les rendus CI (`ImageRenderer`) sont l'œil. Astuce découverte : un
+rendu **vide** veut dire que la vue est passée en mode défilant (le renderer ne
+dessine pas le contenu d'une ScrollView), donc que l'écran ne tient pas sur une
+page. Ensuite, les captures du fondateur sur son iPhone tranchent
+(débordements d'animation, texte coupé, clavier qui saute).
+
+### 4.9 L'expérience, c'est aussi la logique
+
+Un audit de bugs confié à un agent a trouvé 21 problèmes, dont les pires
+étaient des bugs d'expérience cachés dans la logique : une dose notée en retard
+restait « manquée », un rappel arrivait pour une dose déjà prise, modifier
+l'heure d'un protocole réécrivait tout l'historique en « manqué », Apple Santé
+faisait revenir les poids supprimés. Une interface parfaite ne sauve pas un
+historique faux. Correction d'abord dans le cœur testé (versions de protocole,
+créneau de rattachement), puis dans l'interface.
+
+### 4.10 Comment on a décidé, ensemble
+
+- Questions courtes au fondateur avec 2 à 4 options et une recommandation, au
+  moment où la décision change ce qu'on construit.
+- Chaque décision de monétisation ou d'onboarding cite une page de SOSA ; ce
+  que SOSA ne dit pas est présenté comme une hypothèse.
+- Les règles Apple guident le produit au lieu de le freiner : 1.4.2 (pas de
+  conseil de dose → positionnement « convertisseur »), 5.6.1 (seulement la
+  demande d'avis système, après un moment de valeur), 5.1.2(i) (consentement
+  avant d'envoyer une photo à une IA), et un questionnaire de raison
+  d'annulation pour apprendre du churn.
+
+### 4.11 À ajouter à la checklist
+
+24. Lister les plaintes 1 étoile des leaders → une exigence par plainte.
+25. Valider la direction artistique contre la cible (âge, attentes), pas contre
+    ses goûts.
+26. Écrire la « seule action » de l'app et construire l'écran d'accueil autour
+    d'elle.
+27. Aha au 3e écran de l'onboarding ; aucun écran qui ne configure rien.
+28. Paywall sur une page, vérifié en rendu CI (rendu vide = ça défile).
+29. Astuces en contexte (TipKit) au lieu d'une visite guidée.
+30. Audit de bugs par un agent avant chaque TestFlight important.
