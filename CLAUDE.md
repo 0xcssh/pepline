@@ -243,10 +243,12 @@ copies.
   no reminder/double log for answered doses, Health de-duplication, schedule
   versions, vial manager, editors as cards, keyboard-safe onboarding.
   123 tests, Core 100%. TestFlight builds go out with every round.
-- [ ] Deploy `server/` (food scan, SIWA revocation) — waiting on Vercel +
-  Anthropic key.
-- [ ] Legal pages (`pepline-legal` on GitHub Pages: privacy, terms), App
-  Privacy questionnaire (photos sent for the estimate, analytics), quote
-  guidelines 3.1.2 and 5.1.2(i) verbatim in `docs/SOURCES.md`.
-- [ ] Listing in 12 locales, screenshots, subscription review screenshots,
-  review notes, submission.
+- [x] 2026-10-18 By API/CLI: server deployed on Vercel (`pepline-api`,
+  non-secret env set), legal pages live (`0xcssh/pepline-legal`), listing in
+  12 locales (`scripts/listing/1.0.json`), 4 screenshots × 12 locales
+  (`MarketingScreenshotTests` → `scripts/asc_screenshots.py`), categories,
+  age rating, subscription review screenshots (all READY_TO_SUBMIT).
+- [ ] Owner: Vercel secrets (ANTHROPIC_API_KEY, REVENUECAT_SECRET_KEY,
+  APPLE_KEY_ID, APPLE_PRIVATE_KEY) then redeploy; App Review contact (name,
+  phone) + notes from `docs/APP_REVIEW.md`; App Privacy questionnaire; pick
+  the build and submit. Quote guidelines 3.1.2 and 5.1.2(i) in SOURCES.
