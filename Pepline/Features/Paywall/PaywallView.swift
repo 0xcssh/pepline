@@ -187,11 +187,14 @@ struct PaywallView: View {
                     } else {
                         if let price = subs.price(.monthly) {
                             // No "no free trial" line: the trial badge, the
-                            // timeline and the CTA already say it (decision
-                            // 2026-10-18).
+                            // timeline and the CTA already say it; flexibility
+                            // is the monthly plan's selling point (2026-10-18).
                             Text("\(price) / month")
                                 .font(.title2.weight(.bold))
                                 .foregroundStyle(PLColor.text)
+                            Label { Text("Cancel anytime") } icon: { Image(systemName: "checkmark.circle.fill") }
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(PLColor.muted)
                         }
                     }
                 }
