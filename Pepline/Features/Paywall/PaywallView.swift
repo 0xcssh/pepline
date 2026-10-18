@@ -186,12 +186,12 @@ struct PaywallView: View {
                         }
                     } else {
                         if let price = subs.price(.monthly) {
-                            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                Text("\(price) / month")
-                                    .font(.title2.weight(.bold))
-                                    .foregroundStyle(PLColor.text)
-                                Text("No free trial").font(.subheadline).foregroundStyle(PLColor.muted)
-                            }
+                            // No "no free trial" line: the trial badge, the
+                            // timeline and the CTA already say it (decision
+                            // 2026-10-18).
+                            Text("\(price) / month")
+                                .font(.title2.weight(.bold))
+                                .foregroundStyle(PLColor.text)
                         }
                     }
                 }
