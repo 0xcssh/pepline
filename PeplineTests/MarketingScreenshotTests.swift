@@ -100,7 +100,7 @@ final class MarketingScreenshotTests: XCTestCase {
             .padding(20).plCard())
 
         let logged = AnyView(DoseLoggedView(starCount: 24, summary: "Semaglutide · 0.5 mg", dosesLeft: 6,
-                                            next: now.addingTimeInterval(7 * 86_400)) {}
+                                            next: nil) {}
             .frame(height: 640)
             .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous)))
 
