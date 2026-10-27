@@ -62,13 +62,20 @@ function rateLimited(userID) {
   return hits.length > 20;
 }
 
+// Any failure (missing or malformed key, RevenueCat down) means "not
+// verified": the scan is refused instead of the function crashing.
 async function hasPro(appUserID) {
-  const url = `https://api.revenuecat.com/v2/projects/${process.env.REVENUECAT_PROJECT_ID}` +
-    `/customers/${encodeURIComponent(appUserID)}/active_entitlements`;
-  const response = await fetch(url, { headers: { Authorization: `Bearer ${process.env.REVENUECAT_SECRET_KEY}` } });
-  if (!response.ok) return false;
-  const body = await response.json();
-  return (body.items || []).some((item) => item.entitlement_id === process.env.PEPLINE_ENTITLEMENT_ID);
+  const env = (name) => (process.env[name] || "").trim();
+  try {
+    const url = `https://api.revenuecat.com/v2/projects/${env("REVENUECAT_PROJECT_ID")}` +
+      `/customers/${encodeURIComponent(appUserID)}/active_entitlements`;
+    const response = await fetch(url, { headers: { Authorization: `Bearer ${env("REVENUECAT_SECRET_KEY")}` } });
+    if (!response.ok) return false;
+    const body = await response.json();
+    return (body.items || []).some((item) => item.entitlement_id === env("PEPLINE_ENTITLEMENT_ID"));
+  } catch {
+    return false;
+  }
 }
 
 export default async function handler(req, res) {
@@ -79,9 +86,10 @@ export default async function handler(req, res) {
   if (!(await hasPro(appUserID))) return res.status(403).json({ error: "not_pro" });
   if (rateLimited(appUserID)) return res.status(429).json({ error: "rate_limited" });
 
-  if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: "not_configured" });
+  const apiKey = (process.env.OPENAI_API_KEY || "").trim();
+  if (!apiKey) return res.status(503).json({ error: "not_configured" });
   try {
-    client ??= new OpenAI();
+    client ??= new OpenAI({ apiKey });
     const completion = await client.chat.completions.create({
       model: MODEL,
       // Portion estimates don't need deep reasoning; keeps cost and latency down.
