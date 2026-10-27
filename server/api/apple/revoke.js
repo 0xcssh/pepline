@@ -11,12 +11,15 @@ import { SignJWT, importPKCS8 } from "jose";
 
 const APPLE = "https://appleid.apple.com";
 
+// Env values may carry stray whitespace, and the key escaped "\n" line breaks.
+const env = (name) => (process.env[name] || "").trim();
+
 async function clientSecret() {
-  const key = await importPKCS8(process.env.APPLE_PRIVATE_KEY.replace(/\n/g, "\n"), "ES256");
+  const key = await importPKCS8(env("APPLE_PRIVATE_KEY").replace(/\\n/g, "\n"), "ES256");
   return new SignJWT({})
-    .setProtectedHeader({ alg: "ES256", kid: process.env.APPLE_KEY_ID })
-    .setIssuer(process.env.APPLE_TEAM_ID)
-    .setSubject(process.env.APPLE_CLIENT_ID)
+    .setProtectedHeader({ alg: "ES256", kid: env("APPLE_KEY_ID") })
+    .setIssuer(env("APPLE_TEAM_ID"))
+    .setSubject(env("APPLE_CLIENT_ID"))
     .setAudience(APPLE)
     .setIssuedAt()
     .setExpirationTime("5m")
@@ -36,8 +39,13 @@ export default async function handler(req, res) {
   const code = req.body && req.body.code;
   if (typeof code !== "string" || code.length < 10 || code.length > 2000) return res.status(400).end();
 
-  const secret = await clientSecret();
-  const base = { client_id: process.env.APPLE_CLIENT_ID, client_secret: secret };
+  let secret;
+  try {
+    secret = await clientSecret();
+  } catch {
+    return res.status(503).json({ error: "not_configured" });
+  }
+  const base = { client_id: env("APPLE_CLIENT_ID"), client_secret: secret };
 
   const tokenResponse = await post("/auth/token", { ...base, code, grant_type: "authorization_code" });
   if (!tokenResponse.ok) return res.status(502).json({ step: "token", status: tokenResponse.status });
