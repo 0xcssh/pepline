@@ -17,7 +17,9 @@
 // PEPLINE_ENTITLEMENT_ID.
 import OpenAI from "openai";
 
-const client = new OpenAI();
+// Created on first use: the SDK throws at construction without a key, which
+// would crash the whole function before it can answer.
+let client;
 const MODEL = process.env.OPENAI_MODEL || "gpt-6-luna";
 
 const ITEMS_SCHEMA = {
@@ -77,7 +79,9 @@ export default async function handler(req, res) {
   if (!(await hasPro(appUserID))) return res.status(403).json({ error: "not_pro" });
   if (rateLimited(appUserID)) return res.status(429).json({ error: "rate_limited" });
 
+  if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: "not_configured" });
   try {
+    client ??= new OpenAI();
     const completion = await client.chat.completions.create({
       model: MODEL,
       // Portion estimates don't need deep reasoning; keeps cost and latency down.
