@@ -253,7 +253,7 @@ copies.
   123 tests, Core 100%. TestFlight builds go out with every round.
 - [x] 2026-10-18 By API/CLI: server deployed on Vercel (`pepline-api`,
   non-secret env set), legal pages live (`0xcssh/pepline-legal`), listing in
-  12 locales (`scripts/listing/1.0.json`), 4 screenshots × 12 locales
+  12 locales (`scripts/listing/1.0.0.json`), 4 screenshots × 12 locales
   (`MarketingScreenshotTests` → `scripts/asc_screenshots.py`), categories,
   age rating, subscription review screenshots (all READY_TO_SUBMIT).
 - [x] 2026-10-27 Food scan moved to OpenAI (`gpt-6-luna`); all server secrets

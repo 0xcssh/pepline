@@ -4,7 +4,7 @@ What is already in App Store Connect (set by API, 2026-10-18) and what is left.
 
 ## Done by script
 
-- Listing in 12 locales (`scripts/listing/1.0.json` → `scripts/asc_listing.py`):
+- Listing in 12 locales (`scripts/listing/1.0.0.json` → `scripts/asc_listing.py`):
   name, subtitle, keywords, description, promotional text, support, marketing
   and privacy URLs. Description ends with the Terms of Use and Privacy links
   (RepLock rejection 3.1.2: the EULA link must be in the description or the

@@ -1,6 +1,6 @@
 {
   "_comment": "App Store product page for 1.0, applied by scripts/asc_listing.py. Positioning (App Review 1.4.2): unit conversion and a journal, never dosing advice. Generic compound names only, no brand names (5.2.1). Keywords never repeat words from the name or subtitle of the same locale.",
-  "version": "1.0",
+  "version": "1.0.0",
   "urls": {
     "privacyPolicyUrl": "https://0xcssh.github.io/pepline-legal/privacy.html",
     "supportUrl": "https://0xcssh.github.io/pepline-legal/",
