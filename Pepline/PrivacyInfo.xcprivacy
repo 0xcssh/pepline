@@ -21,7 +21,7 @@
 				<string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
 			</array>
 		</dict>
-		<!-- Meal photo estimate: sent to server/api/food/scan and Anthropic, not kept by Pepline (Features/Nutrition). -->
+		<!-- Meal photo estimate: sent to server/api/food/scan and OpenAI, not kept by Pepline (Features/Nutrition). -->
 		<dict>
 			<key>NSPrivacyCollectedDataType</key>
 			<string>NSPrivacyCollectedDataTypePhotosorVideos</string>

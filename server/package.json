@@ -8,6 +8,6 @@
   },
   "dependencies": {
     "jose": "5.9.6",
-    "@anthropic-ai/sdk": "latest"
+    "openai": "latest"
   }
 }

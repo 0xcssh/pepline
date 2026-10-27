@@ -102,7 +102,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Nutrition")
                 } footer: {
-                    Text("Meal photos are sent to Anthropic's Claude for the estimate only, and are not kept.")
+                    Text("Meal photos are sent to OpenAI for the estimate only, and are not kept.")
                 }
 
                 Section {

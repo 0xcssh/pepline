@@ -301,7 +301,7 @@ struct ScanConsentView: View {
                     Text("Meal photo estimate")
                         .font(.title2.bold())
                         .foregroundStyle(PLColor.text)
-                    FeatureLine(symbol: "paperplane", text: Text("Your photo is sent to Anthropic's Claude, a third-party AI service, through Pepline's server, only to estimate the foods and their macros."))
+                    FeatureLine(symbol: "paperplane", text: Text("Your photo is sent to OpenAI, a third-party AI service, through Pepline's server, only to estimate the foods and their macros."))
                     FeatureLine(symbol: "trash", text: Text("Pepline does not keep the photo. Nothing else from your journal is sent."))
                     FeatureLine(symbol: "pencil", text: Text("Estimates can be wrong. You check and edit them before anything is saved."))
                     FeatureLine(symbol: "hand.raised", text: Text("You can turn this off at any time in Settings."))

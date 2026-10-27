@@ -110,7 +110,11 @@ otherwise the user types the value from their own label, or no curve is drawn.
   a custom `User-Agent` "AppName/Version (contact)", at most 15 product
   reads/min and 10 searches/min per user. Search therefore runs on submit
   only, never per keystroke.
-- **Meal photo estimate**: Claude (`claude-opus-5-5`) through
+- **Meal photo estimate**: OpenAI (`gpt-6-luna`, the cheapest current model
+  with image input and Structured Outputs: $0.10 / $0.50 per 1M tokens,
+  [OpenAI pricing](https://developers.openai.com/api/docs/pricing) and
+  [model page](https://developers.openai.com/api/docs/models/gpt-6-luna),
+  read 2026-10-27) through
   `server/api/food/scan`, Pro only. Values are labelled "AI estimate" and
   always editable before saving. No nutrition goal is suggested: the user
   types targets agreed with their clinician.

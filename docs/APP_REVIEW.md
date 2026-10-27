@@ -27,7 +27,7 @@ What is already in App Store Connect (set by API, 2026-10-18) and what is left.
 1. **App Review contact** (Apple requires first name, last name, phone). Paste
    the notes below into App Review Information.
 2. **Server secrets** in Vercel → pepline-api → Settings → Environment
-   Variables (Production), then redeploy: `ANTHROPIC_API_KEY`,
+   Variables (Production), then redeploy: `OPENAI_API_KEY`,
    `REVENUECAT_SECRET_KEY` (RevenueCat v2 secret key), `APPLE_KEY_ID` and
    `APPLE_PRIVATE_KEY` (the Sign in with Apple key .p8, whole PEM text).
 3. **App Privacy** questionnaire (not in the public API):
@@ -56,7 +56,7 @@ What is already in App Store Connect (set by API, 2026-10-18) and what is left.
 > shown once when the user closes Apple's payment sheet. All three unlock the
 > same Pepline Pro entitlement.
 >
-> Meal photo estimates (Pro, optional) send the photo to Anthropic (Claude)
+> Meal photo estimates (Pro, optional) send the photo to OpenAI
 > only after an explicit consent screen (guideline 5.1.2(i)); the photo is not
 > kept.
 >

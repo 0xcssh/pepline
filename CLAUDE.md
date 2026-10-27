@@ -3,7 +3,7 @@
 Pepline is a native iOS app for people who inject peptides and GLP-1 compounds:
 a **reconstitution calculator that is correct and saveable**, plus a **dose
 journal**, reminders, progress and nutrition. No account, no dosing advice
-(AI only estimates food macros from a meal photo, with consent),
+(AI — OpenAI — only estimates food macros from a meal photo, with consent),
 on-device data, honest paywall. It is the exact inverse of the category
 leaders, whose reviews are majority 1-star (see "Why this app").
 
@@ -84,7 +84,7 @@ take with day-one localization (smaller volume, stricter regulation).
    compare slider, estimated levels (sourced half-lives only), weekly recap.
 5. **Nutrition** (decision 2026-10-17, to match MeAgain/Shotsy): protein,
    water and calorie goals set by the user, Open Food Facts search and
-   barcode, Pro meal-photo estimate via `server/api/food/scan` (Claude, with
+   barcode, Pro meal-photo estimate via `server/api/food/scan` (OpenAI, with
    a consent screen, guideline 5.1.2(i)).
 6. **Export** CSV + PDF doctor report; next-dose widget (Home + Lock Screen).
 7. **Monetization**: hard paywall after the onboarding, 7-day trial on yearly,
@@ -146,8 +146,9 @@ Meta/Google health ad policies first. App Store/ASO comes first.
   `ChipStyle`, `StepCard`, `FormCard`, `CompoundChips`, `DoseAmountCard`) —
   every editor uses cards with big numerals, no plain iOS forms.
 - **Server** (`server/`, Vercel, not deployed yet): `api/apple/revoke.js`
-  (SIWA token revocation, 5.1.1(v)), `api/food/scan.js` (Claude
-  `claude-opus-5-5`, entitlement checked through RevenueCat, photo not kept).
+  (SIWA token revocation, 5.1.1(v)), `api/food/scan.js` (OpenAI
+  `gpt-6-luna`, cheapest vision model, decision 2026-10-27; entitlement
+  checked through RevenueCat, photo not kept).
   Env vars listed in `server/README.md`; secrets only in Vercel.
 
 ## Pipeline lessons (this repo)
@@ -171,7 +172,7 @@ Meta/Google health ad policies first. App Store/ASO comes first.
 
 ## Still needed from the user
 
-- Vercel access (or a deploy token) and an Anthropic API key, to deploy the
+- Vercel access (or a deploy token) and an OpenAI API key, to deploy the
   food scan and the SIWA revocation; the RevenueCat secret key goes there too.
 - Sign in with Apple key (.p8 + Key ID) for `server/api/apple/revoke.js`.
 
@@ -248,7 +249,7 @@ copies.
   12 locales (`scripts/listing/1.0.json`), 4 screenshots × 12 locales
   (`MarketingScreenshotTests` → `scripts/asc_screenshots.py`), categories,
   age rating, subscription review screenshots (all READY_TO_SUBMIT).
-- [ ] Owner: Vercel secrets (ANTHROPIC_API_KEY, REVENUECAT_SECRET_KEY,
+- [ ] Owner: Vercel secrets (OPENAI_API_KEY, REVENUECAT_SECRET_KEY,
   APPLE_KEY_ID, APPLE_PRIVATE_KEY) then redeploy; App Review contact (name,
   phone) + notes from `docs/APP_REVIEW.md`; App Privacy questionnaire; pick
   the build and submit. Quote guidelines 3.1.2 and 5.1.2(i) in SOURCES.

@@ -19657,58 +19657,6 @@
         }
       }
     },
-    "Meal photos are sent to Anthropic's Claude for the estimate only, and are not kept." : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les photos de repas sont envoyées à Claude d'Anthropic uniquement pour l'estimation, et ne sont pas conservées."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Las fotos de comidas se envían a Claude de Anthropic solo para la estimación y no se guardan."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mahlzeit-Fotos werden nur für die Schätzung an Claude von Anthropic gesendet und nicht gespeichert."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le foto dei pasti vengono inviate a Claude di Anthropic solo per la stima e non vengono conservate."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "As fotos das refeições são enviadas ao Claude, da Anthropic, apenas para a estimativa e não são guardadas."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "食事の写真は推定のためだけに Anthropic の Claude に送信され、保存されません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "식사 사진은 추정을 위해서만 Anthropic의 Claude로 전송되며 보관되지 않습니다."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "餐食照片仅为估算发送给 Anthropic 的 Claude，不会被保留。"
-          }
-        }
-      }
-    },
     "Next day" : {
       "localizations" : {
         "fr" : {
@@ -20849,58 +20797,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你可以随时在设置中关闭此功能。"
-          }
-        }
-      }
-    },
-    "Your photo is sent to Anthropic's Claude, a third-party AI service, through Pepline's server, only to estimate the foods and their macros." : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votre photo est envoyée à Claude d'Anthropic, un service d'IA tiers, via le serveur de Pepline, uniquement pour estimer les aliments et leurs macros."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tu foto se envía a Claude de Anthropic, un servicio de IA de terceros, a través del servidor de Pepline, solo para estimar los alimentos y sus macros."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dein Foto wird über den Server von Pepline an Claude von Anthropic, einen KI-Dienst eines Drittanbieters, gesendet – nur um die Lebensmittel und ihre Makros zu schätzen."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La tua foto viene inviata a Claude di Anthropic, un servizio di IA di terze parti, tramite il server di Pepline, solo per stimare gli alimenti e i loro macro."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sua foto é enviada ao Claude, da Anthropic, um serviço de IA de terceiros, pelo servidor do Pepline, apenas para estimar os alimentos e seus macros."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "写真は Pepline のサーバーを経由して、第三者の AI サービスである Anthropic の Claude に送信されます。用途は食品とその栄養素の推定のみです。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "사진은 Pepline 서버를 거쳐 타사 AI 서비스인 Anthropic의 Claude로 전송되며, 음식과 영양소를 추정하는 데에만 사용됩니다."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你的照片会经由 Pepline 的服务器发送给第三方 AI 服务 Anthropic 的 Claude，仅用于估算食物及其营养素。"
           }
         }
       }
@@ -25113,6 +25009,110 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "随时可取消"
+          }
+        }
+      }
+    },
+    "Your photo is sent to OpenAI, a third-party AI service, through Pepline's server, only to estimate the foods and their macros." : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre photo est envoyée à OpenAI, un service d'IA tiers, via le serveur de Pepline, uniquement pour estimer les aliments et leurs macros."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu foto se envía a OpenAI, un servicio de IA de terceros, a través del servidor de Pepline, solo para estimar los alimentos y sus macros."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Foto wird über den Server von Pepline an OpenAI, einen KI-Dienst eines Drittanbieters, gesendet – nur um die Lebensmittel und ihre Makros zu schätzen."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La tua foto viene inviata a OpenAI, un servizio di IA di terze parti, tramite il server di Pepline, solo per stimare gli alimenti e i loro macro."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sua foto é enviada à OpenAI, um serviço de IA de terceiros, pelo servidor do Pepline, apenas para estimar os alimentos e seus macros."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真は Pepline のサーバーを経由して、第三者の AI サービスである OpenAI に送信されます。用途は食品とその栄養素の推定のみです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진은 Pepline 서버를 거쳐 타사 AI 서비스인 OpenAI로 전송되며, 음식과 영양소를 추정하는 데에만 사용됩니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的照片会经由 Pepline 的服务器发送给第三方 AI 服务 OpenAI，仅用于估算食物及其营养素。"
+          }
+        }
+      }
+    },
+    "Meal photos are sent to OpenAI for the estimate only, and are not kept." : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les photos de repas sont envoyées à OpenAI uniquement pour l'estimation, et ne sont pas conservées."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las fotos de comidas se envían a OpenAI solo para la estimación y no se guardan."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mahlzeit-Fotos werden nur für die Schätzung an OpenAI gesendet und nicht gespeichert."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le foto dei pasti vengono inviate a OpenAI solo per la stima e non vengono conservate."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As fotos das refeições são enviadas à OpenAI apenas para a estimativa e não são guardadas."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "食事の写真は推定のためだけに OpenAI に送信され、保存されません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "식사 사진은 추정을 위해서만 OpenAI로 전송되며 보관되지 않습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "餐食照片仅为估算发送给 OpenAI，不会被保留。"
           }
         }
       }

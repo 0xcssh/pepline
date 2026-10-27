@@ -1,17 +1,24 @@
 // POST /api/food/scan
-// Body: {"image": "<base64 JPEG>", "appUserID": "<RevenueCat app user ID>"}
+// Body: {"image": "<base64 JPEG>", "appUserID": "<RevenueCat app user ID>", "language": "fr"}
 // Returns: {"items": [{"name", "kcal", "protein", "carbs", "fat", "fiber"}]}
 //
 // Pepline Pro only: the app user ID must hold the pepline_pro entitlement in
-// RevenueCat. The photo is sent to Claude for this one estimate and is not
+// RevenueCat. The photo is sent to OpenAI for this one estimate and is not
 // stored or logged here. The user consented in the app before the first
 // scan (App Review 5.1.2(i)).
 //
-// Env (Vercel project settings, never in git): ANTHROPIC_API_KEY,
-// REVENUECAT_SECRET_KEY (v2), REVENUECAT_PROJECT_ID, PEPLINE_ENTITLEMENT_ID.
-import Anthropic from "@anthropic-ai/sdk";
+// Model: OpenAI's cheapest current model with image input and Structured
+// Outputs (decision 2026-10-27: cost first). `gpt-6-luna` at $0.10 / $0.50
+// per 1M tokens (developers.openai.com/api/docs/pricing, read 2026-10-27);
+// override with OPENAI_MODEL without a code change.
+//
+// Env (Vercel project settings, never in git): OPENAI_API_KEY, OPENAI_MODEL
+// (optional), REVENUECAT_SECRET_KEY (v2), REVENUECAT_PROJECT_ID,
+// PEPLINE_ENTITLEMENT_ID.
+import OpenAI from "openai";
 
-const client = new Anthropic();
+const client = new OpenAI();
+const MODEL = process.env.OPENAI_MODEL || "gpt-6-luna";
 
 const ITEMS_SCHEMA = {
   type: "object",
@@ -71,28 +78,30 @@ export default async function handler(req, res) {
   if (rateLimited(appUserID)) return res.status(429).json({ error: "rate_limited" });
 
   try {
-    const response = await client.messages.create({
-      model: "claude-opus-5-5",
-      max_tokens: 16000,
-      system: SYSTEM,
-      // Portion estimates don't need deep reasoning.
-      output_config: { effort: "low", format: { type: "json_schema", schema: ITEMS_SCHEMA } },
-      messages: [{
-        role: "user",
-        content: [
-          { type: "image", source: { type: "base64", media_type: "image/jpeg", data: image } },
-          { type: "text", text: `Language for item names: ${typeof language === "string" ? language.slice(0, 20) : "en"}` },
-        ],
-      }],
+    const completion = await client.chat.completions.create({
+      model: MODEL,
+      // Portion estimates don't need deep reasoning; keeps cost and latency down.
+      reasoning_effort: "low",
+      response_format: { type: "json_schema", json_schema: { name: "meal", strict: true, schema: ITEMS_SCHEMA } },
+      messages: [
+        { role: "system", content: SYSTEM },
+        {
+          role: "user",
+          content: [
+            { type: "text", text: `Language for item names: ${typeof language === "string" ? language.slice(0, 20) : "en"}` },
+            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${image}`, detail: "low" } },
+          ],
+        },
+      ],
     });
 
-    if (response.stop_reason === "refusal") return res.status(422).json({ error: "refused", items: [] });
-    const text = response.content.find((block) => block.type === "text")?.text ?? '{"items":[]}';
-    return res.status(200).json(JSON.parse(text));
+    const message = completion.choices[0]?.message;
+    if (!message || message.refusal) return res.status(422).json({ error: "refused", items: [] });
+    return res.status(200).json(JSON.parse(message.content || '{"items":[]}'));
   } catch (error) {
-    if (error instanceof Anthropic.RateLimitError) return res.status(503).json({ error: "busy" });
-    if (error instanceof Anthropic.BadRequestError) return res.status(400).json({ error: "bad_image" });
-    if (error instanceof Anthropic.APIError) return res.status(502).json({ error: "upstream", status: error.status });
+    if (error instanceof OpenAI.RateLimitError) return res.status(503).json({ error: "busy" });
+    if (error instanceof OpenAI.BadRequestError) return res.status(400).json({ error: "bad_image" });
+    if (error instanceof OpenAI.APIError) return res.status(502).json({ error: "upstream", status: error.status });
     return res.status(500).json({ error: "failed" });
   }
 }

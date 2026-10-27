@@ -18,15 +18,16 @@ Environment variables (Vercel project settings, never committed):
 
 ## `POST /api/food/scan` (Pepline Pro)
 
-Estimates the foods in one meal photo with Claude (`claude-opus-5-5`, low
+Estimates the foods in one meal photo with OpenAI (`gpt-6-luna` by default,
 effort, JSON-schema output; roughly a cent per photo). Checks the
 `pepline_pro` entitlement in RevenueCat first; 20 scans per user per hour.
-The photo is not stored. Pin `@anthropic-ai/sdk` with the lockfile on the
+The photo is not stored. Pin `openai` with the lockfile on the
 first deploy.
 
 | Name | Value |
 |---|---|
-| `ANTHROPIC_API_KEY` | from console.anthropic.com |
+| `OPENAI_API_KEY` | from platform.openai.com |
+| `OPENAI_MODEL` | optional, default `gpt-6-luna` |
 | `REVENUECAT_SECRET_KEY` | RevenueCat v2 secret key |
 | `REVENUECAT_PROJECT_ID` | `proj33517486` |
 | `PEPLINE_ENTITLEMENT_ID` | `entlb31718d3df` |
