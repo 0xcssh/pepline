@@ -145,7 +145,7 @@ Meta/Google health ad policies first. App Store/ASO comes first.
 - **Shared UI**: `Design/Controls.swift` (`NumberEntry`, `ChipPicker`,
   `ChipStyle`, `StepCard`, `FormCard`, `CompoundChips`, `DoseAmountCard`) —
   every editor uses cards with big numerals, no plain iOS forms.
-- **Server** (`server/`, Vercel, not deployed yet): `api/apple/revoke.js`
+- **Server** (`server/`, Vercel `pepline-api.vercel.app`): `api/apple/revoke.js`
   (SIWA token revocation, 5.1.1(v)), `api/food/scan.js` (OpenAI
   `gpt-6-luna`, cheapest vision model, decision 2026-10-27; entitlement
   checked through RevenueCat, photo not kept).
@@ -170,11 +170,18 @@ Meta/Google health ad policies first. App Store/ASO comes first.
 - Info.plist strings need an `en` entry in `InfoPlist.xcstrings`, or ASC
   flags the key name as the purpose string.
 
-## Still needed from the user
+## Server secrets (2026-10-27)
 
-- Vercel access (or a deploy token) and an OpenAI API key, to deploy the
-  food scan and the SIWA revocation; the RevenueCat secret key goes there too.
-- Sign in with Apple key (.p8 + Key ID) for `server/api/apple/revoke.js`.
+All set in Vercel (pepline-api, Production) and kept in the All in one vault
+(`Bureau/All in one/scripts/vault-get.ps1`, every decrypt needs the owner's
+OK): `OPENAI_API_KEY` (vault `pepline/openai-api-key.txt`; the OpenAI account
+had **no credits** on 2026-10-27 → scans answer 503 until it is topped up),
+`REVENUECAT_SECRET_KEY` (vault `replock/revenuecat_v2.key`, same RevenueCat
+project), `APPLE_KEY_ID` `27XC5K46K6` + `APPLE_PRIVATE_KEY` (vault
+`pepline/AuthKey_27XC5K46K6-…p8`; mislabelled "cyranox ASC key" in the vault
+but verified against appleid.apple.com as a Sign in with Apple key of team
+8L8G4P4Z9X for com.awdia.pepline). Server deps pinned by `package-lock.json`
+(Vercel's build cache once skipped installing `openai`).
 
 ## Conventions
 
@@ -249,7 +256,8 @@ copies.
   12 locales (`scripts/listing/1.0.json`), 4 screenshots × 12 locales
   (`MarketingScreenshotTests` → `scripts/asc_screenshots.py`), categories,
   age rating, subscription review screenshots (all READY_TO_SUBMIT).
-- [ ] Owner: Vercel secrets (OPENAI_API_KEY, REVENUECAT_SECRET_KEY,
-  APPLE_KEY_ID, APPLE_PRIVATE_KEY) then redeploy; App Review contact (name,
+- [x] 2026-10-27 Food scan moved to OpenAI (`gpt-6-luna`); all server secrets
+  set from the All in one vault; both endpoints verified live.
+- [ ] Owner: add OpenAI credits; App Review contact (name,
   phone) + notes from `docs/APP_REVIEW.md`; App Privacy questionnaire; pick
   the build and submit. Quote guidelines 3.1.2 and 5.1.2(i) in SOURCES.
