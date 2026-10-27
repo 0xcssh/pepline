@@ -8,6 +8,6 @@
   },
   "dependencies": {
     "jose": "5.9.6",
-    "openai": "latest"
+    "openai": "7.45.0"
   }
 }
