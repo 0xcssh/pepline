@@ -118,71 +118,19 @@ struct TodayView: View {
     @ViewBuilder
     private var heroCard: some View {
         if let next = nextDose {
-            let due = next.scheduled.date <= now
             let units = NotificationScheduler.unitsToDraw(next.regimen, in: journal)
             let syringe = latestVial(next.regimen)?.syringe
             let zone = SiteRotation.leastRecent(lastUse: SiteRotation.lastUse(in: journal))
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text(verbatim: compoundName(next.regimen.compoundID) + " · " + Fmt.dose(next.regimen.dose))
-                        .font(.headline)
-                        .foregroundStyle(PLColor.text)
-                    Spacer()
-                    Group {
-                        if due {
-                            Text("Due now").foregroundStyle(PLColor.warning)
-                        } else if calendar.isDate(next.scheduled.date, inSameDayAs: now) {
-                            Text(next.scheduled.date, style: .relative).foregroundStyle(PLColor.muted)
-                        } else {
-                            Text(next.scheduled.date, format: .dateTime.weekday(.abbreviated).hour().minute())
-                                .foregroundStyle(PLColor.muted)
-                        }
-                    }
-                    .font(.subheadline.weight(.semibold).monospacedDigit())
-                }
-                if let units {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text("Draw to").font(.subheadline).foregroundStyle(PLColor.muted)
-                        HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            Text(verbatim: Fmt.units(units))
-                                .plNumeral(size: 56)
-                                .foregroundStyle(PLColor.accent)
-                                .plGlow()
-                            Text("units").font(.title3.weight(.semibold)).foregroundStyle(PLColor.text)
-                        }
-                    }
-                    if let syringe {
-                        SyringeView(syringe: syringe, units: units).frame(height: 64)
-                    }
-                } else {
-                    NavigationLink { CalculatorView() } label: {
-                        Label { Text("Save your vial to see the units to draw here.") } icon: { Image(systemName: "flask") }
-                            .font(.subheadline)
-                    }
-                }
-                Label { Text("Most rested site: \(Fmt.site(zone.site, zone.side))") } icon: {
-                    Image(systemName: "figure.stand")
-                }
-                .font(.footnote)
-                .foregroundStyle(PLColor.muted)
-
-                Button { quickLog(next.regimen, slot: next.scheduled.date) } label: {
-                    Label { Text("I injected") } icon: { Image(systemName: "checkmark.circle.fill") }
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.primaryPill)
-                HStack {
-                    Button {
-                        logging = DoseEditor.Draft(regimen: next.regimen, journal: journal,
-                                                   date: QuickLog.date(forSlot: next.scheduled.date, now: now))
-                    } label: { Text("Log with details") }
-                    Spacer()
-                    Button { skip(next.scheduled) } label: { Text("Skip this dose") }
-                }
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(PLColor.muted)
-            }
-            .plCard()
+            NextDoseCard(
+                title: compoundName(next.regimen.compoundID) + " · " + Fmt.dose(next.regimen.dose),
+                date: next.scheduled.date, now: now, units: units, syringe: syringe, zone: zone,
+                onInjected: { quickLog(next.regimen, slot: next.scheduled.date) },
+                onDetails: {
+                    logging = DoseEditor.Draft(regimen: next.regimen, journal: journal,
+                                               date: QuickLog.date(forSlot: next.scheduled.date, now: now))
+                },
+                onSkip: { skip(next.scheduled) }
+            )
         } else {
             VStack(spacing: 10) {
                 Image(systemName: "checkmark.seal.fill").font(.largeTitle).foregroundStyle(PLColor.accent).plGlow()
@@ -443,11 +391,7 @@ private struct NutritionGlance: View {
                         Text("See all").font(.subheadline.weight(.semibold)).foregroundStyle(PLColor.accent)
                         Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(PLColor.accent)
                     }
-                    HStack(spacing: 10) {
-                        ring(Text("Protein"), totals.protein, goals.protein, "\(Fmt.number(totals.protein, digits: 0)) g", PLColor.accent)
-                        ring(Text("Water"), totals.waterMl, goals.waterMl, Fmt.water(totals.waterMl), PLColor.water)
-                        ring(Text("Calories"), totals.kcal, goals.kcal, Fmt.number(totals.kcal, digits: 0), PLColor.warning)
-                    }
+                    NutritionRingsRow(totals: totals, goals: goals)
                 }
             }
             .buttonStyle(.plain)
@@ -470,6 +414,96 @@ private struct NutritionGlance: View {
         }
         .plCard()
         .sheet(isPresented: $addingFood) { AddFoodSheet(day: Date()) }
+    }
+}
+
+/// The next dose: units to draw on the drawn syringe, the most rested site
+/// and the one-tap "I injected". Stateless, so the store screenshots render
+/// the real card (PeplineTests/MarketingScreenshotTests).
+struct NextDoseCard: View {
+    let title: String
+    let date: Date
+    let now: Date
+    let units: Decimal?
+    let syringe: SyringeModel?
+    let zone: SiteZone
+    var onInjected: () -> Void = {}
+    var onDetails: () -> Void = {}
+    var onSkip: () -> Void = {}
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(verbatim: title)
+                    .font(.headline)
+                    .foregroundStyle(PLColor.text)
+                Spacer()
+                Group {
+                    if date <= now {
+                        Text("Due now").foregroundStyle(PLColor.warning)
+                    } else if Calendar.current.isDate(date, inSameDayAs: now) {
+                        Text(date, style: .relative).foregroundStyle(PLColor.muted)
+                    } else {
+                        Text(date, format: .dateTime.weekday(.abbreviated).hour().minute())
+                            .foregroundStyle(PLColor.muted)
+                    }
+                }
+                .font(.subheadline.weight(.semibold).monospacedDigit())
+            }
+            if let units {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Draw to").font(.subheadline).foregroundStyle(PLColor.muted)
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text(verbatim: Fmt.units(units))
+                            .plNumeral(size: 56)
+                            .foregroundStyle(PLColor.accent)
+                            .plGlow()
+                        Text("units").font(.title3.weight(.semibold)).foregroundStyle(PLColor.text)
+                    }
+                }
+                if let syringe {
+                    SyringeView(syringe: syringe, units: units).frame(height: 64)
+                }
+            } else {
+                NavigationLink { CalculatorView() } label: {
+                    Label { Text("Save your vial to see the units to draw here.") } icon: { Image(systemName: "flask") }
+                        .font(.subheadline)
+                }
+            }
+            Label { Text("Most rested site: \(Fmt.site(zone.site, zone.side))") } icon: {
+                Image(systemName: "figure.stand")
+            }
+            .font(.footnote)
+            .foregroundStyle(PLColor.muted)
+
+            Button(action: onInjected) {
+                Label { Text("I injected") } icon: { Image(systemName: "checkmark.circle.fill") }
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.primaryPill)
+            HStack {
+                Button(action: onDetails) { Text("Log with details") }
+                Spacer()
+                Button(action: onSkip) { Text("Skip this dose") }
+            }
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(PLColor.muted)
+        }
+        .plCard()
+    }
+}
+
+/// Protein, water and calories as three rings against the user's goals.
+struct NutritionRingsRow: View {
+    let totals: NutritionTotals
+    let goals: NutritionGoals
+
+    var body: some View {
+        HStack(spacing: 10) {
+            ring(Text("Protein"), totals.protein, goals.protein, "\(Fmt.number(totals.protein, digits: 0)) g", PLColor.accent)
+            ring(Text("Water"), totals.waterMl, goals.waterMl, Fmt.water(totals.waterMl), PLColor.water)
+            ring(Text("Calories"), totals.kcal, goals.kcal, Fmt.number(totals.kcal, digits: 0), PLColor.warning)
+        }
     }
 
     private func ring(_ title: Text, _ value: Decimal, _ goal: Decimal?, _ text: String, _ color: Color) -> some View {
