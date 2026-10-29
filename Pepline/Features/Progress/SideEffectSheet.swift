@@ -95,7 +95,8 @@ struct SideEffectSheet: View {
                                     customName: customName.trimmingCharacters(in: .whitespaces),
                                     severity: Int(severity), notes: notes.trimmingCharacters(in: .whitespacesAndNewlines))
         store.update { $0.save(entry) }
-        Analytics.track(.sideEffectLogged, ["symptom": symptom.rawValue, "severity": String(Int(severity))])
+        // No symptom or severity: analytics never carry health data.
+        Analytics.track(.sideEffectLogged)
         dismiss()
     }
 }

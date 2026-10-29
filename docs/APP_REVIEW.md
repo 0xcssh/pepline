@@ -43,22 +43,28 @@ What is already in App Store Connect (set by API, 2026-10-18) and what is left.
 ## Notes for App Review
 
 > Pepline is a unit converter and a personal journal for people who inject
-> peptides or GLP-1 medicines prescribed to them. It never recommends,
-> suggests or validates a dose (guideline 1.4.2): the user types the dose from
-> their prescriber; Pepline converts vial + water + dose into units on a U-100
-> syringe and records it.
+> peptides or GLP-1 compounds they are legally allowed to use. It never
+> recommends, suggests, validates or limits a dose (guideline 1.4.2): there is
+> no drug database, no dose or titration preset and no dose validation. The
+> user types the dose given by their prescriber or product label; Pepline does
+> plain U-100 arithmetic (1 unit = 0.01 ml) to show where to draw on the
+> syringe, and records it. Disclaimers are shown in the onboarding (accepted
+> by the user), the calculator, schedules, Settings and the PDF report. The
+> safety rationale is the FDA's July 2024 alert on overdoses caused by unit
+> conversion errors with compounded semaglutide.
 >
-> No account is needed; Sign in with Apple is optional (Settings > Account)
-> and Settings > Delete my account deletes it and revokes the token.
+> No account is needed. Sign in with Apple is optional; Settings > Account >
+> Delete my account deletes it and revokes the token at Apple (reachable once
+> the free trial has started).
 >
 > Subscription: paywall after the onboarding. Pepline Pro yearly (7-day free
 > trial) or monthly. A discounted yearly offer (Pepline Pro Yearly Offer) is
 > shown once when the user closes Apple's payment sheet. All three unlock the
-> same Pepline Pro entitlement.
+> same Pepline Pro entitlement and are submitted with this version.
 >
-> Meal photo estimates (Pro, optional) send the photo to OpenAI
-> only after an explicit consent screen (guideline 5.1.2(i)); the photo is not
-> kept.
+> Meal photo estimates (Pro, optional) send the photo to OpenAI only after an
+> explicit consent screen (guideline 5.1.2(i)); Pepline does not keep the
+> photo.
 >
 > To test: complete the onboarding (about a minute), start the free trial with
 > a sandbox account, then use Today > I injected, Tools > Calculator,

@@ -99,7 +99,7 @@ final class OnboardingModel: ObservableObject {
             }
         }
         Analytics.track(.onboardingCompleted, [
-            "goals": answers.goals.map(\.rawValue).sorted().joined(separator: ","),
+            "goals": String(answers.goals.count),
             "vial": String(reconstitution != nil),
             "reminders": String(remindersOn),
         ])

@@ -6,6 +6,7 @@ Idempotent: reads first, writes only what is missing or different.
 - Copyright (same owner line as RepLock)
 - Content rights: uses third-party content (Open Food Facts data, ODbL)
 - Price: free (USA base territory)
+- Category: Health & Fitness, no secondary.
 - Availability: every territory except mainland China (needs an ICP filing
   number we do not have), new territories on.
 Env: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (or ASC_KEY_P8_FILE), DRY_RUN.
@@ -70,7 +71,7 @@ else:
     print("content rights: unchanged")
 
 # Price: free.
-r = requests.get(f"{BASE}/v1/apps/{APP_ID}/appPriceSchedule/manualPrices", headers={"Authorization": f"Bearer {token()}"})
+r = requests.get(f"{BASE}/v1/appPriceSchedules/{APP_ID}/manualPrices", headers={"Authorization": f"Bearer {token()}"}, timeout=60)
 if r.status_code == 200 and r.json().get("data"):
     print("price: already set")
 else:
@@ -102,4 +103,13 @@ else:
         "included": [{"type": "territoryAvailabilities", "id": f"${{{t}}}",
                       "attributes": {"available": t not in EXCLUDED},
                       "relationships": {"territory": {"data": {"type": "territories", "id": t}}}} for t in territories]})
+# Health & Fitness only: "Medical" as secondary invites stricter 1.4.1
+# scrutiny for no real visibility gain (decision 2026-10-29).
+infos = call("GET", f"/v1/apps/{APP_ID}/appInfos")["data"]
+info = next(i for i in infos if i["attributes"].get("state") != "READY_FOR_DISTRIBUTION")
+print("categories: Health & Fitness, no secondary")
+call("PATCH", f"/v1/appInfos/{info['id']}",
+     {"data": {"type": "appInfos", "id": info["id"], "relationships": {
+         "primaryCategory": {"data": {"type": "appCategories", "id": "HEALTH_AND_FITNESS"}},
+         "secondaryCategory": {"data": None}}}})
 print("dry run, nothing written" if DRY else "done")

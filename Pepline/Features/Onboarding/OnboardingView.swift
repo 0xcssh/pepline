@@ -434,7 +434,7 @@ private struct AccountScreen: View {
                     .foregroundStyle(PLColor.text)
             } else {
                 SignInWithAppleButton(.continue) { request in
-                    request.requestedScopes = [.fullName]
+                    request.requestedScopes = []
                 } onCompletion: { result in
                     Task {
                         await account.handle(result)
@@ -446,7 +446,7 @@ private struct AccountScreen: View {
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .staggered(2)
             }
-            Text("No password, no email shared, no data uploaded.")
+            Text("No password, no email shared. Your journal stays on this iPhone.")
                 .font(.footnote)
                 .foregroundStyle(PLColor.muted)
         }

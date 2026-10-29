@@ -26,6 +26,10 @@ struct SettingsView: View {
 
     private var unit: UnitMass { WeightUnitSetting.unit(unitSetting) }
 
+    /// TestFlight and development builds only: the App Store version has no
+    /// developer menu at all (guideline 2.3.1, no hidden features).
+    static var isTestBuild: Bool { Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt" }
+
     static let reviewURL = URL(string: "https://apps.apple.com/app/id6823184469?action=write-review")!
 
     var body: some View {
@@ -81,7 +85,7 @@ struct SettingsView: View {
                         Toggle("Also erase my journal", isOn: $eraseJournalWithAccount)
                         Button("Delete my account", role: .destructive) { confirmingAccountDeletion = true }
                     } else {
-                        SignInWithAppleButton(.signIn) { $0.requestedScopes = [.fullName] } onCompletion: { result in
+                        SignInWithAppleButton(.signIn) { $0.requestedScopes = [] } onCompletion: { result in
                             Task { await account.handle(result) }
                         }
                         .frame(height: 44)
@@ -102,18 +106,24 @@ struct SettingsView: View {
                 } header: {
                     Text("Nutrition")
                 } footer: {
-                    Text("Meal photos are sent to OpenAI for the estimate only, and are not kept.")
+                    Text("Meal photos are sent to OpenAI for the estimate only. Pepline does not keep them.")
                 }
 
                 Section {
                     Link(destination: Self.reviewURL) {
                         Label("Rate Pepline", systemImage: "star")
                     }
+                    Link(destination: PaywallFooter.privacyURL) {
+                        Label("Privacy Policy", systemImage: "hand.raised")
+                    }
+                    Link(destination: PaywallFooter.termsURL) {
+                        Label("Terms of Use", systemImage: "doc.text")
+                    }
                     Link(destination: URL(string: "mailto:awdianthony@gmail.com?subject=Pepline")!) {
                         Label("Contact support", systemImage: "envelope")
                     }
                 } footer: {
-                    Text("Your data stays on this iPhone. No account, no cloud.")
+                    Text("Your journal stays on this iPhone. No account required.")
                 }
 
                 Section {
@@ -124,12 +134,12 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                             .onTapGesture {
                                 versionTaps += 1
-                                if versionTaps >= 7 { developerMenu = true }
+                                if versionTaps >= 7, Self.isTestBuild { developerMenu = true }
                             }
                     }
                 }
 
-                if developerMenu {
+                if developerMenu && Self.isTestBuild {
                     Section {
                         Button { previewingPaywall = true } label: { Text(verbatim: "Show paywall") }
                         Button { previewingExitOffer = true } label: { Text(verbatim: "Show exit offer") }

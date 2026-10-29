@@ -45,6 +45,9 @@ final class SubscriptionManager: ObservableObject {
     @Published private(set) var expirationDate: Date?
 
     @Published private var packages: [Plan: Package] = [:]
+    /// Products whose free trial this Apple ID already used: shown and sold
+    /// without trial wording (no "nothing to pay now" for someone charged today).
+    @Published private var trialIneligible: Set<String> = []
 
     /// Set when the store confirmed a purchase that RevenueCat has not
     /// validated yet, so a late customer-info update cannot lock the app
@@ -125,7 +128,8 @@ final class SubscriptionManager: ObservableObject {
     /// Free-trial length in days, read from the product's introductory offer
     /// (change it in App Store Connect, the paywall follows). Nil = no trial.
     func trialDays(_ plan: Plan) -> Int? {
-        guard let intro = product(plan)?.introductoryDiscount, intro.paymentMode == .freeTrial else { return nil }
+        guard let product = product(plan), !trialIneligible.contains(product.productIdentifier),
+              let intro = product.introductoryDiscount, intro.paymentMode == .freeTrial else { return nil }
         let value = intro.subscriptionPeriod.value
         switch intro.subscriptionPeriod.unit {
         case .day: return value
@@ -157,6 +161,9 @@ final class SubscriptionManager: ObservableObject {
                 found[plan] = all.first { $0.storeProduct.productIdentifier == id }
             }
             packages = found
+            let ids = found.values.map(\.storeProduct.productIdentifier)
+            let eligibility = await Purchases.shared.checkTrialOrIntroDiscountEligibility(productIdentifiers: ids)
+            trialIneligible = Set(eligibility.filter { $0.value.status == .ineligible }.map(\.key))
         }
     }
 

@@ -21,7 +21,6 @@ struct ExitOfferView: View {
             if typeSize <= .large {
                 content.dynamicTypeSize(.medium)
                 content.dynamicTypeSize(.small)
-                content.dynamicTypeSize(.xSmall)
             }
             ScrollView { content }
         }
@@ -55,7 +54,7 @@ struct ExitOfferView: View {
 
             Group {
                 if let percent = subs.exitOfferPercent {
-                    Text("Wait: \(percent.formatted(.percent)) off, just for you")
+                    Text("Wait: \(percent.formatted(.percent)) off the yearly plan")
                 } else {
                     Text("A better price for Pepline Pro")
                 }

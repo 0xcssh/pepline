@@ -37,7 +37,7 @@ enum Analytics {
         case doseLogged = "Dose.logged"              // isNew, fromSchedule, hasSite
         case doseDeleted = "Dose.deleted"
         case doseSkipped = "Dose.skipped"            // from
-        case sideEffectLogged = "SideEffect.logged"  // symptom, severity
+        case sideEffectLogged = "SideEffect.logged"  // no parameters: no health data
         case regimenSaved = "Regimen.saved"          // pattern, times (count), reminders, reorder
         case weightLogged = "Weight.logged"
         case photoAdded = "Photo.added"
@@ -51,7 +51,7 @@ enum Analytics {
 
         // Onboarding funnel: one signal per step shown, then completion.
         case onboardingStep = "Onboarding.step"      // index (zero-padded), step
-        case onboardingCompleted = "Onboarding.completed" // goals, experience (enum names only)
+        case onboardingCompleted = "Onboarding.completed" // goals (count), vial, reminders
         case reviewRequested = "Review.requested"    // where
 
         // Monetization

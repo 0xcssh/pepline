@@ -29,7 +29,6 @@ struct PaywallView: View {
             if typeSize <= .large {
                 content.dynamicTypeSize(.medium)
                 content.dynamicTypeSize(.small)
-                content.dynamicTypeSize(.xSmall)
             }
             ScrollView { content }
         }
@@ -110,7 +109,7 @@ struct PaywallView: View {
                 .buttonStyle(.primaryPill)
                 .disabled(purchasing)
                 if subs.trialDays(subs.selectedPlan) != nil {
-                    Label("No payment now. Cancel anytime in two taps.", systemImage: "checkmark.shield.fill")
+                    Label("No payment now. Cancel anytime in your App Store settings.", systemImage: "checkmark.shield.fill")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(PLColor.text)
                 }
@@ -166,23 +165,26 @@ struct PaywallView: View {
                         }
                     }
                     if plan == .yearly {
-                        if let perMonth = subs.perMonth(.yearly) {
-                            Text("Only \(perMonth) / month")
+                        // Guideline 3.1.2(c): the amount billed is the most
+                        // prominent price; the monthly equivalent (SOSA p22)
+                        // comes second, smaller.
+                        if let price = subs.price(.yearly) {
+                            Text("\(price) / year")
                                 .font(.title.weight(.heavy))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.7)
                                 .foregroundStyle(selected ? PLColor.accent : PLColor.text)
                         }
-                        if let price = subs.price(.yearly) {
+                        if let perMonth = subs.perMonth(.yearly) {
                             Group {
                                 if let days = subs.trialDays(.yearly) {
-                                    Text("\(price) per year · \(String(days)) days free")
+                                    Text("That's \(perMonth) / month · \(String(days)) days free")
                                 } else {
-                                    Text("\(price) per year")
+                                    Text("That's \(perMonth) / month")
                                 }
                             }
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(PLColor.text)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(PLColor.muted)
                         }
                     } else {
                         if let price = subs.price(.monthly) {
