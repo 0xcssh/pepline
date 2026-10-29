@@ -74,7 +74,7 @@ final class MarketingScreenshotTests: XCTestCase {
                 // App Store screenshots must not have an alpha channel.
                 let opaque = UIGraphicsImageRenderer(size: image.size, format: {
                     let format = UIGraphicsImageRendererFormat()
-                    format.scale = 1
+                    format.scale = image.scale  // keep 1290 x 2796 pixels, not 430 x 932 points
                     format.opaque = true
                     return format
                 }()).image { _ in image.draw(at: .zero) }
