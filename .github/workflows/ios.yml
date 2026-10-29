@@ -61,6 +61,10 @@ jobs:
           python3 scripts/check_core_coverage.py build/coverage.json
 
       - name: Render store screenshots per language
+        # One simulator relaunch per language (~3 min each): only on pushes,
+        # so a release build (workflow_dispatch) never waits for it.
+        if: github.event_name == 'push'
+        timeout-minutes: 45
         run: |
           set -o pipefail
           DEVICE=$(xcrun simctl list devices available | grep -Eo 'iPhone [^(]+' | head -1 | xargs)
