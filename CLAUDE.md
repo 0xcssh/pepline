@@ -174,8 +174,8 @@ Meta/Google health ad policies first. App Store/ASO comes first.
 
 All set in Vercel (pepline-api, Production) and kept in the All in one vault
 (`Bureau/All in one/scripts/vault-get.ps1`, every decrypt needs the owner's
-OK): `OPENAI_API_KEY` (vault `pepline/openai-api-key.txt`; the OpenAI account
-had **no credits** on 2026-10-27 → scans answer 503 until it is topped up),
+OK): `OPENAI_API_KEY` (vault `pepline/openai-api-key.txt`; credits added 2026-10-29, test call
+OK: ~144 tokens for a photo, about $0.00003),
 `REVENUECAT_SECRET_KEY` (vault `replock/revenuecat_v2.key`, same RevenueCat
 project), `APPLE_KEY_ID` `27XC5K46K6` + `APPLE_PRIVATE_KEY` (vault
 `pepline/AuthKey_27XC5K46K6-…p8`; mislabelled "cyranox ASC key" in the vault
@@ -258,6 +258,6 @@ copies.
   age rating, subscription review screenshots (all READY_TO_SUBMIT).
 - [x] 2026-10-27 Food scan moved to OpenAI (`gpt-6-luna`); all server secrets
   set from the All in one vault; both endpoints verified live.
-- [ ] Owner: add OpenAI credits; App Review contact (name,
+- [ ] Owner: App Review contact (name,
   phone) + notes from `docs/APP_REVIEW.md`; App Privacy questionnaire; pick
   the build and submit. Quote guidelines 3.1.2 and 5.1.2(i) in SOURCES.
