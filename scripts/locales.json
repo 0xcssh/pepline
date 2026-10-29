@@ -1,7 +1,16 @@
 {
-  "_comment": "Single source of truth for the app's languages. The String Catalog check and the store/listing/screenshot scripts read this file; nothing else lists languages. 'asc' maps each app language to its App Store Connect locale.",
+  "_comment": "Single source of truth for the app's languages. The String Catalog check and the store/listing/screenshot scripts read this file; nothing else lists languages. 'asc' maps each app language to its App Store Connect locale. 'region' is the simulator region used to render each language's store screenshots.",
   "source": "en",
-  "app": ["fr", "es", "de", "it", "pt-BR", "ja", "ko", "zh-Hans"],
+  "app": [
+    "fr",
+    "es",
+    "de",
+    "it",
+    "pt-BR",
+    "ja",
+    "ko",
+    "zh-Hans"
+  ],
   "asc": {
     "en": "en-US",
     "fr": "fr-FR",
@@ -12,5 +21,16 @@
     "ja": "ja",
     "ko": "ko",
     "zh-Hans": "zh-Hans"
+  },
+  "region": {
+    "en": "US",
+    "fr": "FR",
+    "es": "ES",
+    "de": "DE",
+    "it": "IT",
+    "pt-BR": "BR",
+    "ja": "JP",
+    "ko": "KR",
+    "zh-Hans": "CN"
   }
 }

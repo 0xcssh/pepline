@@ -60,6 +60,26 @@ jobs:
           xcrun xccov view --report --json build/Tests.xcresult > build/coverage.json
           python3 scripts/check_core_coverage.py build/coverage.json
 
+      - name: Render store screenshots per language
+        run: |
+          set -o pipefail
+          DEVICE=$(xcrun simctl list devices available | grep -Eo 'iPhone [^(]+' | head -1 | xargs)
+          # Languages and regions come from scripts/locales.json only.
+          python3 -c 'import json; d=json.load(open("scripts/locales.json")); [print(l, d["asc"][l], d["region"][l]) for l in [d["source"]] + d["app"]]' |
+          while read LANG STORE REGION; do
+            echo "== $LANG ($STORE, $REGION)"
+            TEST_RUNNER_SNAPSHOT_DIR="${{ github.workspace }}/build/snapshots" \
+            TEST_RUNNER_APP_LANG="$LANG" TEST_RUNNER_STORE_LOCALE="$STORE" \
+            xcodebuild test-without-building \
+              -project Pepline.xcodeproj \
+              -scheme Pepline \
+              -destination "platform=iOS Simulator,name=$DEVICE" \
+              -only-testing:PeplineTests/MarketingScreenshotTests \
+              -testLanguage "$LANG" -testRegion "$REGION" \
+              CODE_SIGNING_ALLOWED=NO > "build/shots-$LANG.log" 2>&1 || { tail -40 "build/shots-$LANG.log"; exit 1; }
+          done
+          ls build/snapshots/appstore
+
       - name: Upload rendered snapshots
         if: always()
         uses: actions/upload-artifact@v4

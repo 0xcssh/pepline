@@ -8,11 +8,6 @@ import XCTest
 /// data. Captions are marketing copy for the store, not app strings.
 @MainActor
 final class MarketingScreenshotTests: XCTestCase {
-    /// App language → App Store locale; en-GB/AU/CA reuse en-US at upload.
-    private let locales: [(app: String, store: String)] = [
-        ("en", "en-US"), ("fr", "fr-FR"), ("es", "es-ES"), ("de", "de-DE"), ("it", "it"),
-        ("pt-BR", "pt-BR"), ("ja", "ja"), ("ko", "ko"), ("zh-Hans", "zh-Hans"),
-    ]
 
     /// Order = the sales story: the daily gesture first, then exactness,
     /// rotation, nutrition, motivation, the doctor. Each frame: a benefit
@@ -76,31 +71,30 @@ final class MarketingScreenshotTests: XCTestCase {
     ]
 
     func testRenderAppStoreScreenshots() throws {
-        guard let directory = ProcessInfo.processInfo.environment["SNAPSHOT_DIR"] else {
-            throw XCTSkip("SNAPSHOT_DIR not set")
+        // CI runs this test once per language with -testLanguage/-testRegion
+        // (languages from scripts/locales.json), so every number, date and
+        // app string is formatted by the system exactly as users will see it.
+        let env = ProcessInfo.processInfo.environment
+        guard let directory = env["SNAPSHOT_DIR"], let app = env["APP_LANG"], let store = env["STORE_LOCALE"] else {
+            throw XCTSkip("store screenshots render only in the per-language CI step")
         }
         let root = URL(fileURLWithPath: directory).appendingPathComponent("appstore")
         let components = try sampleComponents()
-        for (app, store) in locales {
+        do {
             let folder = root.appendingPathComponent(store)
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             for (index, caption) in (captions[app] ?? []).enumerated() {
                 let frame = MarketingFrame(title: caption.0, subtitle: caption.1) { components[index] }
-                    .environment(\.locale, Locale(identifier: app))
                     .environment(\.colorScheme, .dark)
                     .fontDesign(.rounded)
                     .frame(width: 430, height: 932)
                 let renderer = ImageRenderer(content: frame)
                 renderer.scale = 3
                 let image = try XCTUnwrap(renderer.uiImage)
-                // App Store screenshots must not have an alpha channel.
-                let opaque = UIGraphicsImageRenderer(size: image.size, format: {
-                    let format = UIGraphicsImageRendererFormat()
-                    format.scale = image.scale  // keep 1290 x 2796 pixels, not 430 x 932 points
-                    format.opaque = true
-                    return format
-                }()).image { _ in image.draw(at: .zero) }
-                try XCTUnwrap(opaque.pngData()).write(to: folder.appendingPathComponent("\(index + 1).png"))
+                // JPEG: no alpha channel, which App Store screenshots must not
+                // have; 1290 x 2796 pixels (430 x 932 points at scale 3).
+                try XCTUnwrap(image.jpegData(compressionQuality: 0.92))
+                    .write(to: folder.appendingPathComponent("\(index + 1).jpg"))
             }
         }
     }
@@ -185,9 +179,10 @@ private struct MarketingFrame<Content: View>: View {
                 .font(.system(size: 20, weight: .medium, design: .rounded))
                 .foregroundStyle(PLColor.accent)
                 .multilineTextAlignment(.center)
-            Spacer(minLength: 20)
             content()
-            Spacer(minLength: 30)
+                .scaleEffect(1.08)
+                .padding(.top, 48)
+            Spacer(minLength: 0)
         }
         .padding(.horizontal, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

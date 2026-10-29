@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Replace the iPhone 6.7" screenshots of every localization of the editable
-App Store version with the PNGs in SHOTS_DIR/<locale>/<n>.png.
+App Store version with the images in SHOTS_DIR/<locale>/<n>.jpg (or .png).
 
 Locales without their own folder fall back (en-GB/en-AU/en-CA -> en-US).
 Env: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (or ASC_KEY_P8_FILE), APP_ID, SHOTS_DIR, DRY_RUN,
@@ -73,7 +73,7 @@ for loc in locs:
     locale = loc["attributes"]["locale"]
     src = FALLBACK.get(locale, locale)
     folder = os.path.join(SHOTS, src)
-    files = sorted((f for f in os.listdir(folder) if f.endswith(".png")), key=lambda f: int(f.split(".")[0])) if os.path.isdir(folder) else []
+    files = sorted((f for f in os.listdir(folder) if f.endswith((".png", ".jpg"))), key=lambda f: int(f.split(".")[0])) if os.path.isdir(folder) else []
     if not files:
         print(f"{locale}: no images for {src}, skipped")
         continue
