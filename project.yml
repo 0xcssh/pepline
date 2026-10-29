@@ -34,6 +34,9 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.awdia.pepline
+        # iPhone only. XcodeGen's iOS preset sets "1,2" per target, which
+        # overrides the project-level value and made ASC require iPad shots.
+        TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     entitlements:
       path: Pepline/Pepline.entitlements
@@ -84,6 +87,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.awdia.pepline.widget
+        TARGETED_DEVICE_FAMILY: "1"
     info:
       path: PeplineWidget/Info.plist
       properties:
