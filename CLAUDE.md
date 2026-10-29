@@ -258,6 +258,11 @@ copies.
   age rating, subscription review screenshots (all READY_TO_SUBMIT).
 - [x] 2026-10-27 Food scan moved to OpenAI (`gpt-6-luna`); all server secrets
   set from the All in one vault; both endpoints verified live.
-- [ ] Owner: App Review contact (name,
+- [x] 2026-10-29 Pre-submission audit fixed (3.1.2(c) billed price most
+  prominent, trial eligibility, privacy/terms links, no health data in
+  analytics, dev menu TestFlight-only); 6 localized screenshots × 12 locales
+  rendered per language in CI (all COMPLETE); build 13 attached to 1.0.0;
+  category Health & Fitness only; peptide presets kept (owner decision).
+- [ ] Owner: tick the 3 subscriptions on the 1.0.0 page; App Review contact (name,
   phone) + notes from `docs/APP_REVIEW.md`; App Privacy questionnaire; pick
   the build and submit. Quote guidelines 3.1.2 and 5.1.2(i) in SOURCES.
